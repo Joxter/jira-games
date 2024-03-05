@@ -4,9 +4,8 @@
   grid-template-areas:
     "header header header"
     "left content right";
-  grid-template-columns: 260px 1fr 300px;
+  grid-template-columns: 260px 1fr 400px;
   height: 100vh;
-  /* overflow: hidden; */
 }
 
 .header {
@@ -22,17 +21,22 @@
   grid-area: left;
   background-color: #fff;
   border-right: 2px solid #edeff1;
+  overflow: scroll;
+  margin: 8px;
 }
 
 .content {
   grid-area: content;
   background-color: #fff;
   overflow: scroll;
+  margin: 12px 32px;
 }
 
 .right {
   background-color: #fff;
   grid-area: right;
+  margin: 8px;
+  overflow: auto;
 }
 
 .overlay {
