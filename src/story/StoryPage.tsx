@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import css from "./StoryPage.module.css";
 import overlay from "./overlay-img.png";
+import { Header } from "./Header";
 
 export function StoryPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
@@ -9,11 +10,8 @@ export function StoryPage() {
   );
 
   useEffect(() => {
-    // toggle isOverlayhow on press "Q" ion the keyboard
-
     const onKeyDown = (e: KeyboardEvent) => {
-      console.log(e.key);
-      if (e.key === "q") {
+      if (e.key === "z") {
         setIsOverlayhow((val) => !val);
       }
     };
@@ -89,7 +87,9 @@ export function StoryPage() {
         })}
       </div>
       <div class={css.root}>
-        <div class={css.header}>header</div>
+        <div class={css.header}>
+          <Header />
+        </div>
         <div class={css.left}>
           {Array(100)
             .fill(0)

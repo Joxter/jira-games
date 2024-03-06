@@ -26,3 +26,11 @@ body {
 #app {
   height: 100%;
 }
+
+button {
+  font: inherit;
+}
+
+button:hover {
+  cursor: pointer;
+}
