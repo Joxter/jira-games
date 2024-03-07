@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks";
 import css from "./StoryPage.module.css";
 import overlay from "./overlay-img.png";
 import { Header } from "./Header";
+import { Right } from "./Right";
 import { Left } from "./Left";
 
 export function StoryPage() {
@@ -92,7 +93,7 @@ export function StoryPage() {
           <Left />
         </div>
         <div class={css.content}>
-          <h1>Stpry page</h1>
+          <h1>Story</h1>
           {Array(100)
             .fill(0)
             .map((_, i) => {
@@ -100,13 +101,7 @@ export function StoryPage() {
             })}
         </div>
         <div class={css.right}>
-          <h2>ready for development</h2>
-          <div class={css.rightBox}>datails</div>
-          {Array(100)
-            .fill(0)
-            .map((_, i) => {
-              return <p>{i}, 123</p>;
-            })}
+          <Right />
         </div>
       </div>
     </>

@@ -1,4 +1,3 @@
-import { useState } from "preact/hooks";
 import css from "./Left.module.css";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { cn } from "../unit";

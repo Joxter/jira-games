@@ -1,0 +1,14 @@
+.root {
+  display: grid;
+  gap: 4px;
+  height: 100%;
+  font-weight: 500;
+  color: #4f565b;
+}
+
+.dropdown {
+  border: 1px solid #edeff1;
+  padding: 8px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
