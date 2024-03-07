@@ -46,38 +46,45 @@ export function Left() {
         </NavLink>
       </div>
 
-      <p>Issues</p>
+      <NavLink isCurrent>
+        <img src={iconA} alt="" />
+        Issues
+      </NavLink>
+
       <p>Components [new]</p>
 
       <h2 class={css.header}>Development</h2>
-      <p>Code</p>
-      <p>Security</p>
+      <NavLink isCurrent>
+        <img src={iconD} alt="" />
+        Code
+      </NavLink>
+      <NavLink>
+        <img src={iconB} alt="" />
+        Security
+      </NavLink>
 
-      <p>---------</p>
+      <div class={css.separator}></div>
       <h2 class={css.header}>something</h2>
-      <p>Project pages</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
-      <p>-</p>
+      <NavLink>
+        <img src={iconC} alt="" />
+        Security
+      </NavLink>
+      <div style={{ height: "300px" }}></div>
     </div>
   );
 }
 
 function NavLink({
   href,
+  isCurrent,
   children,
 }: {
   href?: string;
+  isCurrent?: boolean;
   children: ComponentChildren;
 }) {
   return (
-    <a href={href || "#"} class={css.navLink}>
+    <a href={href || "#"} class={cn(css.navLink, isCurrent && css.current)}>
       {children}
     </a>
   );
