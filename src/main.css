@@ -7,6 +7,8 @@
 
   color: #213547;
   background-color: #ffffff;
+
+  --text-secondary: #6c7a89;
 }
 
 * {
@@ -33,4 +35,15 @@ button {
 
 button:hover {
   cursor: pointer;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  padding: 0;
 }
