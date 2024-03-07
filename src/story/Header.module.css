@@ -16,6 +16,13 @@
   background: transparent;
   display: flex;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 0;
+  /* padding: 4px 8px; */
   align-items: center;
+  height: 100%;
+}
+
+.currentNav {
+  padding-top: 3px;
+  border-bottom: 3px solid #213547;
 }
