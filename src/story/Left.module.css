@@ -2,6 +2,8 @@
   display: grid;
   gap: 8px;
   height: 100%;
+  font-weight: 500;
+  color: #4f565b;
 }
 
 .project {
@@ -40,4 +42,45 @@
   margin-top: 20px;
   padding: 0 14px;
   font-size: 12px;
+}
+
+.grayBox {
+  background-color: var(--gray-bg);
+  border-radius: 12px;
+  padding: 8px 0;
+}
+
+.gbHeader {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  justify-content: space-between;
+  line-height: 1;
+  padding-bottom: 8px;
+
+  h3 {
+    font-size: 14px;
+  }
+
+  p {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+}
+
+.navLink {
+  padding: 2px 16px;
+  display: flex;
+  gap: 4px;
+  text-decoration: none;
+  font-size: 14px;
+  color: inherit;
+  margin-bottom: 12px;
+
+  img {
+    max-width: 24px;
+    max-height: 24px;
+  }
 }

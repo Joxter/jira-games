@@ -2,6 +2,11 @@ import { useState } from "preact/hooks";
 import css from "./Left.module.css";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { cn } from "../unit";
+import { ComponentChildren } from "preact";
+import iconA from "../assets/icons/ic-actions-add-file.svg";
+import iconB from "../assets/icons/ic-media-backward.svg";
+import iconC from "../assets/icons/ic-chevron-left-right.svg";
+import iconD from "../assets/icons/ic-devices-controller.svg";
 
 export function Left() {
   return (
@@ -9,21 +14,36 @@ export function Left() {
       <div class={css.project}>
         <img src="https://placehold.co/30x20" />
         <div class={css.projectCont}>
-          <h2>Giftcards Giftcards Giftcards Giftcards Giftcards</h2>
+          <h2>{"Giftcards".repeat(1)}</h2>
           <p>Software project</p>
         </div>
       </div>
 
       <h2 class={css.header}>Planning</h2>
-      <div>
-        <div>
-          Giftcards board
+      <div class={css.grayBox}>
+        <div class={css.gbHeader}>
+          <div>
+            <h3>Giftcards board</h3>
+            <p>Board</p>
+          </div>
           <ChevronIcon />
         </div>
-        <p>Timeline</p>
-        <p>Backlog</p>
-        <p>Canban</p>
-        <p>Reports</p>
+        <NavLink>
+          <img src={iconA} alt="" />
+          Timeline
+        </NavLink>
+        <NavLink>
+          <img src={iconB} alt="" />
+          Backlog
+        </NavLink>
+        <NavLink>
+          <img src={iconC} alt="" />
+          Canban
+        </NavLink>
+        <NavLink>
+          <img src={iconD} alt="" />
+          Reports
+        </NavLink>
       </div>
 
       <p>Issues</p>
@@ -46,5 +66,19 @@ export function Left() {
       <p>-</p>
       <p>-</p>
     </div>
+  );
+}
+
+function NavLink({
+  href,
+  children,
+}: {
+  href?: string;
+  children: ComponentChildren;
+}) {
+  return (
+    <a href={href || "#"} class={css.navLink}>
+      {children}
+    </a>
   );
 }

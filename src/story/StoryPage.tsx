@@ -44,9 +44,6 @@ export function StoryPage() {
           border: "1px solid #ccc",
           background: "#fff",
         }}
-        onClick={() => {
-          setIsOverlayhow(!isOverlayhow);
-        }}
       >
         <input
           type="checkbox"

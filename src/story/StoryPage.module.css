@@ -23,6 +23,8 @@
   border-right: 2px solid #edeff1;
   overflow: scroll;
   margin: 8px;
+  padding-left: 4px;
+  padding-right: 8px;
 }
 
 .content {
