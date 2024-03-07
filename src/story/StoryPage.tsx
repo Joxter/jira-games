@@ -1,9 +1,11 @@
 import { useEffect, useState } from "preact/hooks";
 import css from "./StoryPage.module.css";
 import overlay from "./overlay-img.png";
+import overlay2 from "./overlay-img-2.png";
 import { Header } from "./Header";
 import { Right } from "./Right";
 import { Left } from "./Left";
+import { Center } from "./Center";
 
 export function StoryPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
@@ -32,7 +34,7 @@ export function StoryPage() {
           style={{
             opacity: String(+opacity / 100),
           }}
-          src={overlay}
+          src={overlay2}
         />
       )}
       <label
@@ -93,12 +95,7 @@ export function StoryPage() {
           <Left />
         </div>
         <div class={css.content}>
-          <h1>Story</h1>
-          {Array(100)
-            .fill(0)
-            .map((_, i) => {
-              return <p>{i}, 123</p>;
-            })}
+          <Center />
         </div>
         <div class={css.right}>
           <Right />
