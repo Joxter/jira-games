@@ -1,14 +1,91 @@
 .root {
   display: grid;
-  gap: 4px;
+  gap: 8px;
   height: 100%;
   font-weight: 500;
-  color: #4f565b;
+  color: #3f454a;
+  padding: 22px 12px;
+  align-content: start;
+}
+
+.topIcons {
+  display: flex;
+  justify-content: right;
+  gap: 18px;
+
+  img {
+    max-width: 24px;
+    max-height: 24px;
+  }
+}
+
+.mainActions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
 }
 
 .dropdown {
   border: 1px solid #edeff1;
-  padding: 8px;
-  margin-top: 20px;
   border-radius: 4px;
+
+  .ddHeader {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+    padding: 12px;
+    font-weight: 600;
+  }
+
+  .ddContent {
+    padding: 12px;
+    border-top: 1px solid #edeff1;
+  }
+}
+
+.infoBlock {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  font-weight: 400;
+  gap: 12px;
+
+  .ibTitle {
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+
+.infoBlock + .infoBlock {
+  margin-top: 12px;
+}
+
+.person {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 12px;
+
+  .pIcon {
+    width: 24px;
+    height: 24px;
+    background-color: coral;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+}
+
+.linkButton {
+  display: inline-block;
+  margin-top: 12px;
+  color: blue;
+}
+
+.grayText {
+  font-size: 13px;
+  /* line-height: 1;
+  margin-top: 4px; */
+  color: var(--text-secondary);
 }
