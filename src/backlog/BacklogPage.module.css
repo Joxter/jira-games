@@ -88,3 +88,51 @@
   border: 1px solid #e1e3e5;
   margin-top: 12px;
 }
+
+.cards {
+  display: grid;
+  gap: 1px 12px;
+  grid-template-columns: 65px max-content 1fr 150px 50px;
+  background-color: #e1e3e5;
+}
+
+.card {
+  padding: 3px 0;
+  background-color: #fff;
+  align-items: center;
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / 6;
+  font-size: 14px;
+}
+
+.cardIcon {
+  grid-column: 1 / 2;
+  justify-self: end;
+}
+
+.cardCode {
+  color: #655f5f;
+  grid-column: 2 / 3;
+}
+
+.cardText {
+  grid-column: 3 / 4;
+}
+
+.cardLabel {
+  grid-column: 4 / 5;
+  border-radius: 4px;
+  background-color: #edf4ff;
+  color: rgb(59, 100, 225);
+  line-height: 1;
+  padding: 4px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.cardPerson {
+  grid-column: 5 / 6;
+  width: 25px;
+}

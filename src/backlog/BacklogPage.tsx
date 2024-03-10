@@ -3,9 +3,12 @@ import css from "./BacklogPage.module.css";
 import overlay from "./image.png";
 import { Left } from "../story/Left";
 import { Header } from "../story/Header";
+import user from "../assets/icons/ic-users-info.svg";
 import { Header as InnerHeader } from "./Header";
 import { ComponentChildren } from "preact";
 import { ChevronIcon } from "../ui/ChevronIcon";
+import { CartRound } from "./CartRound";
+import { cn, lorem, random } from "../unit";
 
 export function BacklogPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
@@ -96,11 +99,36 @@ export function BacklogPage() {
         </div>
         <div class={css.content}>
           <InnerHeader />
-          <GrayBox title="Finish desk">
-            <p>foo</p>
-          </GrayBox>
+          {/* <GrayBox title="Finish desk">
+            <div class={css.cards}>
+              <Card name="" type="♣" text={"[No club] " + lorem(5, 20)} />
+              <Card name="4" type="♥" text={"[4 hearts] " + lorem(5, 20)} />
+              <Card name="9" type="♠" text={"[9 spades] " + lorem(5, 20)} />
+              <Card name="Q" type="♦" text={"[Q diamonds] " + lorem(5, 20)} />
+            </div>
+          </GrayBox> */}
           <GrayBox title="Board">
-            <p>foo</p>
+            <div class={css.cards}>
+              <Card name="3" type="♣" text={"I " + lorem(random(10, 20))} />
+              <Card name="A" type="♥" text={"II " + lorem(random(10, 20))} />
+              <Card name="9" type="♦" text={"III " + lorem(random(10, 20))} />
+              <Card name="Q" type="♠" text={"IIII " + lorem(random(10, 20))} />
+              <Card
+                name="3"
+                type="♣"
+                text={"IIIII " + lorem(random(10, 20))}
+              />
+              <Card
+                name="A"
+                type="♠"
+                text={"IIIIII " + lorem(random(10, 20))}
+              />
+              <Card
+                name="9"
+                type="♥"
+                text={"IIIIIII " + lorem(random(10, 20))}
+              />
+            </div>
           </GrayBox>
         </div>
       </div>
@@ -129,6 +157,28 @@ function GrayBox({
         </div>
       </div>
       <div class={css.greyContent}>{children}</div>
+    </div>
+  );
+}
+
+function Card({
+  type,
+  name,
+  text,
+}: {
+  type: string;
+  name: string;
+  text: string;
+}) {
+  return (
+    <div class={css.card}>
+      <div class={css.cardIcon}>
+        <CartRound type={type} name={name} />
+      </div>
+      <p class={css.cardCode}>SCRU-{random(10, 5000)}</p>
+      <p class={cn(css.cardText, "textOverflow")}>{text}</p>
+      <p class={cn(css.cardLabel, "textOverflow")}>ready to development</p>
+      <img class={css.cardPerson} src={user} alt="" />
     </div>
   );
 }

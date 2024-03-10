@@ -13,9 +13,7 @@ export function Header() {
         style={{
           border: "1px solid #333",
         }}
-        src={
-          "https://placehold.co/180x40/fdcf39/000?font=raleway&text=Woolsocks"
-        }
+        src={"https://placehold.co/180x40/fdcf39/000?font=raleway&text=Scru.me"}
       />
       <NavigationItem>Your work</NavigationItem>
       <NavigationItem isCurrent>Projects</NavigationItem>

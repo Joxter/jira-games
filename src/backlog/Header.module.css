@@ -78,6 +78,11 @@
   align-items: center;
   font-size: 14px;
   font-weight: 500;
-  padding: 0 7px;
+  padding: 2px 7px;
   gap: 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #d8d9db;
+  }
 }

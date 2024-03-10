@@ -32,11 +32,11 @@ export function Header() {
           <img src={search} alt="" />
         </div>
         <Pile />
-        {["Version", "Epic", "Label"].map((text) => {
+        {["--- ♣", "three ♦", "two ♥", "five ♠"].map((text) => {
           return (
             <p class={css.fakeAction}>
               {text}
-              <ChevronIcon size={18} />
+              {/* <ChevronIcon size={18} /> */}
             </p>
           );
         })}
