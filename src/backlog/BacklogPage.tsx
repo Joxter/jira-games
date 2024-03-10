@@ -4,6 +4,8 @@ import overlay from "./image.png";
 import { Left } from "../story/Left";
 import { Header } from "../story/Header";
 import { Header as InnerHeader } from "./Header";
+import { ComponentChildren } from "preact";
+import { ChevronIcon } from "../ui/ChevronIcon";
 
 export function BacklogPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
@@ -94,9 +96,39 @@ export function BacklogPage() {
         </div>
         <div class={css.content}>
           <InnerHeader />
-          {Array(30).fill(<p>123</p>)}
+          <GrayBox title="Finish desk">
+            <p>foo</p>
+          </GrayBox>
+          <GrayBox title="Board">
+            <p>foo</p>
+          </GrayBox>
         </div>
       </div>
     </>
+  );
+}
+
+function GrayBox({
+  children,
+  title,
+}: {
+  children: ComponentChildren;
+  title: string;
+}) {
+  return (
+    <div class={css.greyBox}>
+      <div class={css.greyHeader}>
+        <p>
+          <ChevronIcon size={16} />
+          {title}
+        </p>
+        <div class={css.greyStats}>
+          <span style={{ backgroundColor: "gray" }}>4</span>
+          <span style={{ backgroundColor: "red" }}>10</span>
+          <span style={{ backgroundColor: "green" }}>0</span>
+        </div>
+      </div>
+      <div class={css.greyContent}>{children}</div>
+    </div>
   );
 }

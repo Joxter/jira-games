@@ -32,7 +32,7 @@
   background-color: #fff;
   overflow: scroll;
   padding: 20px;
-  /* align-self: st; */
+  margin-right: 20px;
 }
 
 .overlay {
@@ -45,4 +45,46 @@
   height: auto;
   z-index: 1;
   pointer-events: none;
+}
+
+.greyBox {
+  background-color: #f7f7f7;
+  padding: 8px;
+  margin-top: 16px;
+  border-radius: 8px;
+}
+
+.greyHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-left: 20px;
+  align-items: center;
+  font-weight: 600;
+
+  p {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+  }
+
+  .greyStats {
+    display: flex;
+    gap: 8px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+
+    span {
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+  }
+}
+
+.greyContent {
+  background-color: #fff;
+  border: 1px solid #e1e3e5;
+  margin-top: 12px;
 }
