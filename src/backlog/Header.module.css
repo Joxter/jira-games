@@ -1,8 +1,84 @@
 .root {
-  /* height: 100%; */
-
-  p {
-    margin: 0;
-    padding: 0;
+  margin-right: 20px;
+  h1 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-top: 4px;
   }
+}
+
+.breadCrumbs {
+  font-size: 14px;
+}
+
+.row2 {
+  display: flex;
+  justify-content: space-between;
+}
+
+.row2actions {
+  display: flex;
+  gap: 14px;
+
+  div {
+    width: 30px;
+    height: 30px;
+    padding: 4px;
+    border-radius: 4px;
+  }
+
+  img {
+    display: block;
+    opacity: 0.8;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.row3 {
+  display: flex;
+  margin-top: 18px;
+  gap: 20px;
+  align-items: center;
+}
+
+.fakeSearch {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 120px;
+  border: 2px solid #d8d9db;
+  padding: 10px;
+  border-radius: 3px;
+
+  img {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.pile {
+  display: flex;
+  flex-direction: row-reverse;
+  position: relative;
+
+  button {
+    position: relative;
+    margin: 0 -3px;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #fff;
+    color: #fff;
+    border-radius: 100%;
+    font-size: 14px;
+    letter-spacing: -1px;
+  }
+}
+
+.fakeAction {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 7px;
+  gap: 8px;
 }
