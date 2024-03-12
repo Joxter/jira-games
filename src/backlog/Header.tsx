@@ -3,9 +3,24 @@ import search from "../assets/icons/ic-actions-search.svg";
 import icon1 from "../assets/icons/ic-social-behance.svg";
 import icon2 from "../assets/icons/ic-places-carousel.svg";
 import icon3 from "../assets/icons/ic-mobile-full-wifi.svg";
-import { ChevronIcon } from "../ui/ChevronIcon";
+import { DestinationTo, Finish, CardSuits, Card, printCard } from "./solitaire";
 
-export function Header() {
+export function Header({
+  finish,
+  pile,
+  possible,
+  onClick,
+  onOpenCardClick,
+  onPileCardClick,
+}: {
+  finish: Finish;
+  pile: Card[];
+  possible: (DestinationTo | "open")[];
+  onClick: (to: "f0" | "f1" | "f2" | "f3") => void;
+  onOpenCardClick: () => void;
+  onPileCardClick: () => void;
+}) {
+  // console.log(pile.filter((c) => c.isFaceUp));
   return (
     <div class={css.root}>
       <p class={css.breadCrumbs}>Projects / Giftcards / Giftcard boards</p>
@@ -18,11 +33,7 @@ export function Header() {
           <div>
             <img src={icon2} alt="" />
           </div>
-          <div
-            style={{
-              backgroundColor: "#eff0f0",
-            }}
-          >
+          <div style={{ backgroundColor: "#eff0f0" }}>
             <img src={icon3} alt="" />
           </div>
         </div>
@@ -31,41 +42,58 @@ export function Header() {
         <div class={css.fakeSearch}>
           <img src={search} alt="" />
         </div>
-        <Pile />
-        {["--- ♣", "three ♦", "two ♥", "five ♠"].map((text) => {
+        <div class={css.pile}>
+          {pile
+            .filter((c) => c.isFaceUp)
+            .slice(0, 3)
+            .reverse()
+            .map((card, i) => {
+              return (
+                <button
+                  class={"resetButton"}
+                  style={{ backgroundColor: i % 2 ? "red" : "black" }}
+                  onClick={() => {
+                    onPileCardClick();
+                  }}
+                >
+                  {printCard(card)}
+                </button>
+              );
+            })}
+          <button
+            class={"resetButton"}
+            style={{ backgroundColor: "#999", borderColor: "gray" }}
+            onClick={() => {
+              onOpenCardClick();
+            }}
+          >
+            +1
+          </button>
+        </div>
+        {finish.map((stack, i) => {
+          let last = stack.at(-1)!;
+          let isPossible = possible.includes(("f" + i) as any);
+
+          let suit = CardSuits[last.suit];
+
           return (
-            <p class={css.fakeAction}>
-              {text}
-              {/* <ChevronIcon size={18} /> */}
+            <p
+              class={css.fakeAction}
+              style={{
+                backgroundColor: isPossible ? "green" : "",
+                color: suit.color,
+              }}
+              onClick={() => {
+                if (isPossible) {
+                  onClick(("f" + i) as any);
+                }
+              }}
+            >
+              {last ? printCard(last)[0] : "-"} {suit.char}
             </p>
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function Pile() {
-  // clubs (♣), diamonds (♦), hearts (♥) and spades (♠)
-  // types: ['c', 'd', 'h', 's'],
-  return (
-    <div class={css.pile}>
-      {["3♣", "A♥", "9♠", "Q♦", "2♣", "K♠"].slice(3).map((card, i) => {
-        return (
-          <button
-            class={"resetButton"}
-            style={{ backgroundColor: i % 2 ? "red" : "black" }}
-          >
-            {card}
-          </button>
-        );
-      })}
-      <button
-        class={"resetButton"}
-        style={{ backgroundColor: "#999", borderColor: "gray" }}
-      >
-        +1
-      </button>
     </div>
   );
 }

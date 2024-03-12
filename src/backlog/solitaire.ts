@@ -1,21 +1,13 @@
 // Solitaire game
 
-const CardSuits = {
+export const CardSuits = {
   h: { name: "hearts", char: "♥", n: 0, color: "red" },
   d: { name: "diamonds", char: "♦", n: 1, color: "red" },
   c: { name: "clubs", char: "♣", n: 2, color: "black" },
   s: { name: "spades", char: "♠", n: 3, color: "black" },
 } as const;
 
-// move cards:
-//   pile -> finish(n)
-//   pile -> board(n)
-//   finish(n) -> board(n)
-//   board(n) -> board(n)
-//   board(n) -> finish(n)
-// open new card
-
-const CardValueToName = {
+export const CardValueToName = {
   0: "-",
   1: "A",
   2: "2",
@@ -39,15 +31,16 @@ const CardNameToValue = Object.fromEntries(
   ]),
 );
 
-type Card = {
+export type Card = {
   suit: keyof typeof CardSuits;
   // todo add color?
   // todo add finish id ??
+  // todo add name ??
   value: keyof typeof CardValueToName;
   isFaceUp: boolean;
 };
 
-type CardStack = Card[]; // (Card deck)
+export type CardStack = Card[]; // (Card deck)
 type Board = [
   CardStack,
   CardStack,
@@ -57,18 +50,10 @@ type Board = [
   CardStack,
   CardStack,
 ];
-type Finish = [CardStack, CardStack, CardStack, CardStack];
+export type Finish = [CardStack, CardStack, CardStack, CardStack];
 
-let GAME = {
-  pile: [] as Card[],
-  board: [[], [], [], [], [], [], []] as Board,
-  finish: [
-    [{ suit: "h", value: 0, isFaceUp: false }],
-    [{ suit: "d", value: 0, isFaceUp: false }],
-    [{ suit: "c", value: 0, isFaceUp: false }],
-    [{ suit: "s", value: 0, isFaceUp: false }],
-  ] as Finish,
-};
+export type DestinationFrom = "f0" | "f1" | "f2" | "f3" | "p" | number;
+export type DestinationTo = "f" | "f0" | "f1" | "f2" | "f3" | number;
 
 function generateShuffledCards() {
   const cards: CardStack = [];
@@ -93,8 +78,10 @@ function generateShuffledCards() {
 }
 
 function canPutCard(cardA: Card, cardB: Card) {
+  console.log(cardA, cardB);
   if (
     cardA.value + 1 === cardB.value &&
+    cardA.value !== 1 &&
     CardSuits[cardA.suit].color !== CardSuits[cardB.suit].color
   ) {
     return true;
@@ -103,8 +90,8 @@ function canPutCard(cardA: Card, cardB: Card) {
   return false;
 }
 
-function newGame(initCards?: string) {
-  GAME = {
+export function newGame(initCards?: string) {
+  let GAME = {
     pile: [] as Card[],
     board: [[], [], [], [], [], [], []] as Board,
     finish: [
@@ -146,265 +133,343 @@ function newGame(initCards?: string) {
   ];
 
   GAME.pile = cards;
-}
 
-function printCard(card?: Card) {
-  if (!card || card.value === 0) return `--`;
-  return `${CardValueToName[card.value]}${CardSuits[card.suit].char}`;
-}
+  return {
+    game: GAME,
+    move,
+    newGame,
+    renderGame,
+    printCard,
+    openPileCard,
+    whatPossibleFrom,
+  };
 
-function move(
-  from: "f0" | "f1" | "f2" | "f3" | "p" | number,
-  to: "f" | number,
-) {
-  if (from === "p" && to === "f") {
-    putPileCardToFinish();
-  } else if (from === "p" && isNumber(to)) {
-    putPileCardToBoard(to);
-  } else if (["f0", "f1", "f2", "f3"].includes(from as any) && isNumber(to)) {
-    // @ts-ignore
-    let fromId = +from[1];
-    moveFinishCardToBoard(fromId, to);
-  } else if (isNumber(from) && to === "f") {
-    moveBoardCardToFinish(from);
-  } else if (isNumber(from) && isNumber(to)) {
-    moveBoardCard(from, to);
-  } else {
-    throw new Error(`Inreachable code`);
+  function whatPossibleFrom(from: DestinationFrom): (DestinationTo | "open")[] {
+    // move cards:
+    //   pile -> finish(n)
+    //   pile -> board(n)       +
+    //   finish(n) -> board(n)
+    //   board(n) -> board(n)   +
+    //   board(n) -> finish(n)  +
+    // open new card            +
+
+    let res: (DestinationTo | "open")[] = [];
+
+    if (isNumber(from)) {
+      // board "from" is col
+      let can = canMoveBoardCardToFinish(from);
+
+      if ("card" in can) {
+        res.push(("f" + can.finishId) as "f0" | "f1" | "f2" | "f3");
+      }
+
+      for (let i = 0; i <= 6; i++) {
+        if (i === from) continue;
+        let can = canMoveBoardCard(from, i);
+        if ("card" in can) {
+          res.push(i);
+        }
+      }
+    } else if (from === "p") {
+      let can = canOpenPileCard();
+      if (can === true) {
+        res.push("open");
+        for (let i = 0; i <= 6; i++) {
+          let can = canPutPileCardToBoard(i);
+          if ("card" in can) {
+            res.push(i);
+          }
+        }
+      }
+
+      for (let i = 0; i <= 3; i++) {
+        let can = canPutPileCardToFinish(i);
+        if ("card" in can) {
+          res.push(("f" + i) as "f0" | "f1" | "f2" | "f3");
+        }
+      }
+    } else {
+      throw new Error(`TODO`);
+    }
+
+    return res;
   }
-}
 
-function moveBoardCard(pileA: number, pileB: number) {
-  let targetCard = GAME.board[pileB].at(-1);
-  let pileACardVal = targetCard ? targetCard.value - 1 : 13;
+  function move(from: DestinationFrom, to: "f" | number): boolean | undefined {
+    if (from === "p" && to === "f") {
+      return putPileCardToFinish();
+    } else if (from === "p" && isNumber(to)) {
+      return putPileCardToBoard(to);
+    } else if (["f0", "f1", "f2", "f3"].includes(from as any) && isNumber(to)) {
+      // @ts-ignore
+      let fromId = +from[1];
+      return moveFinishCardToBoard(fromId, to);
+    } else if (isNumber(from) && to === "f") {
+      return moveBoardCardToFinish(from);
+    } else if (isNumber(from) && isNumber(to)) {
+      return moveBoardCard(from, to);
+    } else {
+      throw new Error(`Inreachable code`);
+    }
+  }
 
-  let cardN = GAME.board[pileA].findLastIndex(
-    (c) => c.isFaceUp && c.value === pileACardVal,
-  );
+  function canMoveBoardCard(
+    pileA: number,
+    pileB: number,
+  ): { error: string } | { card: Card } {
+    let targetCard = GAME.board[pileB].at(-1);
+    let pileACardVal = targetCard ? targetCard.value - 1 : 13;
 
-  if (cardN === -1) {
-    cl("No card to move", pileA, pileB);
+    let cardN = GAME.board[pileA].findLastIndex(
+      (c) => c.isFaceUp && c.value === pileACardVal,
+    );
+
+    if (cardN === -1) {
+      return { error: "No card to move" };
+    }
+
+    let toMove = GAME.board[pileA].slice(cardN);
+    let topMoveCard = toMove[0];
+    let toPile = GAME.board[pileB];
+
+    if (
+      (toPile.length === 0 && topMoveCard.value === 13) ||
+      canPutCard(topMoveCard, toPile.at(-1)!)
+    ) {
+      return { card: topMoveCard };
+    }
+
+    return { error: "Can not move" };
+  }
+
+  function moveBoardCard(pileA: number, pileB: number) {
+    let res = canMoveBoardCard(pileA, pileB);
+
+    if ("card" in res) {
+      let cardN = GAME.board[pileA].lastIndexOf(res.card);
+      let toMove = GAME.board[pileA].slice(cardN);
+
+      GAME.board[pileA] = GAME.board[pileA].slice(0, cardN);
+      if (GAME.board[pileA].at(-1)) {
+        GAME.board[pileA].at(-1)!.isFaceUp = true;
+      }
+      GAME.board[pileB].push(...toMove);
+      return true;
+    }
+
     return false;
   }
 
-  let toMove = GAME.board[pileA].slice(cardN);
-  let topMoveCard = toMove[0];
-  let toPile = GAME.board[pileB];
-
-  cl("Move card", printCard(topMoveCard), printCard(toPile.at(-1)));
-
-  if (
-    (toPile.length === 0 && topMoveCard.value === 13) ||
-    canPutCard(topMoveCard, toPile.at(-1)!)
-  ) {
-    GAME.board[pileA] = GAME.board[pileA].slice(0, cardN);
-    if (GAME.board[pileA].at(-1)) {
-      GAME.board[pileA].at(-1)!.isFaceUp = true;
+  function canMoveBoardCardToFinish(
+    pileId: number,
+  ): { card: Card; finishId: number } | { error: string } {
+    let moveCard = GAME.board[pileId].at(-1);
+    if (!moveCard) {
+      return { error: "No card to move" };
     }
-    toPile.push(...toMove);
+
+    let finishId = CardSuits[moveCard.suit].n;
+    let finishPile = GAME.finish[CardSuits[moveCard.suit].n];
+    let lastFinishCard = finishPile.at(-1)!;
+
+    if (
+      lastFinishCard.suit === moveCard.suit &&
+      moveCard.value === lastFinishCard.value + 1
+    ) {
+      return { card: moveCard, finishId };
+    }
+
+    return { error: "Can't move to finish" };
+  }
+
+  function moveBoardCardToFinish(pile: number) {
+    let can = canMoveBoardCardToFinish(pile);
+
+    if ("card" in can) {
+      GAME.board[pile].pop();
+      GAME.finish[CardSuits[can.card.suit].n].push(can.card);
+
+      let newLast = GAME.board[pile].at(-1);
+      if (newLast && !newLast.isFaceUp) {
+        newLast.isFaceUp = true;
+      }
+      return true;
+    } else {
+      cl("Can't move to finish", pile);
+    }
+  }
+
+  function moveFinishCardToBoard(finishId: number, pileId?: number) {
+    let finishPile = GAME.finish[finishId];
+    let finishCard = finishPile.at(-1);
+    if (!finishCard) {
+      cl("No card to move");
+      return false;
+    }
+
+    if (pileId === undefined) {
+      throw new Error(`TODO`);
+    } else {
+      let toPile = GAME.board[pileId];
+      if (
+        (toPile.length === 0 && finishCard.value === 13) ||
+        (toPile.length > 0 && canPutCard(finishCard, toPile.at(-1)!))
+      ) {
+        finishPile.pop();
+        toPile.push(finishCard);
+        return true;
+      }
+    }
+
+    cl(`Can not move finish card ${finishId} to board`);
+    return false;
+  }
+
+  function canOpenPileCard(): { error: string } | true {
+    if (GAME.pile.length === 0) {
+      return { error: "Empty pile" };
+    }
+
     return true;
   }
 
-  cl("Can not move", pileA, pileB);
-  return false;
-}
+  function openPileCard() {
+    let res = canOpenPileCard();
+    if (res !== true) return res;
 
-function canMoveBoardCardToFinish(
-  pileId: number,
-): { card: Card } | { error: string } {
-  let moveCard = GAME.board[pileId].at(-1);
-  if (!moveCard) {
-    return { error: "No card to move" };
+    let lastClose = -1;
+    for (let i = GAME.pile.length - 1; i >= 0; i--) {
+      if (!GAME.pile[i].isFaceUp) {
+        lastClose = i;
+        break;
+      }
+    }
+
+    if (lastClose === -1) {
+      GAME.pile.forEach((card) => (card.isFaceUp = false));
+    } else {
+      GAME.pile[lastClose].isFaceUp = true;
+    }
+    return true;
   }
 
-  let finishPile = GAME.finish[CardSuits[moveCard.suit].n];
-  let lastFinishCard = finishPile.at(-1)!;
+  function getTopOpenPileCard() {
+    return GAME.pile.find((c) => c.isFaceUp);
+  }
 
-  if (
-    lastFinishCard.suit === moveCard.suit &&
-    moveCard.value === lastFinishCard.value + 1
-  ) {
+  function canPutPileCardToBoard(
+    toPile: number,
+  ): { card: Card } | { error: string } {
+    let topOpenPileCard = getTopOpenPileCard();
+    if (!topOpenPileCard) {
+      return { error: "No open pile card" };
+    }
+
+    let lastToPileCard = GAME.board[toPile].at(-1);
+
+    if (
+      (!lastToPileCard && topOpenPileCard.value === 13) ||
+      (lastToPileCard && canPutCard(topOpenPileCard, lastToPileCard))
+    ) {
+      return { card: topOpenPileCard };
+    }
+
+    return {
+      error: `Can not put ${printCard(topOpenPileCard)} to ${printCard(lastToPileCard!)}`,
+    };
+  }
+
+  function putPileCardToBoard(toPile: number) {
+    let can = canPutPileCardToBoard(toPile);
+
+    if ("card" in can) {
+      removeItem(GAME.pile, can.card);
+      GAME.board[toPile].push(can.card);
+      return true;
+    } else {
+      cl(can.error);
+    }
+  }
+
+  function canPutPileCardToFinish(
+    finishId: number,
+  ): { card: Card } | { error: string } {
+    let moveCard = getTopOpenPileCard();
+    if (!moveCard) {
+      return { error: "No open pile card" };
+    }
+
+    let finishPileCard = GAME.finish[finishId].at(-1)!;
+    if (
+      finishPileCard.suit !== moveCard.suit ||
+      moveCard.value != finishPileCard.value + 1
+    ) {
+      return { error: `Can not put ${printCard(moveCard)} to the finish` };
+    }
+
     return { card: moveCard };
   }
 
-  return { error: "Can't move to finish" };
-}
+  function putPileCardToFinish() {
+    let finishIds = [0, 1, 2, 3];
 
-function moveBoardCardToFinish(pile: number) {
-  let can = canMoveBoardCardToFinish(pile);
-
-  if ("card" in can) {
-    GAME.board[pile].pop();
-    GAME.finish[CardSuits[can.card.suit].n].push(can.card);
-
-    let newLast = GAME.board[pile].at(-1);
-    if (newLast && !newLast.isFaceUp) {
-      newLast.isFaceUp = true;
-    }
-    return true;
-  } else {
-    cl("Can't move to finish", pile);
-  }
-}
-
-function moveFinishCardToBoard(finishId: number, pileId?: number) {
-  let finishPile = GAME.finish[finishId];
-  let finishCard = finishPile.at(-1);
-  if (!finishCard) {
-    cl("No card to move");
-    return false;
-  }
-
-  if (pileId === undefined) {
-    throw new Error(`TODO`);
-  } else {
-    let toPile = GAME.board[pileId];
-    if (
-      (toPile.length === 0 && finishCard.value === 13) ||
-      (toPile.length > 0 && canPutCard(finishCard, toPile.at(-1)!))
-    ) {
-      finishPile.pop();
-      toPile.push(finishCard);
-      return true;
-    }
-  }
-
-  cl(`'Can not move finish card ${finishId} to board'`);
-  return false;
-}
-
-function openPileCard() {
-  if (GAME.pile.length === 0) {
-    cl("Empty pile");
-    return false;
-  }
-
-  let lastClose = -1;
-  for (let i = GAME.pile.length - 1; i >= 0; i--) {
-    if (!GAME.pile[i].isFaceUp) {
-      lastClose = i;
-      break;
-    }
-  }
-
-  if (lastClose === -1) {
-    GAME.pile.forEach((card) => (card.isFaceUp = false));
-  } else {
-    GAME.pile[lastClose].isFaceUp = true;
-  }
-}
-
-function getTopOpenPileCard() {
-  return GAME.pile.find((c) => c.isFaceUp);
-}
-
-function canPutPileCardToBoard(
-  toPile: number,
-): { card: Card } | { error: string } {
-  let topOpenPileCard = getTopOpenPileCard();
-  if (!topOpenPileCard) {
-    return { error: "No open pile card" };
-  }
-
-  let lastToPileCard = GAME.board[toPile].at(-1);
-
-  if (
-    (!lastToPileCard && topOpenPileCard.value === 13) ||
-    (lastToPileCard && canPutCard(topOpenPileCard, lastToPileCard))
-  ) {
-    return { card: topOpenPileCard };
-  }
-
-  return {
-    error: `Can not put ${printCard(topOpenPileCard)} to ${printCard(lastToPileCard!)}`,
-  };
-}
-
-function putPileCardToBoard(toPile: number) {
-  let can = canPutPileCardToBoard(toPile);
-
-  if ("card" in can) {
-    removeItem(GAME.pile, can.card);
-    GAME.board[toPile].push(can.card);
-    return true;
-  } else {
-    cl(can.error);
-  }
-}
-
-function canPutPileCardToFinish(
-  finishId: number,
-): { card: Card } | { error: string } {
-  let moveCard = getTopOpenPileCard();
-  if (!moveCard) {
-    return { error: "No open pile card" };
-  }
-
-  let finishPileCard = GAME.finish[finishId].at(-1)!;
-  if (
-    finishPileCard.suit !== moveCard.suit ||
-    moveCard.value != finishPileCard.value + 1
-  ) {
-    return { error: `Can not put ${printCard(moveCard)} to the finish` };
-  }
-
-  return { card: moveCard };
-}
-
-function putPileCardToFinish() {
-  let finishIds = [0, 1, 2, 3];
-
-  for (let id of finishIds) {
-    let can = canPutPileCardToFinish(id);
-    if ("card" in can) {
-      removeItem(GAME.pile, can.card);
-      GAME.finish[id].push(can.card);
-      return true;
-    }
-  }
-
-  cl(`Can not put pile to the finish`);
-}
-
-function renderGame() {
-  let closedPile = GAME.pile.filter((c) => !c.isFaceUp).length;
-  let openPile = GAME.pile.length - closedPile;
-  let lastOpenCard = getTopOpenPileCard();
-
-  let f0 = printCard(GAME.finish[0].at(-1));
-  let f1 = printCard(GAME.finish[1].at(-1));
-  let f2 = printCard(GAME.finish[2].at(-1));
-  let f3 = printCard(GAME.finish[3].at(-1));
-
-  cl(
-    closedPile,
-    printCard(lastOpenCard),
-    openPile,
-    " " + [f0, f1, f2, f3].join(" "),
-  );
-
-  renderBoard();
-
-  cl("");
-
-  function renderBoard() {
-    cl(" 0  1  2  3  4  5  6");
-
-    for (let i = 0; i < 100; i++) {
-      let row = "";
-
-      for (let j = 0; j < 7; j++) {
-        let card = GAME.board[j][i];
-        if (card) {
-          row += card.isFaceUp ? `${printCard(card)} ` : "XX ";
-        } else {
-          row += "   ";
-        }
+    for (let id of finishIds) {
+      let can = canPutPileCardToFinish(id);
+      if ("card" in can) {
+        removeItem(GAME.pile, can.card);
+        GAME.finish[id].push(can.card);
+        return true;
       }
-      if (row.trim() === "") break;
-      cl(row);
+    }
+
+    cl(`Can not put pile to the finish`);
+  }
+
+  function renderGame() {
+    let closedPile = GAME.pile.filter((c) => !c.isFaceUp).length;
+    let openPile = GAME.pile.length - closedPile;
+    let lastOpenCard = getTopOpenPileCard();
+
+    let f0 = printCard(GAME.finish[0].at(-1));
+    let f1 = printCard(GAME.finish[1].at(-1));
+    let f2 = printCard(GAME.finish[2].at(-1));
+    let f3 = printCard(GAME.finish[3].at(-1));
+
+    cl(
+      closedPile,
+      printCard(lastOpenCard),
+      openPile,
+      " " + [f0, f1, f2, f3].join(" "),
+    );
+
+    renderBoard();
+
+    cl("");
+
+    function renderBoard() {
+      cl(" 0  1  2  3  4  5  6");
+
+      for (let i = 0; i < 100; i++) {
+        let row = "";
+
+        for (let j = 0; j < 7; j++) {
+          let card = GAME.board[j][i];
+          if (card) {
+            row += card.isFaceUp ? `${printCard(card)} ` : "XX ";
+          } else {
+            row += "   ";
+          }
+        }
+        if (row.trim() === "") break;
+        cl(row);
+      }
     }
   }
+}
+
+export function printCard(card?: Card) {
+  if (!card || card.value === 0) return `--`;
+  return `${CardValueToName[card.value]}${CardSuits[card.suit].char}`;
 }
 
 // =============================
@@ -415,15 +480,6 @@ function cl(...args: any) {
 
 function keys<O extends {}>(obj: O) {
   return Object.keys(obj) as (keyof O)[];
-}
-
-function randomWithSeed(seed: number) {
-  let value = seed;
-
-  return function rand() {
-    value = (value * 16807) % 2147483647;
-    return value;
-  };
 }
 
 function splitStingBy2(str: string) {
@@ -440,107 +496,3 @@ function removeItem<T>(arr: T[], it: T): void {
     arr.splice(i, 1);
   }
 }
-
-// ===========================
-
-newGame(
-  "Js3d0cQs2sQhKs8s0hQc4d4s5c7h3sJc9sKc7c5s8d6d2c2d6sKh3c5d8c6hQd2hKdJh8hJd9h9cAs3hAc5h0d7dAh4h4c0sAd6c7s9d",
-);
-renderGame();
-
-move(4, 3);
-move(4, "f");
-move(4, 2);
-move(4, "f");
-move(2, 4);
-move(4, 1);
-move(0, 2);
-openPileCard();
-openPileCard();
-move("p", "f");
-openPileCard();
-openPileCard();
-move("p", 3);
-openPileCard();
-openPileCard();
-move("p", 3);
-openPileCard();
-move("p", 0);
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", 2);
-openPileCard();
-openPileCard();
-move("p", 0);
-openPileCard();
-move("p", "f");
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", 0);
-move(3, 0);
-move(3, 2);
-move(3, "f");
-move(5, "f");
-move(1, "f");
-move(5, 4);
-move(1, 2);
-move(3, "f");
-move("p", 2);
-move("p", 5);
-move("p", 4);
-move(5, 4);
-move(1, 5);
-move("p", 1);
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", 5);
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", "f");
-openPileCard();
-openPileCard();
-move("p", 5);
-openPileCard();
-move("p", "f");
-openPileCard();
-move("p", 5);
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", "f");
-move(6, "f");
-move(6, 3);
-move(6, 5);
-move(2, 6);
-move(2, "f");
-move(5, "f");
-move(6, 2);
-openPileCard();
-openPileCard();
-openPileCard();
-move("p", 6);
-openPileCard();
-move("p", 3);
-openPileCard();
-move(5, 0);
-move(5, "f");
-openPileCard();
-openPileCard();
-openPileCard();
-
-renderGame();

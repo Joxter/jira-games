@@ -9,12 +9,64 @@ import { ComponentChildren } from "preact";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { CartRound } from "./CartRound";
 import { cn, lorem, random } from "../unit";
+import {
+  CardValueToName,
+  DestinationFrom,
+  DestinationTo,
+  newGame,
+} from "./solitaire";
+
+function useGame() {
+  const [gameRef, setGameRef] = useState({
+    game: newGame(
+      "Js3d0cQs2sQhKs8s0hQc4d4s5c7h3sJc9sKc7c5s8d6d2c2d6sKh3c5d8c6hQd2hKdJh8hJd9h9cAs3hAc5h0d7dAh4h4c0sAd6c7s9d",
+    ),
+  });
+
+  return {
+    game: gameRef.game.game,
+    printCard: gameRef.game.printCard,
+    move: (
+      from: "f0" | "f1" | "f2" | "f3" | "p" | number,
+      to: "f" | number,
+    ) => {
+      let res = gameRef.game.move(from, to);
+      if (res) {
+        setGameRef({ game: gameRef.game });
+        return true;
+      }
+    },
+    openPileCard: () => {
+      let res = gameRef.game.openPileCard();
+      if (res === true) {
+        setGameRef({ game: gameRef.game });
+        return true;
+      }
+    },
+    whatPossibleFrom: (from: DestinationFrom) => {
+      return gameRef.game.whatPossibleFrom(from);
+    },
+    newGame: () => {
+      return setGameRef({ game: gameRef.game.newGame() });
+    },
+  };
+}
+
+type Destination = "f0" | "f1" | "f2" | "f3" | "p" | number;
 
 export function BacklogPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
   let [opacity, setOpacity] = useState(
     +(sessionStorage.getItem("opacity")! || 100),
   );
+
+  let { openPileCard, newGame, move, whatPossibleFrom, game, printCard } =
+    useGame();
+
+  let [possible, setPossible] = useState<{
+    from: DestinationFrom | null;
+    to: (DestinationTo | "open")[];
+  }>({ from: null, to: [] });
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -73,7 +125,7 @@ export function BacklogPage() {
           border: "1px solid #ccc",
         }}
       >
-        {[0, 10, 25, 50, 80, 100].map((val) => {
+        {[0, 50, 80, 100].map((val) => {
           return (
             <label>
               <input
@@ -98,7 +150,23 @@ export function BacklogPage() {
           <Left />
         </div>
         <div class={css.content}>
-          <InnerHeader />
+          {/* <p>{JSON.stringify(game.pile)}</p> */}
+          <InnerHeader
+            finish={game.finish}
+            pile={game.pile}
+            possible={possible.to}
+            onOpenCardClick={() => {
+              openPileCard();
+              setPossible({ from: null, to: [] });
+            }}
+            onPileCardClick={() => {
+              setPossible({ from: "p", to: whatPossibleFrom("p") });
+            }}
+            onClick={(to) => {
+              move(possible.from!, "f");
+              setPossible({ from: null, to: [] });
+            }}
+          />
           {/* <GrayBox title="Finish desk">
             <div class={css.cards}>
               <Card name="" type="♣" text={"[No club] " + lorem(5, 20)} />
@@ -108,26 +176,54 @@ export function BacklogPage() {
             </div>
           </GrayBox> */}
           <GrayBox title="Board">
+            <p>possible from: {possible.from}</p>
+            <p>possible to: {possible.to.join(", ")}</p>
             <div class={css.cards}>
-              <Card name="3" type="♣" text={"I " + lorem(random(10, 20))} />
-              <Card name="A" type="♥" text={"II " + lorem(random(10, 20))} />
-              <Card name="9" type="♦" text={"III " + lorem(random(10, 20))} />
-              <Card name="Q" type="♠" text={"IIII " + lorem(random(10, 20))} />
-              <Card
-                name="3"
-                type="♣"
-                text={"IIIII " + lorem(random(10, 20))}
-              />
-              <Card
-                name="A"
-                type="♠"
-                text={"IIIIII " + lorem(random(10, 20))}
-              />
-              <Card
-                name="9"
-                type="♥"
-                text={"IIIIIII " + lorem(random(10, 20))}
-              />
+              {[0, 1, 2, 3, 4, 5, 6].map((i) => {
+                let card = game.board[i].at(-1);
+
+                let closed = game.board[i].filter((c) => !c.isFaceUp).length;
+
+                let opened = game.board[i]
+                  .filter((c) => c.isFaceUp)
+                  .map((c) => {
+                    return "[" + printCard(c) + "]";
+                  })
+                  .join(" ");
+
+                let cardsRow = "I".repeat(closed) + " " + opened;
+
+                return (
+                  <Card
+                    name={card ? CardValueToName[card.value] : "-"}
+                    type={card ? card.suit : "-"}
+                    text={
+                      cardsRow + " "
+                      // + lorem(0, 10)
+                    }
+                    mode={
+                      possible.from === i
+                        ? "from"
+                        : possible.to.includes(i)
+                          ? "to"
+                          : null
+                    }
+                    onClick={() => {
+                      if (possible.to.includes(i)) {
+                        move(possible.from!, i);
+                        setPossible({ from: null, to: [] });
+                        return;
+                      }
+
+                      if (possible.from === i) {
+                        setPossible({ from: null, to: [] });
+                      } else {
+                        setPossible({ from: i, to: whatPossibleFrom(i) });
+                      }
+                    }}
+                  />
+                );
+              })}
             </div>
           </GrayBox>
         </div>
@@ -165,13 +261,24 @@ function Card({
   type,
   name,
   text,
+  mode,
+  onClick,
 }: {
   type: string;
   name: string;
   text: string;
+  mode: "from" | "to" | null;
+  onClick?: () => void;
 }) {
   return (
-    <div class={css.card}>
+    <div
+      class={css.card}
+      style={{
+        backgroundColor:
+          mode === "from" ? "yellow" : mode === "to" ? "green" : "",
+      }}
+      onClick={() => onClick?.()}
+    >
       <div class={css.cardIcon}>
         <CartRound type={type} name={name} />
       </div>
