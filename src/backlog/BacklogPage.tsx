@@ -8,18 +8,21 @@ import { Header as InnerHeader } from "./Header";
 import { ComponentChildren } from "preact";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { CartRound } from "./CartRound";
-import { cn, lorem, random } from "../unit";
+import { cn, random } from "../unit";
 import {
+  Card,
+  CardSuits,
   CardValueToName,
   DestinationFrom,
   DestinationTo,
   newGame,
+  printCard,
 } from "./solitaire";
 
 function useGame() {
   const [gameRef, setGameRef] = useState({
     game: newGame(
-      "Js3d0cQs2sQhKs8s0hQc4d4s5c7h3sJc9sKc7c5s8d6d2c2d6sKh3c5d8c6hQd2hKdJh8hJd9h9cAs3hAc5h0d7dAh4h4c0sAd6c7s9d",
+      "5s0d6s2dJhKsAcJsQs7sAs5h3h4h2h0h3sKdQh9c4cKh0c9h6hJc3dKcQc7d5c9s8dAh7c8cQd4s6c0s8h4d9d7h5d6d8s2cJd2s3cAd",
     ),
   });
 
@@ -194,12 +197,20 @@ export function BacklogPage() {
                 let cardsRow = "I".repeat(closed) + " " + opened;
 
                 return (
-                  <Card
+                  <Pile
                     name={card ? CardValueToName[card.value] : "-"}
                     type={card ? card.suit : "-"}
                     text={
-                      cardsRow + " "
-                      // + lorem(0, 10)
+                      <>
+                        <span>{"I".repeat(closed)} </span>
+                        <span style={{ display: "inline-flex", gap: "8px" }}>
+                          {game.board[i]
+                            .filter((c) => c.isFaceUp)
+                            .map((c) => {
+                              return <InlineCard card={c} />;
+                            })}
+                        </span>
+                      </>
                     }
                     mode={
                       possible.from === i
@@ -232,6 +243,18 @@ export function BacklogPage() {
   );
 }
 
+function InlineCard({ card }: { card: Card }) {
+  return (
+    <span
+      style={{
+        color: CardSuits[card.suit].color,
+      }}
+    >
+      {printCard(card)}
+    </span>
+  );
+}
+
 function GrayBox({
   children,
   title,
@@ -257,7 +280,7 @@ function GrayBox({
   );
 }
 
-function Card({
+function Pile({
   type,
   name,
   text,
@@ -266,7 +289,7 @@ function Card({
 }: {
   type: string;
   name: string;
-  text: string;
+  text: ComponentChildren;
   mode: "from" | "to" | null;
   onClick?: () => void;
 }) {
