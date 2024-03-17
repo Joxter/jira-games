@@ -20,7 +20,6 @@ export function Header({
   onOpenCardClick: () => void;
   onPileCardClick: () => void;
 }) {
-  // console.log(pile.filter((c) => c.isFaceUp));
   return (
     <div class={css.root}>
       <p class={css.breadCrumbs}>Projects / Giftcards / Giftcard boards</p>
@@ -47,11 +46,16 @@ export function Header({
             .filter((c) => c.isFaceUp)
             .slice(0, 3)
             .reverse()
-            .map((card, i) => {
+            .map((card) => {
               return (
                 <button
                   class={"resetButton"}
-                  style={{ backgroundColor: i % 2 ? "red" : "black" }}
+                  style={{
+                    backgroundColor:
+                      CardSuits[card.suit].color === "red"
+                        ? "#AE2E24"
+                        : "#172B4D",
+                  }}
                   onClick={() => {
                     onPileCardClick();
                   }}

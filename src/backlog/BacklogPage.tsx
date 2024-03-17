@@ -8,25 +8,79 @@ import { Header as InnerHeader } from "./Header";
 import { ComponentChildren } from "preact";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { CartRound } from "./CartRound";
-import { cn, random } from "../unit";
+import { cn, lorem, random } from "../unit";
 import {
-  Card,
-  CardSuits,
   CardValueToName,
   DestinationFrom,
   DestinationTo,
   newGame,
-  printCard,
+  generateShuffledCards,
 } from "./solitaire";
+import { InlineCard } from "../ui/InlineCard";
+
+function saveToLS(initCards: string, moves: Moves) {
+  try {
+    localStorage.setItem("cards", initCards);
+    localStorage.setItem("moves", JSON.stringify(moves));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function loadFromLS(): [string, Moves] | undefined {
+  let initCards = localStorage.getItem("cards");
+  let moves = localStorage.getItem("moves");
+
+  if (initCards && moves) {
+    return [initCards, JSON.parse(moves)] as const;
+  }
+}
+
+type Moves = Array<
+  | "openPile"
+  | [from: "f0" | "f1" | "f2" | "f3" | "p" | number, to: "f" | number]
+>;
 
 function useGame() {
-  const [gameRef, setGameRef] = useState({
-    game: newGame(
-      "5s0d6s2dJhKsAcJsQs7sAs5h3h4h2h0h3sKdQh9c4cKh0c9h6hJc3dKcQc7d5c9s8dAh7c8cQd4s6c0s8h4d9d7h5d6d8s2cJd2s3cAd",
-    ),
-  });
+  let [initState, setInitState] = useState<string | null>(null);
+  let [moves, setMoves] = useState<Moves>([]);
+
+  const [gameRef, setGameRef] = useState({ game: newGame() });
+
+  useEffect(() => {
+    let loaded = loadFromLS();
+    if (loaded) {
+      let [initCards, moves] = loaded;
+      setInitState(initCards);
+      setMoves(moves);
+      let game = newGame(initCards);
+      moves.forEach((move) => {
+        if (move === "openPile") {
+          game.openPileCard();
+        } else {
+          game.move(move[0], move[1]);
+        }
+      });
+      setGameRef({ game });
+    }
+  }, []);
 
   return {
+    inided: !!initState,
+    newGame: () => {
+      let newCards = generateShuffledCards()[0];
+      setInitState(newCards);
+      setMoves([]);
+      setGameRef({ game: newGame(newCards) });
+      saveToLS(newCards, []);
+    },
+    resetGame: () => {
+      if (initState) {
+        setGameRef({ game: newGame(initState) });
+        setMoves([]);
+        saveToLS(initState, []);
+      }
+    },
     game: gameRef.game.game,
     printCard: gameRef.game.printCard,
     move: (
@@ -35,6 +89,9 @@ function useGame() {
     ) => {
       let res = gameRef.game.move(from, to);
       if (res) {
+        let newMoves = [...moves, [from, to]] as Moves;
+        setMoves(newMoves);
+        saveToLS(initState!, newMoves);
         setGameRef({ game: gameRef.game });
         return true;
       }
@@ -42,6 +99,9 @@ function useGame() {
     openPileCard: () => {
       let res = gameRef.game.openPileCard();
       if (res === true) {
+        let newMoves = [...moves, "openPile"] as Moves;
+        setMoves(newMoves);
+        saveToLS(initState!, newMoves);
         setGameRef({ game: gameRef.game });
         return true;
       }
@@ -49,13 +109,8 @@ function useGame() {
     whatPossibleFrom: (from: DestinationFrom) => {
       return gameRef.game.whatPossibleFrom(from);
     },
-    newGame: () => {
-      return setGameRef({ game: gameRef.game.newGame() });
-    },
   };
 }
-
-type Destination = "f0" | "f1" | "f2" | "f3" | "p" | number;
 
 export function BacklogPage() {
   let [isOverlayhow, setIsOverlayhow] = useState(false);
@@ -63,8 +118,16 @@ export function BacklogPage() {
     +(sessionStorage.getItem("opacity")! || 100),
   );
 
-  let { openPileCard, newGame, move, whatPossibleFrom, game, printCard } =
-    useGame();
+  let {
+    inided,
+    openPileCard,
+    resetGame,
+    newGame,
+    move,
+    whatPossibleFrom,
+    game,
+    printCard,
+  } = useGame();
 
   let [possible, setPossible] = useState<{
     from: DestinationFrom | null;
@@ -170,88 +233,95 @@ export function BacklogPage() {
               setPossible({ from: null, to: [] });
             }}
           />
-          {/* <GrayBox title="Finish desk">
-            <div class={css.cards}>
-              <Card name="" type="♣" text={"[No club] " + lorem(5, 20)} />
-              <Card name="4" type="♥" text={"[4 hearts] " + lorem(5, 20)} />
-              <Card name="9" type="♠" text={"[9 spades] " + lorem(5, 20)} />
-              <Card name="Q" type="♦" text={"[Q diamonds] " + lorem(5, 20)} />
-            </div>
-          </GrayBox> */}
           <GrayBox title="Board">
-            <p>possible from: {possible.from}</p>
-            <p>possible to: {possible.to.join(", ")}</p>
-            <div class={css.cards}>
-              {[0, 1, 2, 3, 4, 5, 6].map((i) => {
-                let card = game.board[i].at(-1);
+            <p>
+              <button
+                onClick={() => {
+                  newGame();
+                  setPossible({ from: null, to: [] });
+                }}
+              >
+                new game
+              </button>
+              <button
+                onClick={() => {
+                  resetGame();
+                  setPossible({ from: null, to: [] });
+                }}
+              >
+                reset game
+              </button>
+            </p>
+            {inided && (
+              <div class={css.cards}>
+                {[0, 1, 2, 3, 4, 5, 6].map((i) => {
+                  let card = game.board[i].at(-1);
 
-                let closed = game.board[i].filter((c) => !c.isFaceUp).length;
+                  let closed = game.board[i].filter((c) => !c.isFaceUp).length;
 
-                let opened = game.board[i]
-                  .filter((c) => c.isFaceUp)
-                  .map((c) => {
-                    return "[" + printCard(c) + "]";
-                  })
-                  .join(" ");
-
-                let cardsRow = "I".repeat(closed) + " " + opened;
-
-                return (
-                  <Pile
-                    name={card ? CardValueToName[card.value] : "-"}
-                    type={card ? card.suit : "-"}
-                    text={
-                      <>
-                        <span>{"I".repeat(closed)} </span>
-                        <span style={{ display: "inline-flex", gap: "8px" }}>
-                          {game.board[i]
-                            .filter((c) => c.isFaceUp)
-                            .map((c) => {
-                              return <InlineCard card={c} />;
-                            })}
-                        </span>
-                      </>
-                    }
-                    mode={
-                      possible.from === i
-                        ? "from"
-                        : possible.to.includes(i)
-                          ? "to"
-                          : null
-                    }
-                    onClick={() => {
-                      if (possible.to.includes(i)) {
-                        move(possible.from!, i);
-                        setPossible({ from: null, to: [] });
-                        return;
+                  return (
+                    <Pile
+                      name={card ? CardValueToName[card.value] : "-"}
+                      type={card ? card.suit : "-"}
+                      text={
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            width: "100%",
+                          }}
+                        >
+                          <span style={{ display: "inline-flex", gap: "8px" }}>
+                            {Array(closed)
+                              .fill(0)
+                              .map(() => lorem(1))}
+                          </span>
+                          <span
+                            style={{
+                              display: "inline-flex",
+                              gap: "2px",
+                            }}
+                          >
+                            {game.board[i]
+                              .filter((c) => c.isFaceUp)
+                              .reverse()
+                              .map((c) => {
+                                return (
+                                  <InlineCard rank={c.value} suit={c.suit} />
+                                );
+                              })}
+                          </span>
+                        </div>
                       }
-
-                      if (possible.from === i) {
-                        setPossible({ from: null, to: [] });
-                      } else {
-                        setPossible({ from: i, to: whatPossibleFrom(i) });
+                      mode={
+                        possible.from === i
+                          ? "from"
+                          : possible.to.includes(i)
+                            ? "to"
+                            : null
                       }
-                    }}
-                  />
-                );
-              })}
-            </div>
+                      onClick={() => {
+                        if (possible.to.includes(i)) {
+                          move(possible.from!, i);
+                          setPossible({ from: null, to: [] });
+                          return;
+                        }
+
+                        if (possible.from === i) {
+                          setPossible({ from: null, to: [] });
+                        } else {
+                          setPossible({ from: i, to: whatPossibleFrom(i) });
+                        }
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </GrayBox>
         </div>
       </div>
     </>
-  );
-}
-
-function InlineCard({ card }: { card: Card }) {
-  return (
-    <span
-      style={{
-        color: CardSuits[card.suit].color,
-      }}
-    >
-      {printCard(card)}
-    </span>
   );
 }
 
@@ -284,6 +354,7 @@ function Pile({
   type,
   name,
   text,
+  cards,
   mode,
   onClick,
 }: {

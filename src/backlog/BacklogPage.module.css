@@ -118,6 +118,8 @@
 
 .cardText {
   grid-column: 3 / 4;
+  display: flex;
+  align-items: center;
 }
 
 .cardLabel {

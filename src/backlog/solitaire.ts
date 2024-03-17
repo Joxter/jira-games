@@ -1,12 +1,19 @@
 // Solitaire game
 
 export const CardSuits = {
-  h: { name: "hearts", char: "♥", n: 0, color: "red" },
-  d: { name: "diamonds", char: "♦", n: 1, color: "red" },
-  c: { name: "clubs", char: "♣", n: 2, color: "black" },
-  s: { name: "spades", char: "♠", n: 3, color: "black" },
+  h: { name: "hearts", char: "♥", emptyChar: "♡", n: 0, color: "red" },
+  d: { name: "diamonds", char: "♦", emptyChar: "♢", n: 1, color: "red" },
+  c: { name: "clubs", char: "♣", emptyChar: "♧", n: 2, color: "black" },
+  s: { name: "spades", char: "♠", emptyChar: "♤", n: 3, color: "black" },
 } as const;
-
+// U+2660 ♠ BLACK SPADE SUIT
+// U+2661 ♡ WHITE HEART SUIT
+// U+2662 ♢ WHITE DIAMOND SUIT
+// U+2663 ♣ BLACK CLUB SUIT
+// U+2664 ♤ WHITE SPADE SUIT
+// U+2665 ♥ BLACK HEART SUIT
+// U+2666 ♦ BLACK DIAMOND SUIT
+// U+2667 ♧ WHITE CLUB SUIT
 export const CardValueToName = {
   0: "-",
   1: "A",
@@ -55,7 +62,7 @@ export type Finish = [CardStack, CardStack, CardStack, CardStack];
 export type DestinationFrom = "f0" | "f1" | "f2" | "f3" | "p" | number;
 export type DestinationTo = "f" | "f0" | "f1" | "f2" | "f3" | number;
 
-function generateShuffledCards() {
+export function generateShuffledCards(): [string, CardStack] {
   const cards: CardStack = [];
   for (const suit of keys(CardSuits)) {
     for (let i = 1; i <= 13; i++) {
@@ -68,13 +75,11 @@ function generateShuffledCards() {
     [cards[i], cards[j]] = [cards[j], cards[i]];
   }
 
-  cl(
-    cards
-      .map((c) => CardValueToName[c.value] + c.suit[0].toLowerCase())
-      .join(""),
-  );
+  let initState = cards
+    .map((c) => CardValueToName[c.value] + c.suit[0].toLowerCase())
+    .join("");
 
-  return cards;
+  return [initState, cards] as const;
 }
 
 function canPutCard(cardA: Card, cardB: Card) {
@@ -109,7 +114,7 @@ export function newGame(initCards?: string) {
 
         return { suit, value, isFaceUp: false };
       })
-    : generateShuffledCards();
+    : generateShuffledCards()[1];
 
   GAME.board = [[], [], [], [], [], [], []];
 
@@ -147,11 +152,11 @@ export function newGame(initCards?: string) {
   function whatPossibleFrom(from: DestinationFrom): (DestinationTo | "open")[] {
     // move cards:
     //   pile -> finish(n)
-    //   pile -> board(n)       +
+    //   pile -> board(n)               +
     //   finish(n) -> board(n)
-    //   board(n) -> board(n)   +
-    //   board(n) -> finish(n)  +
-    // open new card            +
+    //   board(row, card) -> board(n)
+    //   board(row, card) -> finish(n)
+    // open new card                    +
 
     let res: (DestinationTo | "open")[] = [];
 
@@ -195,7 +200,7 @@ export function newGame(initCards?: string) {
     return res;
   }
 
-  function move(from: DestinationFrom, to: "f" | number): boolean | undefined {
+  function move(from: DestinationFrom, to: DestinationTo): boolean | undefined {
     if (from === "p" && to === "f") {
       return putPileCardToFinish();
     } else if (from === "p" && isNumber(to)) {

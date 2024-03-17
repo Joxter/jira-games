@@ -16,9 +16,9 @@ export function lorem(from: number, to?: number) {
 function lorem2(len: number) {
   let res = "";
   let fullLorem =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio in tortor mollis suscipit. Sed id nunc vel libero aliquet volutpat. Integer nec enim at nunc lacinia aliquam. Quisque et erat nec nunc aliquam suscipit. Nulla facilisi. Sed non odio nec libero vestibulum lacinia".split(
-      " ",
-    );
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec odio in tortor mollis suscipit. Sed id nunc vel libero aliquet volutpat. Integer nec enim at nunc lacinia aliquam. Quisque et erat nec nunc aliquam suscipit. Nulla facilisi. Sed non odio nec libero vestibulum lacinia"
+      .split(" ")
+      .filter((it) => !!it.trim());
 
   let offest = Math.floor(Math.random() * fullLorem.length);
 
