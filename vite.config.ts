@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         backlog: "backlog.html",
         story: "story.html",
+        slack: "slack.html",
       },
     },
   },
