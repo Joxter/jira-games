@@ -1,6 +1,10 @@
 import { useEffect, useState } from "preact/hooks";
 import css from "./SlackPage.module.css";
 import overlay from "./image.png";
+import { Left } from "./Left";
+import { Chat } from "./Chat";
+
+type Moves = [];
 
 function saveToLS(initCards: string, moves: Moves) {
   try {
@@ -172,7 +176,10 @@ export function SlackPage() {
         })}
       </div>
       <div class={css.root}>
-        <div></div>
+        <div class={css.content}>
+          <Left />
+          <Chat />
+        </div>
       </div>
     </>
   );
