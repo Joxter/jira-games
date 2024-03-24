@@ -45,6 +45,7 @@ export class Table {
       (player) =>
         player &&
         !player.folded &&
+        //
         player.stackSize > 0 &&
         (!this.currentBet ||
           !player.raise ||
