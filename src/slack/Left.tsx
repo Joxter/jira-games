@@ -34,10 +34,10 @@ export function DrobdownList({
           setIsOpen((val) => !val);
         }}
       >
-        <ChevronIcon isOpen={isOpen} />
+        <ChevronIcon isOpen={!isOpen} />
         <p>{title}</p>
       </div>
-      <div>{children}</div>
+      <div>{isOpen && children}</div>
     </div>
   );
 }
