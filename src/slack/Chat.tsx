@@ -3,7 +3,6 @@ import { ChevronIcon } from "../ui/ChevronIcon";
 import css from "./Chat.module.css";
 import { ComponentChildren } from "preact";
 import { Table } from "../poker-engine/src";
-import { b } from "vitest/dist/suite-UrZdHRff.js";
 
 /*
 
@@ -54,6 +53,29 @@ function useGame() {
   );
 
   useEffect(() => {
+    const socket = new WebSocket("ws://localhost:3000");
+
+    socket.onopen = () => {
+      console.log("WebSocket Client Connected");
+    };
+    socket.onclose = () => {
+      console.log("WebSocket Client Closed");
+    };
+    socket.onerror = (error) => {
+      console.log("WebSocket error: " + error);
+    };
+    let i = 0;
+
+    setInterval(() => {
+      i++;
+      socket.send("Hello " + i);
+    }, 2000);
+
+    // Listen for messages
+    socket.addEventListener("message", (event) => {
+      console.log("Message from server ", event.data);
+    });
+
     const table = new Table();
 
     tableRef.current = table;

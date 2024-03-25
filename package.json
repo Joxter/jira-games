@@ -12,8 +12,10 @@
   "dependencies": {
     "effector": "^23.2.0",
     "effector-react": "^23.2.0",
+    "express": "^4.19.2",
     "pokersolver": "^2.1.4",
-    "preact": "^10.19.6"
+    "preact": "^10.19.6",
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.1",
