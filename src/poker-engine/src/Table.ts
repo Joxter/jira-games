@@ -101,6 +101,10 @@ export class Table {
     return this.players[this.smallBlindPosition];
   }
 
+  hasFreeChair(): boolean {
+    return this.players.includes(null);
+  }
+
   moveDealer(seatNumber: number) {
     if (this.players.filter((player) => player !== null).length === 0) {
       throw new Error(
