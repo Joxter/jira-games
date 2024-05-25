@@ -1,0 +1,73 @@
+.root {
+  margin: 0 auto;
+  background-color: #eeeee6;
+  padding: 100px 20px;
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+}
+
+.field {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.smalBox {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  border: 0.5px solid #d5d5cd;
+}
+
+.cell {
+  display: flex;
+  position: relative;
+  border: 0.5px solid #d5d5cd;
+  background-color: #fafaf4;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.cell input {
+  position: absolute;
+  top: -100px;
+  left: -100px;
+  border: 0;
+  background: transparent;
+  width: 1px;
+  height: 1px;
+}
+
+.cellHighLight {
+  background: #fff;
+}
+
+.cellCurrent {
+  box-shadow: inset 0 0 0 2px #82e81f;
+  border-color: #82e81f;
+}
+
+.cell span {
+  margin: auto;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+.candidates {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas:
+    "c1 c2 c3"
+    "c4 c5 c6"
+    "c7 c8 c9";
+  width: 100%;
+  height: 100%;
+}
+
+.candidate {
+  opacity: 0.6;
+  font-size: 10px !important;
+  line-height: 10px !important;
+}

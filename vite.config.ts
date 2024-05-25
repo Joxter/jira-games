@@ -10,6 +10,7 @@ export default defineConfig({
         backlog: "backlog.html",
         story: "story.html",
         slack: "slack.html",
+        sudoku: "sudoku.html",
       },
     },
   },
