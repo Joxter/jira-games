@@ -12,6 +12,7 @@ import {
   cellClicked,
   diffClicked,
   resetClicked,
+  viewCandidates,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -154,7 +155,7 @@ type CellProps = {
   isCurrent: boolean;
   isHighLight: boolean;
   onClick: () => void;
-  candidates: number[];
+  candidates: number;
 };
 
 function Cell({
@@ -175,16 +176,16 @@ function Cell({
         isHighLight && css.cellHighLight,
       )}
     >
-      {candidates.length > 0 ? (
+      {candidates > 0 ? (
         <div className={css.candidates}>
-          {candidates.map((val) => {
+          {viewCandidates(candidates).map((n) => {
             return (
               <span
                 className={css.candidate}
-                style={{ gridArea: "c" + val }}
-                key={val}
+                style={{ gridArea: "c" + n }}
+                key={n}
               >
-                {val}
+                {n}
               </span>
             );
           })}

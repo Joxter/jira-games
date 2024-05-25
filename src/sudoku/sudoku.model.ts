@@ -2,17 +2,25 @@ import { all_difficulties } from "./lib/constants";
 import { createEvent, createStore, sample } from "effector";
 
 type Field = number[];
-type Candidates = number[][];
+type Candidates = number[];
+
+const CANDIDATES = [
+  1 << 0,
+  1 << 1,
+  1 << 2,
+  1 << 3,
+  1 << 4,
+  1 << 5,
+  1 << 6,
+  1 << 7,
+  1 << 8,
+];
 
 type Diff = (typeof all_difficulties)[number];
 
 export const $field = createStore<Field>(getFieldsFromLS());
 export const $initField = createStore<Field>(getFieldsFromLS());
-export const $candidates = createStore<Candidates>(
-  Array(81)
-    .fill(0)
-    .map(() => []),
-);
+export const $candidates = createStore<Candidates>(Array(81).fill(0));
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map((current) => {
@@ -95,12 +103,7 @@ sample({
     if (index === null) return field;
 
     const newCandidates = [...field];
-    newCandidates[index] = [...new Set(newCandidates[index])];
-    if (newCandidates[index].includes(val)) {
-      newCandidates[index] = newCandidates[index].filter((it) => it !== val);
-    } else {
-      newCandidates[index].push(val);
-    }
+    newCandidates[index] = newCandidates[index] ^ CANDIDATES[val - 1];
     return newCandidates;
   },
   target: $candidates,
@@ -113,7 +116,7 @@ sample({
     if (index === null) return field;
 
     const newCandidates = [...field];
-    newCandidates[index] = [];
+    newCandidates[index] = 0;
     return newCandidates;
   },
   target: $candidates,
@@ -206,4 +209,13 @@ expert 0080026000000000002500001005100800007000104020007000000000400060001705040
         puzzle: puzzle.split("").map((it) => +it),
       };
     });
+}
+
+export function viewCandidates(candidates: number): number[] {
+  return candidates
+    .toString(2)
+    .split("")
+    .reverse()
+    .map((it, i) => (it === "1" ? i : 0))
+    .filter((n) => n > 0);
 }
