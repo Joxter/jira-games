@@ -11,6 +11,7 @@ import {
   cellChanged,
   cellClicked,
   diffClicked,
+  resetClicked,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -38,7 +39,15 @@ export function SudokuPage() {
 
   return (
     <div className={css.root}>
-      <p>sudoku</p>
+      <p>
+        <button
+          onClick={() => {
+            resetClicked();
+          }}
+        >
+          reset
+        </button>
+      </p>
       <p>
         generate:
         {all_difficulties.map((d) => {

@@ -27,20 +27,11 @@
   background-color: #fafaf4;
   aspect-ratio: 1;
   overflow: hidden;
-}
-
-.cell input {
-  position: absolute;
-  top: -100px;
-  left: -100px;
-  border: 0;
-  background: transparent;
-  width: 1px;
-  height: 1px;
+  transition: background-color 50ms linear;
 }
 
 .cellHighLight {
-  background: #fff;
+  background-color: #fff;
 }
 
 .cellCurrent {

@@ -1,5 +1,5 @@
 import { all_difficulties } from "./lib/constants";
-import { combine, createEvent, createStore, sample } from "effector";
+import { createEvent, createStore, sample } from "effector";
 
 type Field = number[];
 type Candidates = number[][];
@@ -7,6 +7,7 @@ type Candidates = number[][];
 type Diff = (typeof all_difficulties)[number];
 
 export const $field = createStore<Field>(getFieldsFromLS());
+export const $initField = createStore<Field>(getFieldsFromLS());
 export const $candidates = createStore<Candidates>(
   Array(81)
     .fill(0)
@@ -15,7 +16,41 @@ export const $candidates = createStore<Candidates>(
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map((current) => {
-  return [] as number[];
+  let res = [] as number[];
+  if (current === null) return res;
+
+  // row
+  let start = current - (current % 9);
+  for (let i = start; i < start + 9; i++) {
+    res.push(i);
+  }
+  //col
+  for (let i = current % 9; i < 81; i += 9) {
+    res.push(i);
+  }
+  /*
+   0  1  2  3  4  5  6  7  8
+   9 10 11 12 13 14 15 16 17
+  18 19 20 21 22 23 24 25 26
+  27 28 29 30 31 32 33 34 35
+  36 37 38 39 40 41 42 43 44
+  45 46 47 48 49 50 51 52 53
+  54 55 56 57 58 59 60 61 62
+  63 64 65 66 67 68 69 70 71
+  72 73 74 75 76 77 78 79 80
+   */
+  for (const start of [0, 3, 6, 27, 30, 33, 54, 57, 60]) {
+    let box = [];
+    for (let i = start; i < start + 3; i++) box.push(i);
+    for (let i = start + 9; i < start + 3 + 9; i++) box.push(i);
+    for (let i = start + 9 + 9; i < start + 3 + 9 + 9; i++) box.push(i);
+
+    if (box.includes(current)) {
+      res.push(...box);
+    }
+  }
+
+  return res as number[];
 });
 
 export const diffClicked = createEvent<Diff>();
@@ -23,6 +58,15 @@ export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
+export const resetClicked = createEvent();
+
+const diffClickedWithPuzzle = diffClicked.map((diff) => {
+  let p = getPuzzles().filter(({ difficulty }) => difficulty === diff);
+
+  return randomFrom(p).puzzle;
+});
+
+sample({ source: $initField, clock: resetClicked, target: $field });
 
 sample({
   source: [$field, $currentCell] as const,
@@ -37,10 +81,11 @@ sample({
   target: $field,
 });
 
-$field.on(diffClicked, (f, diff) => {
-  let p = getPuzzles().filter(({ difficulty }) => difficulty === diff);
-
-  return randomFrom(p).puzzle;
+$field.on(diffClickedWithPuzzle, (f, puzzle) => {
+  return puzzle;
+});
+$initField.on(diffClickedWithPuzzle, (f, puzzle) => {
+  return puzzle;
 });
 
 sample({
@@ -77,7 +122,7 @@ sample({
 $currentCell
   .on(cellClicked, (_, n) => n)
   .on(arrowClicked, (current, dir) => {
-    if (!current) return;
+    if (current === null) return null;
     let newPos = {
       ArrowUp: current - 9,
       ArrowDown: current + 9,
@@ -88,6 +133,7 @@ $currentCell
     if (newPos !== undefined && newPos >= 0 && newPos < 81) {
       return newPos;
     }
+    return null;
   });
 
 $field.watch((field) => {
