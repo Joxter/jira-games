@@ -1,5 +1,12 @@
 import { all_difficulties } from "./lib/constants";
-import { combine, createEvent, createStore, sample } from "effector";
+import {
+  combine,
+  createEffect,
+  createEvent,
+  createStore,
+  sample,
+} from "effector";
+import { isInvalid } from "./lib/sudoku-solver";
 
 type Field = number[];
 type Candidates = number[];
@@ -22,7 +29,7 @@ type Actions =
   | { type: "edit-cell"; id: number; val: number }
   | { type: "edit-candidate"; id: number; val: number };
 
-export const $puzzle = createStore<Field>(getFieldsFromLS());
+export const $puzzle = createStore<Field>(getFieldsFromLS()[0]);
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map((current) => {
@@ -67,6 +74,10 @@ export const $history = createStore<{ steps: Actions[]; current: number }>({
   current: -1,
   steps: [],
 });
+
+type History = { steps: Actions[]; current: number };
+
+export const $history = createStore<History>(getFieldsFromLS()[1]);
 
 export const undo = createEvent();
 export const redo = createEvent();
@@ -139,10 +150,11 @@ const diffClickedWithPuzzle = diffClicked.map((diff) => {
 });
 
 sample({
-  source: [$history, $currentCell] as const,
+  source: [$field, $history, $currentCell] as const,
   clock: cellChanged,
-  fn: ([history, index], val) => {
+  fn: ([field, history, index], val) => {
     if (index === null) return history;
+    if (isInvalid(field, index, val)) return history;
 
     if (history.current === history.steps.length - 1) {
       return {
@@ -202,13 +214,14 @@ $currentCell
     return null;
   });
 
-$puzzle.watch((field) => {
-  saveFieldsToLS(field);
+combine($puzzle, $history).watch(([field, history]) => {
+  saveFieldsToLS(field, history);
 });
 
-function saveFieldsToLS(field: Field) {
+function saveFieldsToLS(field: Field, history: History) {
   try {
-    localStorage.setItem("sudoku_WIP", JSON.stringify(field));
+    localStorage.setItem("sudoku_history", JSON.stringify(history));
+    localStorage.setItem("sudoku_field", JSON.stringify(field));
     return true;
   } catch (err) {
     console.error(err);
@@ -216,10 +229,12 @@ function saveFieldsToLS(field: Field) {
   }
 }
 
-function getFieldsFromLS(): Field {
+function getFieldsFromLS(): [Field, History] {
   try {
-    let rawField = localStorage.getItem("sudoku_WIP") || "";
+    let rawField = localStorage.getItem("sudoku_field") || "";
+    let rawHistory = localStorage.getItem("sudoku_history") || "";
     let field = JSON.parse(rawField) as any as any[];
+    let history = JSON.parse(rawHistory) as any;
 
     if (
       field.every((it) => {
@@ -227,12 +242,12 @@ function getFieldsFromLS(): Field {
       }) &&
       field.length === 81
     ) {
-      return field as number[];
+      return [field as number[], history];
     }
-    return Array(81).fill(0);
+    return [Array(81).fill(0), { current: -1, steps: [] }];
   } catch (err) {
     console.error(err);
-    return Array(81).fill(0);
+    return [Array(81).fill(0), { current: -1, steps: [] }];
   }
 }
 

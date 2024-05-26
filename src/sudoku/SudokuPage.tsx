@@ -54,6 +54,7 @@ export function SudokuPage() {
           reset
         </button>
       </p>
+      <p>current: {current}</p>
       <p>
         generate:
         {all_difficulties.map((d) => {
