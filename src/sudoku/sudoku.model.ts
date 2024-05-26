@@ -1,5 +1,5 @@
 import { all_difficulties } from "./lib/constants";
-import { createEvent, createStore, sample } from "effector";
+import { combine, createEvent, createStore, sample } from "effector";
 
 type Field = number[];
 type Candidates = number[];
@@ -18,9 +18,11 @@ const CANDIDATES = [
 
 type Diff = (typeof all_difficulties)[number];
 
-export const $field = createStore<Field>(getFieldsFromLS());
-export const $initField = createStore<Field>(getFieldsFromLS());
-export const $candidates = createStore<Candidates>(Array(81).fill(0));
+type Actions =
+  | { type: "edit-cell"; id: number; val: number }
+  | { type: "edit-candidate"; id: number; val: number };
+
+export const $puzzle = createStore<Field>(getFieldsFromLS());
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map((current) => {
@@ -61,6 +63,50 @@ export const $highLightCells = $currentCell.map((current) => {
   return res as number[];
 });
 
+export const $history = createStore<{ steps: Actions[]; current: number }>({
+  current: -1,
+  steps: [],
+});
+
+export const undo = createEvent();
+export const redo = createEvent();
+
+export const $field = combine(
+  $puzzle,
+  $history,
+  (puzzle, { steps, current }) => {
+    let res = [...puzzle];
+
+    for (let i = 0; i <= current; i++) {
+      let { type, id, val } = steps[i];
+      if (type === "edit-cell") {
+        res[id] = val;
+      }
+    }
+
+    return res;
+  },
+);
+
+export const $candidates = combine(
+  $puzzle,
+  $history,
+  (puzzle, { steps, current }) => {
+    let res = Array(81).fill(0);
+
+    for (let i = 0; i <= current; i++) {
+      let { type, id, val } = steps[i];
+      if (type === "edit-cell") {
+        res[id] = 0;
+      } else if (type === "edit-candidate") {
+        res[id] = res[id] ^ CANDIDATES[val];
+      }
+    }
+
+    return res;
+  },
+);
+
 export const diffClicked = createEvent<Diff>();
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
@@ -68,58 +114,75 @@ export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
 export const resetClicked = createEvent();
 
+// $history.watch(console.log)
+
+$history
+  .on(undo, (state) => {
+    return {
+      steps: state.steps,
+      current: state.current >= 0 ? state.current - 1 : state.current,
+    };
+  })
+  .on(redo, (state) => {
+    return {
+      steps: state.steps,
+      current: state.steps[state.current + 1]
+        ? state.current + 1
+        : state.current,
+    };
+  });
+
 const diffClickedWithPuzzle = diffClicked.map((diff) => {
   let p = getPuzzles().filter(({ difficulty }) => difficulty === diff);
 
   return randomFrom(p).puzzle;
 });
 
-sample({ source: $initField, clock: resetClicked, target: $field });
-
 sample({
-  source: [$field, $currentCell] as const,
+  source: [$history, $currentCell] as const,
   clock: cellChanged,
-  fn: ([field, index], val) => {
-    if (index === null) return field;
+  fn: ([history, index], val) => {
+    if (index === null) return history;
 
-    const newField = [...field];
-    newField[index] = val;
-    return newField;
+    if (history.current === history.steps.length - 1) {
+      return {
+        steps: [
+          ...history.steps,
+          { type: "edit-cell" as const, id: index, val },
+        ],
+        current: history.current + 1,
+      };
+    }
+
+    return {
+      steps: [
+        ...history.steps.slice(0, history.current + 1),
+        { type: "edit-cell" as const, id: index, val },
+      ],
+      current: history.current + 1,
+    };
   },
-  target: $field,
+  target: $history,
 });
 
-$field.on(diffClickedWithPuzzle, (f, puzzle) => {
-  return puzzle;
-});
-$initField.on(diffClickedWithPuzzle, (f, puzzle) => {
+$puzzle.on(diffClickedWithPuzzle, (f, puzzle) => {
   return puzzle;
 });
 
 sample({
-  source: [$candidates, $currentCell] as const,
+  source: [$history, $currentCell] as const,
   clock: cellCandidateChanged,
-  fn: ([field, index], val) => {
-    if (index === null) return field;
-
-    const newCandidates = [...field];
-    newCandidates[index] = newCandidates[index] ^ CANDIDATES[val - 1];
-    return newCandidates;
+  fn: ([history, index], val) => {
+    if (index === null) return history;
+    return {
+      steps: [
+        ...history.steps,
+        { type: "edit-candidate" as const, id: index, val },
+      ],
+      current: history.current + 1,
+    };
   },
-  target: $candidates,
-});
-
-sample({
-  source: [$candidates, $currentCell] as const,
-  clock: cellChanged,
-  fn: ([field, index]) => {
-    if (index === null) return field;
-
-    const newCandidates = [...field];
-    newCandidates[index] = 0;
-    return newCandidates;
-  },
-  target: $candidates,
+  target: $history,
 });
 
 $currentCell
@@ -139,7 +202,7 @@ $currentCell
     return null;
   });
 
-$field.watch((field) => {
+$puzzle.watch((field) => {
   saveFieldsToLS(field);
 });
 

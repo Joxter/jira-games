@@ -2,7 +2,7 @@ import css from "./Sudoku.module.css";
 import { cn } from "../unit";
 import { all_difficulties } from "./lib/constants";
 import {
-  $field,
+  $puzzle,
   $candidates,
   $currentCell,
   $highLightCells,
@@ -13,16 +13,21 @@ import {
   diffClicked,
   resetClicked,
   viewCandidates,
+  $field,
+  undo,
+  redo,
+  $history,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
 
 export function SudokuPage() {
-  const [field, candidates, current, highLightCells] = useUnit([
+  const [field, candidates, current, highLightCells, history] = useUnit([
     $field,
     $candidates,
     $currentCell,
     $highLightCells,
+    $history,
   ]);
 
   const fieldRef = useRef<any>(null);
@@ -62,6 +67,10 @@ export function SudokuPage() {
             </button>
           );
         })}
+      </p>
+      <p>
+        <button onClick={() => undo()}>undo</button>
+        <button onClick={() => redo()}>redo</button>
       </p>
 
       <div
