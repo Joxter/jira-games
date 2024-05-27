@@ -26,22 +26,23 @@ export const $highLightCells = $currentCell.map(getHighlightCells);
 const changeCellFx = createEffect<
   ChangeCellProps,
   { field: Field; history: History } | null,
-  number
+  number[]
 >(changeCellHandler);
 
 export const $history = createStore<History>(getFieldsFromLS()[1]);
 export const undo = createEvent();
 export const redo = createEvent();
+export const resetClicked = createEvent();
 
 export const $candidates = combine($puzzle, $history, applyStepsForCandidates);
 
 export const puzzleSelected = createEvent<string>();
+export const pageOpened = createEvent();
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
-export const resetClicked = createEvent();
-export const showCellError = createEvent<number>();
+export const showCellError = createEvent<number[]>();
 
 $puzzle.on(changeCellFx.doneData, (state, res) => (res ? res.field : state));
 
@@ -73,9 +74,12 @@ $history
   })
   .on(changeCellFx.doneData, (state, res) => {
     return res ? res.history : state;
+  })
+  .on([puzzleSelected, resetClicked], () => {
+    console.log('puzzleSelected');
+    return { steps: [], current: -1 };
   });
 
-$history.reset(puzzleSelected);
 $puzzle.on(puzzleSelected, (state, puzzleStr) => {
   let puzzle = puzzleStr.split("").map((it) => +it);
 
@@ -108,7 +112,12 @@ $currentCell
     return null;
   });
 
-combine($puzzle, $history).watch(([field, history]) => {
+$history.watch(console.log);
+
+sample({
+  source: [$puzzle, $history] as const,
+  clock: [changeCellFx.doneData, cellCandidateChanged],
+}).watch(([field, history]) => {
   console.log("SAVED", history.current);
   saveFieldsToLS(field, history);
 });

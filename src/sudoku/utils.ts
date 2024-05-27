@@ -66,7 +66,7 @@ export function changeCellHandler(data: ChangeCellProps) {
   if (field[cell] === value) return null;
 
   let errCell = isInvalid(field, cell, value);
-  if (typeof errCell === "number") return Promise.reject(errCell);
+  if (errCell) throw errCell;
 
   field[cell] = value;
   const action = { type: "edit-cell" as const, id: cell, val: value };

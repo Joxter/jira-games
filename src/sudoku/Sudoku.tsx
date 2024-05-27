@@ -22,7 +22,7 @@ export function Sudoku() {
       return SudokuList;
     }
     if (page.startsWith("#puzzle-")) {
-      puzzleSelected(page.split("-")[1]);
+      // puzzleSelected(page.split("-")[1]);
       return PuzzlePage;
     }
     console.log("NOT FOUND", [page]);

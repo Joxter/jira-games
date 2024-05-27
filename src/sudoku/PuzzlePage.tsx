@@ -12,6 +12,8 @@ import {
   undo,
   redo,
   showCellError,
+  resetClicked,
+  pageOpened,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -28,7 +30,7 @@ export function PuzzlePage() {
   const fieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function h(ev: any) {
+    function handler(ev: any) {
       if (
         ev.target.nodeName !== "BUTTON" &&
         !fieldRef.current!.contains(ev.target)
@@ -36,64 +38,25 @@ export function PuzzlePage() {
         cellClicked(null);
       }
     }
-    document.addEventListener("click", h);
+    document.addEventListener("click", handler);
 
-    return () => document.removeEventListener("click", h);
+    return () => document.removeEventListener("click", handler);
   }, []);
 
   useEffect(() => {
-    let unsub = showCellError.watch((n) => {
-      let cell = fieldRef.current!.querySelector("#cell" + n) as HTMLElement;
-      if (!cell) return;
-      cell.style.position = "relative";
-      cell.style.zIndex = "10";
+    let unsub = showCellError.watch((nums) => {
+      nums.forEach((n) => {
+        let cell = fieldRef.current!.querySelector("#cell" + n) as HTMLElement;
 
-      let animate = cell.animate(
-        [{ transform: "scale(1)" }, { transform: "scale(1.1)" }],
-        {
-          duration: 50,
-          iterations: 2,
-          direction: "alternate",
-        },
-      );
-      animate.onfinish = () => {
-        cell.style.position = "initial";
-        cell.style.zIndex = "initial";
-      };
-
-      cell.animate(
-        [
-          { borderColor: "red", color: "red" },
-          { borderColor: "#d5d5cd", color: "#213547" },
-        ],
-        {
-          duration: 1500,
-          iterations: 1,
-        },
-      );
+        if (cell) showErrorAnimation(cell);
+      });
     });
 
     return () => unsub();
   }, []);
 
   return (
-    <div className={css.page}>
-      <p>
-        <button
-          onClick={() => {
-            localStorage.removeItem("sudoku_history");
-            localStorage.removeItem("sudoku_field");
-            location.reload();
-          }}
-        >
-          reset
-        </button>
-      </p>
-      <p>
-        <button onClick={() => undo()}>undo</button>
-        <button onClick={() => redo()}>redo</button>
-      </p>
-
+    <div>
       <div
         ref={fieldRef}
         className={css.field}
@@ -160,17 +123,24 @@ export function PuzzlePage() {
         })}
       </div>
       <br />
-      <NumRow
-        candidate
-        onClick={(n) => {
-          cellCandidateChanged(n);
-        }}
-      />
-      <NumRow
-        onClick={(n) => {
-          cellChanged(n);
-        }}
-      />
+      <div className={css.nums}>
+        <NumRow
+          onClick={(n) => {
+            cellChanged(n);
+          }}
+        />
+        <div className={css.numsActions}>
+          <button onClick={() => resetClicked()}>X</button>
+          <button onClick={() => undo()}>undo</button>
+          <button onClick={() => redo()}>redo</button>
+        </div>
+        <NumRow
+          candidate
+          onClick={(n) => {
+            cellCandidateChanged(n);
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -262,9 +232,37 @@ function NumRow({
 }) {
   return (
     <div className={css.numRow} style={{ opacity: candidate ? 0.7 : 1 }}>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => {
-        return <button onClick={() => onClick(n)}>{n || "X"}</button>;
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+        return <button onClick={() => onClick(n)}>{n}</button>;
       })}
     </div>
+  );
+}
+
+function showErrorAnimation(cell: HTMLElement) {
+  cell.style.position = "relative";
+  cell.style.zIndex = "10";
+
+  let animate = cell.animate(
+    [{ transform: "scale(1)" }, { transform: "scale(1.3)" }],
+    {
+      duration: 50,
+      iterations: 2,
+      direction: "alternate",
+    },
+  );
+  animate.onfinish = () => {
+    cell.style.zIndex = "initial";
+  };
+
+  cell.animate(
+    [
+      { borderColor: "red", color: "red" },
+      { borderColor: "#d5d5cd", color: "#213547" },
+    ],
+    {
+      duration: 1500,
+      iterations: 1,
+    },
   );
 }
