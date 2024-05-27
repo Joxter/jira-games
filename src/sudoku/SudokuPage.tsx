@@ -48,7 +48,9 @@ export function SudokuPage() {
       <p>
         <button
           onClick={() => {
-            resetClicked();
+            localStorage.removeItem("sudoku_history");
+            localStorage.removeItem("sudoku_field");
+            location.reload();
           }}
         >
           reset

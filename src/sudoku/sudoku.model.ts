@@ -25,7 +25,7 @@ const CANDIDATES = [
 
 type Diff = (typeof all_difficulties)[number];
 
-type Actions =
+type Action =
   | { type: "edit-cell"; id: number; val: number }
   | { type: "edit-candidate"; id: number; val: number };
 
@@ -70,34 +70,56 @@ export const $highLightCells = $currentCell.map((current) => {
   return res as number[];
 });
 
-export const $history = createStore<{ steps: Actions[]; current: number }>({
-  current: -1,
-  steps: [],
-});
+const changeFieldFx = createEffect(
+  (data: {
+    puzzle: Field;
+    history: History;
+    cell: number | null;
+    value: number;
+  }) => {
+    const { puzzle, history, cell, value } = data;
+    if (cell === null) return null;
 
-type History = { steps: Actions[]; current: number };
+    let field = applyEditCellActions(puzzle, history);
+    if (field[cell] === value) return null;
+
+    let errCell = isInvalid(field, cell, value);
+    if (typeof errCell === "number") return Promise.reject(errCell);
+
+    field[cell] = value;
+    const action = { type: "edit-cell" as const, id: cell, val: value };
+
+    if (history.current === history.steps.length - 1) {
+      return {
+        field,
+        history: {
+          steps: [...history.steps, action],
+          current: history.current + 1,
+        },
+      };
+    }
+
+    return {
+      field,
+      history: {
+        steps: [...history.steps.slice(0, history.current + 1), action],
+        current: history.current + 1,
+      },
+    };
+  },
+);
+
+type History = { steps: Action[]; current: number };
 
 export const $history = createStore<History>(getFieldsFromLS()[1]);
 
 export const undo = createEvent();
 export const redo = createEvent();
 
-export const $field = combine(
-  $puzzle,
-  $history,
-  (puzzle, { steps, current }) => {
-    let res = [...puzzle];
-
-    for (let i = 0; i <= current; i++) {
-      let { type, id, val } = steps[i];
-      if (type === "edit-cell") {
-        res[id] = val;
-      }
-    }
-
-    return res;
-  },
-);
+export const $field = createStore<Field>(getFieldsFromLS()[0]);
+$field.on(changeFieldFx.doneData, (state, res) => {
+  return res ? res.field : state;
+});
 
 export const $candidates = combine(
   $puzzle,
@@ -125,6 +147,19 @@ export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
 export const resetClicked = createEvent();
 
+sample({
+  source: [$puzzle, $history, $currentCell] as const,
+  clock: cellChanged,
+  fn: ([puzzle, history, cell], value) => {
+    return { puzzle, history, cell, value };
+  },
+  target: changeFieldFx,
+});
+
+changeFieldFx.failData.watch((cell) => {
+  console.log("ERROR", cell);
+});
+
 // $history.watch(console.log)
 
 $history
@@ -141,40 +176,15 @@ $history
         ? state.current + 1
         : state.current,
     };
+  })
+  .on(changeFieldFx.doneData, (state, res) => {
+    return res ? res.history : state;
   });
 
 const diffClickedWithPuzzle = diffClicked.map((diff) => {
   let p = getPuzzles().filter(({ difficulty }) => difficulty === diff);
 
   return randomFrom(p).puzzle;
-});
-
-sample({
-  source: [$field, $history, $currentCell] as const,
-  clock: cellChanged,
-  fn: ([field, history, index], val) => {
-    if (index === null) return history;
-    if (isInvalid(field, index, val)) return history;
-
-    if (history.current === history.steps.length - 1) {
-      return {
-        steps: [
-          ...history.steps,
-          { type: "edit-cell" as const, id: index, val },
-        ],
-        current: history.current + 1,
-      };
-    }
-
-    return {
-      steps: [
-        ...history.steps.slice(0, history.current + 1),
-        { type: "edit-cell" as const, id: index, val },
-      ],
-      current: history.current + 1,
-    };
-  },
-  target: $history,
 });
 
 $puzzle.on(diffClickedWithPuzzle, (f, puzzle) => {
@@ -186,13 +196,24 @@ sample({
   clock: cellCandidateChanged,
   fn: ([history, index], val) => {
     if (index === null) return history;
-    return {
-      steps: [
-        ...history.steps,
-        { type: "edit-candidate" as const, id: index, val },
-      ],
-      current: history.current + 1,
-    };
+
+    if (history.current === history.steps.length - 1) {
+      return {
+        steps: [
+          ...history.steps,
+          { type: "edit-candidate" as const, id: index, val },
+        ],
+        current: history.current + 1,
+      };
+    } else {
+      return {
+        steps: [
+          ...history.steps.slice(0, history.current + 1),
+          { type: "edit-candidate" as const, id: index, val },
+        ],
+        current: history.current + 1,
+      };
+    }
   },
   target: $history,
 });
@@ -296,4 +317,18 @@ export function viewCandidates(candidates: number): number[] {
     .reverse()
     .map((it, i) => (it === "1" ? i : 0))
     .filter((n) => n > 0);
+}
+
+export function applyEditCellActions(puzzle: Field, history: History): Field {
+  let res = [...puzzle];
+  let { current, steps } = history;
+
+  for (let i = 0; i <= current; i++) {
+    let { type, id, val } = steps[i];
+    if (type === "edit-cell") {
+      res[id] = val;
+    }
+  }
+
+  return res;
 }
