@@ -46,13 +46,16 @@ import {
 
 // Function to create a new Sudoku instance
 export async function createSudokuInstance(options: Options = {}) {
-  const {
+  let {
     onError,
     onUpdate,
     onFinish,
     initBoard,
+    timeLimit,
     difficulty = DIFFICULTY_MEDIUM,
   } = options;
+
+  let startTime = Date.now();
 
   let board: InternalBoard = [];
 
@@ -274,8 +277,10 @@ export async function createSudokuInstance(options: Options = {}) {
 
   // Initialization and public methods
 
-  async function nextTickPromise() {
+  async function makeBrakePromise() {
+    return Promise.resolve();
     return new Promise((res) => {
+      // todo try requestIdleCallback ???
       // @ts-ignore
       if (typeof setImmediate === "function") {
         // @ts-ignore
@@ -291,7 +296,10 @@ export async function createSudokuInstance(options: Options = {}) {
     let boardClone = cloneBoard(board);
     let Continue: boolean | "value" | "elimination" = true;
     while (Continue) {
-      await nextTickPromise();
+      await makeBrakePromise();
+      if (timeLimit && Date.now() - startTime > timeLimit) {
+        throw Error("Time limit exceeded");
+      }
       Continue = applySolvingStrategies(
         {
           strategyIndex: Continue === "elimination" ? 1 : 0,
