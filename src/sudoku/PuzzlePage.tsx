@@ -1,8 +1,6 @@
-import css from "./Sudoku.module.css";
+import css from "./PuzzlePage.module.css";
 import { cn } from "../unit";
-import { all_difficulties } from "./lib/constants";
 import {
-  $puzzle,
   $candidates,
   $currentCell,
   $highLightCells,
@@ -10,25 +8,21 @@ import {
   cellCandidateChanged,
   cellChanged,
   cellClicked,
-  diffClicked,
-  resetClicked,
-  viewCandidates,
-  $field,
+  $puzzle,
   undo,
   redo,
-  $history,
   showCellError,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
+import { viewCandidates } from "./utils";
 
-export function SudokuPage() {
-  const [field, candidates, current, highLightCells, history] = useUnit([
-    $field,
+export function PuzzlePage() {
+  const [field, candidates, current, highLightCells] = useUnit([
+    $puzzle,
     $candidates,
     $currentCell,
     $highLightCells,
-    $history,
   ]);
 
   const fieldRef = useRef<HTMLDivElement>(null);
@@ -83,7 +77,7 @@ export function SudokuPage() {
   }, []);
 
   return (
-    <div className={css.root}>
+    <div className={css.page}>
       <p>
         <button
           onClick={() => {
@@ -94,21 +88,6 @@ export function SudokuPage() {
         >
           reset
         </button>
-      </p>
-      <p>current: {current}</p>
-      <p>
-        generate:
-        {all_difficulties.map((d) => {
-          return (
-            <button
-              onClick={() => {
-                diffClicked(d);
-              }}
-            >
-              {d}
-            </button>
-          );
-        })}
       </p>
       <p>
         <button onClick={() => undo()}>undo</button>
@@ -180,7 +159,7 @@ export function SudokuPage() {
           );
         })}
       </div>
-      <br/>
+      <br />
       <NumRow
         candidate
         onClick={(n) => {

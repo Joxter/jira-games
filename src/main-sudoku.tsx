@@ -1,11 +1,11 @@
 import "./main.css";
 import css from "./app.module.css";
 import { render } from "preact";
-import { SudokuPage } from "./sudoku/SudokuPage";
+import { Sudoku } from "./sudoku/Sudoku";
 
 render(
   <div class={css.root}>
-    <SudokuPage />
+    <Sudoku />
   </div>,
   document.getElementById("app")!,
 );

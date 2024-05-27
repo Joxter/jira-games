@@ -1,3 +1,4 @@
+// @ts-ignore
 import { appendFileSync } from "fs";
 import { generate } from "./lib";
 import { all_difficulties } from "./lib/constants";

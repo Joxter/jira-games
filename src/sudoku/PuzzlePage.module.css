@@ -1,4 +1,4 @@
-.root {
+.page {
   margin: 0 auto;
   background-color: #f1f1ec;
   padding: 20px;
@@ -47,12 +47,6 @@
   border-color: #3d74ea;
 }
 
-.cellError {
-  box-shadow: inset 0 0 0 2px #d93838;
-  border-color: #d93838;
-  color: #d93838;
-}
-
 .cell span {
   margin: auto;
   font-size: 18px;
@@ -92,4 +86,13 @@
   border-radius: 4px;
   height: 40px;
   flex: 1;
+}
+
+.puzzleList {
+  display: grid;
+  margin-top: 24px;
+}
+
+.puzzleList h2 {
+  text-align: center;
 }
