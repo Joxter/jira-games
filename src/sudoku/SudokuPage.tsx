@@ -31,11 +31,14 @@ export function SudokuPage() {
     $history,
   ]);
 
-  const fieldRef = useRef<any>(null);
+  const fieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function h(ev: any) {
-      if (!fieldRef.current!.contains(ev.target)) {
+      if (
+        ev.target.nodeName !== "BUTTON" &&
+        !fieldRef.current!.contains(ev.target)
+      ) {
         cellClicked(null);
       }
     }
@@ -46,15 +49,24 @@ export function SudokuPage() {
 
   useEffect(() => {
     let unsub = showCellError.watch((n) => {
-      let cell = fieldRef.current!.querySelector("#cell" + n);
-      console.log(cell);
+      let cell = fieldRef.current!.querySelector("#cell" + n) as HTMLElement;
       if (!cell) return;
+      cell.style.position = "relative";
+      cell.style.zIndex = "10";
 
-      cell.animate([{ transform: "scale(1)" }, { transform: "scale(1.1)" }], {
-        duration: 50,
-        iterations: 2,
-        direction: "alternate",
-      });
+      let animate = cell.animate(
+        [{ transform: "scale(1)" }, { transform: "scale(1.1)" }],
+        {
+          duration: 50,
+          iterations: 2,
+          direction: "alternate",
+        },
+      );
+      animate.onfinish = () => {
+        cell.style.position = "initial";
+        cell.style.zIndex = "initial";
+      };
+
       cell.animate(
         [
           { borderColor: "red", color: "red" },
@@ -149,6 +161,13 @@ export function SudokuPage() {
                     key={index}
                     index={index}
                     isCurrent={current === index}
+                    isSame={
+                      (val &&
+                        current !== null &&
+                        current !== index &&
+                        field[current] === val) ||
+                      false
+                    }
                     isHighLight={highLightCells.includes(index)}
                     value={val}
                     onClick={() => {
@@ -161,6 +180,18 @@ export function SudokuPage() {
           );
         })}
       </div>
+      <br/>
+      <NumRow
+        candidate
+        onClick={(n) => {
+          cellCandidateChanged(n);
+        }}
+      />
+      <NumRow
+        onClick={(n) => {
+          cellChanged(n);
+        }}
+      />
     </div>
   );
 }
@@ -194,6 +225,7 @@ type CellProps = {
   value: number;
   index: number;
   isCurrent: boolean;
+  isSame: boolean;
   isHighLight: boolean;
   onClick: () => void;
   candidates: number;
@@ -202,6 +234,7 @@ type CellProps = {
 function Cell({
   value,
   isCurrent,
+  isSame,
   isHighLight,
   onClick,
   candidates,
@@ -217,6 +250,7 @@ function Cell({
         css.cell,
         isCurrent && css.cellCurrent,
         isHighLight && css.cellHighLight,
+        isSame && css.sameNumber,
       )}
     >
       {candidates > 0 ? (
@@ -237,5 +271,21 @@ function Cell({
         <span>{value === 0 ? "" : value}</span>
       )}
     </button>
+  );
+}
+
+function NumRow({
+  onClick,
+  candidate,
+}: {
+  onClick: (value: number) => void;
+  candidate?: boolean;
+}) {
+  return (
+    <div className={css.numRow} style={{ opacity: candidate ? 0.7 : 1 }}>
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((n) => {
+        return <button onClick={() => onClick(n)}>{n || "X"}</button>;
+      })}
+    </div>
   );
 }

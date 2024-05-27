@@ -21,6 +21,7 @@ const CANDIDATES = [
   1 << 6,
   1 << 7,
   1 << 8,
+  1 << 9,
 ];
 
 type Diff = (typeof all_difficulties)[number];
@@ -127,7 +128,7 @@ $field.on(changeCellFx.doneData, (state, res) => {
 export const $candidates = combine(
   $puzzle,
   $history,
-  (puzzle, { steps, current }) => {
+  (puzzle, { steps, current }): Candidates => {
     let res = Array(81).fill(0);
 
     for (let i = 0; i <= current; i++) {
