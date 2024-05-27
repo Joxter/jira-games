@@ -17,6 +17,7 @@ import {
   undo,
   redo,
   $history,
+  showCellError,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -41,6 +42,32 @@ export function SudokuPage() {
     document.addEventListener("click", h);
 
     return () => document.removeEventListener("click", h);
+  }, []);
+
+  useEffect(() => {
+    let unsub = showCellError.watch((n) => {
+      let cell = fieldRef.current!.querySelector("#cell" + n);
+      console.log(cell);
+      if (!cell) return;
+
+      cell.animate([{ transform: "scale(1)" }, { transform: "scale(1.1)" }], {
+        duration: 50,
+        iterations: 2,
+        direction: "alternate",
+      });
+      cell.animate(
+        [
+          { borderColor: "red", color: "red" },
+          { borderColor: "#d5d5cd", color: "#213547" },
+        ],
+        {
+          duration: 1500,
+          iterations: 1,
+        },
+      );
+    });
+
+    return () => unsub();
   }, []);
 
   return (
@@ -120,6 +147,7 @@ export function SudokuPage() {
                   <Cell
                     candidates={candidates[index]}
                     key={index}
+                    index={index}
                     isCurrent={current === index}
                     isHighLight={highLightCells.includes(index)}
                     value={val}
@@ -164,6 +192,7 @@ function fieldToLayout(field: number[]): [number, number][][] {
 
 type CellProps = {
   value: number;
+  index: number;
   isCurrent: boolean;
   isHighLight: boolean;
   onClick: () => void;
@@ -176,9 +205,11 @@ function Cell({
   isHighLight,
   onClick,
   candidates,
+  index,
 }: CellProps) {
   return (
     <button
+      id={"cell" + index}
       onClick={() => {
         onClick();
       }}

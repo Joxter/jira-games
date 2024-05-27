@@ -70,44 +70,47 @@ export const $highLightCells = $currentCell.map((current) => {
   return res as number[];
 });
 
-const changeFieldFx = createEffect(
-  (data: {
-    puzzle: Field;
-    history: History;
-    cell: number | null;
-    value: number;
-  }) => {
-    const { puzzle, history, cell, value } = data;
-    if (cell === null) return null;
+type ChangeCellProps = {
+  puzzle: Field;
+  history: History;
+  cell: number | null;
+  value: number;
+};
 
-    let field = applyEditCellActions(puzzle, history);
-    if (field[cell] === value) return null;
+const changeCellFx = createEffect<
+  ChangeCellProps,
+  { field: Field; history: History } | null,
+  number
+>((data) => {
+  const { puzzle, history, cell, value } = data;
+  if (cell === null) return null;
+  let field = applyEditCellActions(puzzle, history);
+  if (field[cell] === value) return null;
 
-    let errCell = isInvalid(field, cell, value);
-    if (typeof errCell === "number") return Promise.reject(errCell);
+  let errCell = isInvalid(field, cell, value);
+  if (typeof errCell === "number") return Promise.reject(errCell);
 
-    field[cell] = value;
-    const action = { type: "edit-cell" as const, id: cell, val: value };
+  field[cell] = value;
+  const action = { type: "edit-cell" as const, id: cell, val: value };
 
-    if (history.current === history.steps.length - 1) {
-      return {
-        field,
-        history: {
-          steps: [...history.steps, action],
-          current: history.current + 1,
-        },
-      };
-    }
-
+  if (history.current === history.steps.length - 1) {
     return {
       field,
       history: {
-        steps: [...history.steps.slice(0, history.current + 1), action],
+        steps: [...history.steps, action],
         current: history.current + 1,
       },
     };
-  },
-);
+  }
+
+  return {
+    field,
+    history: {
+      steps: [...history.steps.slice(0, history.current + 1), action],
+      current: history.current + 1,
+    },
+  };
+});
 
 type History = { steps: Action[]; current: number };
 
@@ -117,7 +120,7 @@ export const undo = createEvent();
 export const redo = createEvent();
 
 export const $field = createStore<Field>(getFieldsFromLS()[0]);
-$field.on(changeFieldFx.doneData, (state, res) => {
+$field.on(changeCellFx.doneData, (state, res) => {
   return res ? res.field : state;
 });
 
@@ -146,6 +149,7 @@ export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
 export const resetClicked = createEvent();
+export const showCellError = createEvent<number>();
 
 sample({
   source: [$puzzle, $history, $currentCell] as const,
@@ -153,14 +157,10 @@ sample({
   fn: ([puzzle, history, cell], value) => {
     return { puzzle, history, cell, value };
   },
-  target: changeFieldFx,
+  target: changeCellFx,
 });
 
-changeFieldFx.failData.watch((cell) => {
-  console.log("ERROR", cell);
-});
-
-// $history.watch(console.log)
+sample({ clock: changeCellFx.failData, target: showCellError });
 
 $history
   .on(undo, (state) => {
@@ -177,7 +177,7 @@ $history
         : state.current,
     };
   })
-  .on(changeFieldFx.doneData, (state, res) => {
+  .on(changeCellFx.doneData, (state, res) => {
     return res ? res.history : state;
   });
 
@@ -252,18 +252,18 @@ function saveFieldsToLS(field: Field, history: History) {
 
 function getFieldsFromLS(): [Field, History] {
   try {
-    let rawField = localStorage.getItem("sudoku_field") || "";
+    let rawPuzzle = localStorage.getItem("sudoku_field") || "";
     let rawHistory = localStorage.getItem("sudoku_history") || "";
-    let field = JSON.parse(rawField) as any as any[];
+    let puzzle = JSON.parse(rawPuzzle) as any as any[];
     let history = JSON.parse(rawHistory) as any;
 
     if (
-      field.every((it) => {
+      puzzle.every((it) => {
         return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(it);
       }) &&
-      field.length === 81
+      puzzle.length === 81
     ) {
-      return [field as number[], history];
+      return [applyEditCellActions(puzzle, history) as Field, history];
     }
     return [Array(81).fill(0), { current: -1, steps: [] }];
   } catch (err) {
