@@ -1,5 +1,4 @@
 import css from "./PuzzlePage.module.css";
-import { cn } from "../unit";
 import {
   $candidates,
   $currentCell,
@@ -13,11 +12,11 @@ import {
   redo,
   showCellError,
   resetClicked,
-  pageOpened,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
-import { viewCandidates } from "./utils";
+import { fieldToLayout } from "./utils";
+import { Cell, NumRow } from "./Components";
 
 export function PuzzlePage() {
   const [field, candidates, current, highLightCells] = useUnit([
@@ -47,7 +46,6 @@ export function PuzzlePage() {
     let unsub = showCellError.watch((nums) => {
       nums.forEach((n) => {
         let cell = fieldRef.current!.querySelector("#cell" + n) as HTMLElement;
-
         if (cell) showErrorAnimation(cell);
       });
     });
@@ -124,117 +122,14 @@ export function PuzzlePage() {
       </div>
       <br />
       <div className={css.nums}>
-        <NumRow
-          onClick={(n) => {
-            cellChanged(n);
-          }}
-        />
+        <NumRow onClick={(n) => cellChanged(n)} />
         <div className={css.numsActions}>
           <button onClick={() => resetClicked()}>X</button>
           <button onClick={() => undo()}>undo</button>
           <button onClick={() => redo()}>redo</button>
         </div>
-        <NumRow
-          candidate
-          onClick={(n) => {
-            cellCandidateChanged(n);
-          }}
-        />
+        <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
-    </div>
-  );
-}
-
-function fieldToLayout(field: number[]): [number, number][][] {
-  //            [ value,  index]
-  const layout: [number, number][][] = Array(9)
-    .fill(0)
-    .map(() => Array(9));
-
-  field.forEach((val, _i) => {
-    const rowI = Math.floor(_i / 9);
-
-    const outer = {
-      i: Math.floor(rowI / 3) * 3,
-      j: (rowI % 3) * 3,
-    };
-
-    const colJ = _i % 9;
-
-    const i = outer.i + Math.floor(colJ / 3);
-    const j = outer.j + (colJ % 3);
-
-    layout[i][j] = [val, _i];
-  });
-
-  return layout;
-}
-
-type CellProps = {
-  value: number;
-  index: number;
-  isCurrent: boolean;
-  isSame: boolean;
-  isHighLight: boolean;
-  onClick: () => void;
-  candidates: number;
-};
-
-function Cell({
-  value,
-  isCurrent,
-  isSame,
-  isHighLight,
-  onClick,
-  candidates,
-  index,
-}: CellProps) {
-  return (
-    <button
-      id={"cell" + index}
-      onClick={() => {
-        onClick();
-      }}
-      className={cn(
-        css.cell,
-        isCurrent && css.cellCurrent,
-        isHighLight && css.cellHighLight,
-        isSame && css.sameNumber,
-      )}
-    >
-      {candidates > 0 ? (
-        <div className={css.candidates}>
-          {viewCandidates(candidates).map((n) => {
-            return (
-              <span
-                className={css.candidate}
-                style={{ gridArea: "c" + n }}
-                key={n}
-              >
-                {n}
-              </span>
-            );
-          })}
-        </div>
-      ) : (
-        <span>{value === 0 ? "" : value}</span>
-      )}
-    </button>
-  );
-}
-
-function NumRow({
-  onClick,
-  candidate,
-}: {
-  onClick: (value: number) => void;
-  candidate?: boolean;
-}) {
-  return (
-    <div className={css.numRow} style={{ opacity: candidate ? 0.7 : 1 }}>
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
-        return <button onClick={() => onClick(n)}>{n}</button>;
-      })}
     </div>
   );
 }

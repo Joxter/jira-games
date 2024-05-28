@@ -10,15 +10,13 @@ import {
   addCandidateToHistory,
   applyStepsForCandidates,
   changeCellHandler,
-  getFieldsFromLS,
   getHighlightCells,
   getPuzzles,
-  isValidPuzzle,
   saveFieldsToLS,
 } from "./utils";
 
 export const $puzzleList = createStore(getPuzzles());
-export const $puzzle = createStore<Field>(getFieldsFromLS()[0]);
+export const $puzzle = createStore<Field>(Array(81).fill(0));
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map(getHighlightCells);
@@ -29,15 +27,21 @@ const changeCellFx = createEffect<
   number[]
 >(changeCellHandler);
 
-export const $history = createStore<History>(getFieldsFromLS()[1]);
+export const $history = createStore<History>({ current: -1, steps: [] });
 export const undo = createEvent();
 export const redo = createEvent();
 export const resetClicked = createEvent();
 
 export const $candidates = combine($puzzle, $history, applyStepsForCandidates);
 
-export const puzzleSelected = createEvent<string>();
+export const puzzleSelected = createEvent<Field>();
 export const pageOpened = createEvent();
+export const initSudoku = createEvent<{
+  field: Field;
+  history: History;
+} | null>();
+
+// gameplay
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
@@ -75,16 +79,18 @@ $history
   .on(changeCellFx.doneData, (state, res) => {
     return res ? res.history : state;
   })
-  .on([puzzleSelected, resetClicked], () => {
-    console.log('puzzleSelected');
-    return { steps: [], current: -1 };
+  .on(initSudoku, (state, data) => {
+    return data ? data.history : state;
+  })
+  .reset(puzzleSelected, resetClicked);
+
+$puzzle
+  .on(puzzleSelected, (state, puzzleStr) => {
+    return puzzleStr;
+  })
+  .on(initSudoku, (state, data) => {
+    return data ? data.field : state;
   });
-
-$puzzle.on(puzzleSelected, (state, puzzleStr) => {
-  let puzzle = puzzleStr.split("").map((it) => +it);
-
-  return isValidPuzzle(puzzle) ? puzzle : state;
-});
 
 sample({
   source: [$history, $currentCell] as const,

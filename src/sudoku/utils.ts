@@ -622,3 +622,28 @@ export function isValidPuzzle(puzzle: number[]): boolean {
     }) && puzzle.length === 81
   );
 }
+
+export function fieldToLayout(field: number[]): [number, number][][] {
+  //            [ value,  index]
+  const layout: [number, number][][] = Array(9)
+    .fill(0)
+    .map(() => Array(9));
+
+  field.forEach((val, _i) => {
+    const rowI = Math.floor(_i / 9);
+
+    const outer = {
+      i: Math.floor(rowI / 3) * 3,
+      j: (rowI % 3) * 3,
+    };
+
+    const colJ = _i % 9;
+
+    const i = outer.i + Math.floor(colJ / 3);
+    const j = outer.j + (colJ % 3);
+
+    layout[i][j] = [val, _i];
+  });
+
+  return layout;
+}

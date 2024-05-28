@@ -1,12 +1,43 @@
-import { useUnit } from "effector-react";
-import { puzzleSelected } from "./sudoku.model";
-import { useEffect, useMemo, useRef, useState } from "preact/hooks";
+import { initSudoku, puzzleSelected } from "./sudoku.model";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import css from "./PuzzlePage.module.css";
 import { PuzzlePage } from "./PuzzlePage";
 import { SudokuList } from "./SudokuList";
+import { getFieldsFromLS, isValidPuzzle } from "./utils";
+import { Field } from "./types";
+
+function getPuzzleFromUrl(): Field | null {
+  let h = location.hash;
+
+  if (h.startsWith("#puzzle-")) {
+    let puzzleRaw = h
+      .split("-")[1]
+      .split("")
+      .map((it) => +it);
+
+    if (isValidPuzzle(puzzleRaw)) {
+      return puzzleRaw;
+    }
+  }
+
+  return null;
+}
+
+const initP = getPuzzleFromUrl();
+const [lastField, lastHistory] = getFieldsFromLS();
+
+if (initP) {
+  if (lastField.join("") === initP.join("")) {
+    initSudoku({ field: lastField, history: lastHistory });
+  } else {
+    initSudoku(null);
+  }
+} else {
+  initSudoku(null);
+}
 
 export function Sudoku() {
-  const [page, setPage] = useState(location.hash || "#list"); // #list
+  const [page, setPage] = useState(initP ? location.hash : "#list");
 
   useEffect(() => {
     function handler() {
@@ -18,21 +49,19 @@ export function Sudoku() {
   }, []);
 
   const PageComponent = useMemo(() => {
-    if (page === "#list") {
+    const initP = getPuzzleFromUrl();
+    if (initP) {
+      puzzleSelected(initP);
+      return PuzzlePage;
+    } else {
       return SudokuList;
     }
-    if (page.startsWith("#puzzle-")) {
-      // puzzleSelected(page.split("-")[1]);
-      return PuzzlePage;
-    }
-    console.log("NOT FOUND", [page]);
-    return null;
   }, [page]);
 
   return (
     <div className={css.page}>
       <a href="#list">to list</a>
-      {PageComponent && <PageComponent key={page} />}
+      <PageComponent key={page} />
     </div>
   );
 }

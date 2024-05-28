@@ -1,8 +1,12 @@
 import { useUnit } from "effector-react";
 import { $puzzleList } from "./sudoku.model";
-import { useEffect, useRef } from "preact/hooks";
 import css from "./PuzzlePage.module.css";
 import { all_difficulties } from "./lib/constants";
+import { getFieldsFromLS } from "./utils";
+
+let [lastField] = getFieldsFromLS();
+
+let lastFieldStr = lastField.join("");
 
 export function SudokuList() {
   const [puzzleList] = useUnit([$puzzleList]);
@@ -16,9 +20,11 @@ export function SudokuList() {
             <div className={css.puzzleList}>
               <h2>{difficulty}</h2>
               {puzzleList[difficulty].map((puzzle, i) => {
+                let unfinished = lastFieldStr === puzzle.join("");
+
                 return (
                   <a href={"#puzzle-" + puzzle.join("")} key={i}>
-                    Puzzle {i}
+                    Puzzle {i} unfinished {unfinished && "(unfinished)"}
                   </a>
                 );
               })}
