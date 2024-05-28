@@ -67,6 +67,7 @@ export function PuzzlePage() {
           ) {
             arrowClicked(ev.code);
           } else if (ev.code === "Backspace" || ev.code === "Delete") {
+            ev.preventDefault();
             cellChanged(0);
           } else if (
             [

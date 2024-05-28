@@ -16,4 +16,5 @@ export type ChangeCellProps = {
   history: History;
   cell: number | null;
   value: number;
+  type: "edit-cell" | "edit-candidate";
 };

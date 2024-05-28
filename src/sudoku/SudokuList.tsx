@@ -2,12 +2,12 @@ import { useUnit } from "effector-react";
 import { $puzzleList } from "./sudoku.model";
 import css from "./PuzzlePage.module.css";
 import { all_difficulties } from "./lib/constants";
-import { getFieldsFromLS } from "./utils";
+import { getSavedFromLS } from "./utils";
 
 export function SudokuList() {
   const [puzzleList] = useUnit([$puzzleList]);
 
-  let [lastField] = getFieldsFromLS();
+  let [lastField] = getSavedFromLS();
   let lastFieldStr = lastField.join("");
 
   return (

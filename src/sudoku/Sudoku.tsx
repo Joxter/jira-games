@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import css from "./PuzzlePage.module.css";
 import { PuzzlePage } from "./PuzzlePage";
 import { SudokuList } from "./SudokuList";
-import { getFieldsFromLS, isValidPuzzle } from "./utils";
+import { getSavedFromLS, isValidPuzzle, resetLS } from "./utils";
 import { Field } from "./types";
 
 function getPuzzleFromUrl(): Field | null {
@@ -24,7 +24,7 @@ function getPuzzleFromUrl(): Field | null {
 }
 
 const initP = getPuzzleFromUrl();
-const [lastField, lastHistory] = getFieldsFromLS();
+const [lastField, lastHistory] = getSavedFromLS();
 
 if (initP) {
   if (lastField.join("") === initP.join("")) {
@@ -38,12 +38,17 @@ if (initP) {
 
 export function Sudoku() {
   const [page, setPage] = useState(initP ? location.hash : "#list");
+  const [LS, setLS] = useState(getSavedFromLS());
 
   useEffect(() => {
     function handler() {
       setPage(location.hash || "#list");
     }
     window.addEventListener("hashchange", handler);
+
+    setInterval(() => {
+      setLS(getSavedFromLS());
+    }, 300);
 
     return () => window.removeEventListener("hashchange", handler);
   }, []);
@@ -61,6 +66,16 @@ export function Sudoku() {
   return (
     <div className={css.page}>
       <a href="#list">to list</a>
+      <p style={{ wordWrap: "break-word" }}>{LS[0].join("")}</p>
+      <p>{LS[1].current}</p>
+      <p>{JSON.stringify(LS[1].steps.slice(0, 3))}</p>
+      <button
+        onClick={() => {
+          resetLS();
+        }}
+      >
+        reset LS
+      </button>
       <PageComponent key={page} />
     </div>
   );

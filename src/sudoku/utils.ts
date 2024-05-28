@@ -60,16 +60,27 @@ export function applyStepsForCandidates(
 }
 
 export function changeCellHandler(data: ChangeCellProps) {
-  const { puzzle, history, cell, value } = data;
+  const { puzzle, history, cell, value, type } = data;
   if (cell === null) return null;
   let field = applyEditCellActions(puzzle, history);
-  if (field[cell] === value) return null;
+  let action: any;
 
-  let errCell = isInvalid(field, cell, value);
-  if (errCell) throw errCell;
+  if (type === "edit-cell") {
+    if (field[cell] === value) return null;
+    if (value > 0) {
+      let errCell = isInvalid(field, cell, value);
+      if (errCell) throw errCell;
+    }
 
-  field[cell] = value;
-  const action = { type: "edit-cell" as const, id: cell, val: value };
+    field[cell] = value;
+    action = { type: "edit-cell" as const, id: cell, val: value };
+  } else if (type === "edit-candidate") {
+    field[cell] = 0;
+    action = { type: "edit-candidate" as const, id: cell, val: value };
+  } else {
+    console.warn("UNREACHABLE, wrong type: " + type);
+    return null;
+  }
 
   if (history.current === history.steps.length - 1) {
     return {
@@ -546,8 +557,8 @@ export function applyEditCellActions(puzzle: Field, history: History): Field {
 
 export function saveFieldsToLS(field: Field, history: History) {
   try {
-    localStorage.setItem("sudoku_history", JSON.stringify(history));
     localStorage.setItem("sudoku_field", JSON.stringify(field));
+    localStorage.setItem("sudoku_history", JSON.stringify(history));
     return true;
   } catch (err) {
     console.error(err);
@@ -555,7 +566,12 @@ export function saveFieldsToLS(field: Field, history: History) {
   }
 }
 
-export function getFieldsFromLS(): [Field, History] {
+export function resetLS() {
+  localStorage.removeItem("sudoku_history");
+  localStorage.removeItem("sudoku_field");
+}
+
+export function getSavedFromLS(): [Field, History] {
   try {
     let rawPuzzle = localStorage.getItem("sudoku_field") || "[]";
     let rawHistory = localStorage.getItem("sudoku_history") || "{}";
@@ -568,7 +584,7 @@ export function getFieldsFromLS(): [Field, History] {
       }) &&
       puzzle.length === 81
     ) {
-      return [applyEditCellActions(puzzle, history) as Field, history];
+      return [puzzle, history];
     }
     return [Array(81).fill(0), { current: -1, steps: [] }];
   } catch (err) {
