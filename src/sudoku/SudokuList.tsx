@@ -4,12 +4,11 @@ import css from "./PuzzlePage.module.css";
 import { all_difficulties } from "./lib/constants";
 import { getFieldsFromLS } from "./utils";
 
-let [lastField] = getFieldsFromLS();
-
-let lastFieldStr = lastField.join("");
-
 export function SudokuList() {
   const [puzzleList] = useUnit([$puzzleList]);
+
+  let [lastField] = getFieldsFromLS();
+  let lastFieldStr = lastField.join("");
 
   return (
     <div>
@@ -24,7 +23,7 @@ export function SudokuList() {
 
                 return (
                   <a href={"#puzzle-" + puzzle.join("")} key={i}>
-                    Puzzle {i} unfinished {unfinished && "(unfinished)"}
+                    Puzzle {i} {unfinished && "(unfinished)"}
                   </a>
                 );
               })}

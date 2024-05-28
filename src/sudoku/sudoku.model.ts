@@ -8,8 +8,10 @@ import {
 import { ChangeCellProps, Field, History } from "./types";
 import {
   addCandidateToHistory,
+  applyEditCellActions,
   applyStepsForCandidates,
   changeCellHandler,
+  getFieldsFromLS,
   getHighlightCells,
   getPuzzles,
   saveFieldsToLS,
@@ -17,6 +19,7 @@ import {
 
 export const $puzzleList = createStore(getPuzzles());
 export const $puzzle = createStore<Field>(Array(81).fill(0));
+export const $field = createStore<Field>(Array(81).fill(0));
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map(getHighlightCells);
@@ -37,7 +40,7 @@ export const $candidates = combine($puzzle, $history, applyStepsForCandidates);
 export const puzzleSelected = createEvent<Field>();
 export const pageOpened = createEvent();
 export const initSudoku = createEvent<{
-  field: Field;
+  puzzle: Field;
   history: History;
 } | null>();
 
@@ -47,8 +50,6 @@ export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
 export const showCellError = createEvent<number[]>();
-
-$puzzle.on(changeCellFx.doneData, (state, res) => (res ? res.field : state));
 
 sample({
   source: [$puzzle, $history, $currentCell] as const,
@@ -82,14 +83,23 @@ $history
   .on(initSudoku, (state, data) => {
     return data ? data.history : state;
   })
-  .reset(puzzleSelected, resetClicked);
+  .on(puzzleSelected, (_, puzzle) => {
+    let [savedPuzzle, savedHistory] = getFieldsFromLS();
+
+    if (puzzle.join("") === savedPuzzle.join("")) {
+      return savedHistory;
+    } else {
+      return { current: -1, steps: [] };
+    }
+  })
+  .reset(resetClicked);
 
 $puzzle
   .on(puzzleSelected, (state, puzzleStr) => {
     return puzzleStr;
   })
   .on(initSudoku, (state, data) => {
-    return data ? data.field : state;
+    return data ? data.puzzle : state;
   });
 
 sample({
@@ -118,11 +128,20 @@ $currentCell
     return null;
   });
 
-$history.watch(console.log);
+$field
+  .on(changeCellFx.doneData, (state, res) => {
+    return res ? res.field : state;
+  })
+  .on(initSudoku, (state, data) => {
+    if (data) {
+      return applyEditCellActions(data.puzzle, data.history);
+    }
+    return state;
+  });
 
 sample({
   source: [$puzzle, $history] as const,
-  clock: [changeCellFx.doneData, cellCandidateChanged],
+  clock: [changeCellFx.doneData, cellCandidateChanged, puzzleSelected],
 }).watch(([field, history]) => {
   console.log("SAVED", history.current);
   saveFieldsToLS(field, history);

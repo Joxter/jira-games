@@ -28,7 +28,7 @@ const [lastField, lastHistory] = getFieldsFromLS();
 
 if (initP) {
   if (lastField.join("") === initP.join("")) {
-    initSudoku({ field: lastField, history: lastHistory });
+    initSudoku({ puzzle: lastField, history: lastHistory });
   } else {
     initSudoku(null);
   }

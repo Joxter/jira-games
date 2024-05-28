@@ -7,11 +7,11 @@ import {
   cellCandidateChanged,
   cellChanged,
   cellClicked,
-  $puzzle,
   undo,
   redo,
   showCellError,
   resetClicked,
+  $field,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -20,7 +20,7 @@ import { Cell, NumRow } from "./Components";
 
 export function PuzzlePage() {
   const [field, candidates, current, highLightCells] = useUnit([
-    $puzzle,
+    $field,
     $candidates,
     $currentCell,
     $highLightCells,
