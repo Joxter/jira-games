@@ -7,6 +7,7 @@ type CellProps = {
   index: number;
   isCurrent: boolean;
   isSame: boolean;
+  isPuzzle: boolean;
   isHighLight: boolean;
   onClick: () => void;
   candidates: number;
@@ -17,6 +18,7 @@ export function Cell({
   isCurrent,
   isSame,
   isHighLight,
+  isPuzzle,
   onClick,
   candidates,
   index,
@@ -29,6 +31,7 @@ export function Cell({
       }}
       className={cn(
         css.cell,
+        isPuzzle && css.cellPuzzle,
         isCurrent && css.cellCurrent,
         isHighLight && css.cellHighLight,
         isSame && css.sameNumber,

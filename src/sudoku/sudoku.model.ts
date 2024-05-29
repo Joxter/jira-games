@@ -114,15 +114,6 @@ $puzzle
     return data ? data.puzzle : state;
   });
 
-sample({
-  source: [$history, $currentCell] as const,
-  clock: cellCandidateChanged,
-  fn: ([history, index], val) => {
-    return addCandidateToHistory(history, index, val);
-  },
-  target: $history,
-});
-
 $currentCell
   .on(cellClicked, (_, n) => n)
   .on(arrowClicked, (current, dir) => {
@@ -140,23 +131,14 @@ $currentCell
     return null;
   });
 
-// $field
-//   .on(changeCellFx.doneData, (state, res) => {
-//     return res ? res.field : state;
-//   })
-//   .on(puzzleSelected, (state, puzzle) => {
-//     return puzzle;
-//   })
-//   .on(initSudoku, (state, data) => {
-//     if (data) {
-//       return applyEditCellActions(data.puzzle, data.history);
-//     }
-//     return state;
-//   });
-
 sample({
   source: [$puzzle, $history] as const,
-  clock: [changeCellFx.doneData, cellCandidateChanged, puzzleSelected],
+  clock: [
+    changeCellFx.doneData,
+    cellCandidateChanged,
+    puzzleSelected,
+    resetClicked,
+  ],
 }).watch(([puzzle, history]) => {
   console.log("SAVED", history.current);
   saveFieldsToLS(puzzle, history);

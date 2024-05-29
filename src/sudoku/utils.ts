@@ -68,18 +68,24 @@ export function applyStepsForCandidates(
 export function changeCellHandler(data: ChangeCellProps) {
   const { puzzle, history, cell, value, type } = data;
   if (cell === null) return null;
+  if (puzzle[cell]) return null;
+
   let field = applyEditCellActions(puzzle, history);
   let action: any;
 
   if (type === "edit-cell") {
-    if (field[cell] === value) return null;
-    if (value > 0) {
-      let errCell = isInvalid(field, cell, value);
-      if (errCell) throw errCell;
-    }
+    if (field[cell] === value) {
+      field[cell] = 0;
+      action = { type: "edit-cell" as const, id: cell, val: 0 };
+    } else {
+      if (value > 0) {
+        let errCell = isInvalid(field, cell, value);
+        if (errCell) throw errCell;
+      }
 
-    field[cell] = value;
-    action = { type: "edit-cell" as const, id: cell, val: value };
+      field[cell] = value;
+      action = { type: "edit-cell" as const, id: cell, val: value };
+    }
   } else if (type === "edit-candidate") {
     field[cell] = 0;
     action = { type: "edit-candidate" as const, id: cell, val: value };
@@ -555,6 +561,8 @@ export function applyEditCellActions(puzzle: Field, history: History): Field {
     let { type, id, val } = steps[i];
     if (type === "edit-cell") {
       res[id] = val;
+    } else if (type === "edit-candidate") {
+      res[id] = 0;
     }
   }
 

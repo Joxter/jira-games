@@ -12,6 +12,7 @@ import {
   showCellError,
   resetClicked,
   $field,
+  $puzzle,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -19,7 +20,8 @@ import { fieldToLayout } from "./utils";
 import { Cell, NumRow } from "./Components";
 
 export function PuzzlePage() {
-  const [field, candidates, current, highLightCells] = useUnit([
+  const [puzzle, field, candidates, current, highLightCells] = useUnit([
+    $puzzle,
     $field,
     $candidates,
     $currentCell,
@@ -71,6 +73,7 @@ export function PuzzlePage() {
             cellChanged(0);
           } else if (
             [
+              "Digit0",
               "Digit1",
               "Digit2",
               "Digit3",
@@ -101,6 +104,7 @@ export function PuzzlePage() {
                     candidates={candidates[index]}
                     key={index}
                     index={index}
+                    isPuzzle={!!puzzle[index]}
                     isCurrent={current === index}
                     isSame={
                       (val &&
