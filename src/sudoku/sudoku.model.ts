@@ -11,7 +11,7 @@ import {
   applyEditCellActions,
   applyStepsForCandidates,
   changeCellHandler,
-  getFieldsFromLS,
+  getSavedFromLS,
   getHighlightCells,
   getPuzzles,
   saveFieldsToLS,
@@ -19,7 +19,7 @@ import {
 
 export const $puzzleList = createStore(getPuzzles());
 export const $puzzle = createStore<Field>(Array(81).fill(0));
-export const $field = createStore<Field>(Array(81).fill(0));
+// export const $field = createStore<Field>(Array(81).fill(0));
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map(getHighlightCells);
@@ -140,19 +140,19 @@ $currentCell
     return null;
   });
 
-$field
-  .on(changeCellFx.doneData, (state, res) => {
-    return res ? res.field : state;
-  })
-  .on(puzzleSelected, (state, puzzle) => {
-    return puzzle;
-  })
-  .on(initSudoku, (state, data) => {
-    if (data) {
-      return applyEditCellActions(data.puzzle, data.history);
-    }
-    return state;
-  });
+// $field
+//   .on(changeCellFx.doneData, (state, res) => {
+//     return res ? res.field : state;
+//   })
+//   .on(puzzleSelected, (state, puzzle) => {
+//     return puzzle;
+//   })
+//   .on(initSudoku, (state, data) => {
+//     if (data) {
+//       return applyEditCellActions(data.puzzle, data.history);
+//     }
+//     return state;
+//   });
 
 sample({
   source: [$puzzle, $history] as const,

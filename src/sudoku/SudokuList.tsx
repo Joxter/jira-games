@@ -10,6 +10,8 @@ export function SudokuList() {
   let [lastField] = getSavedFromLS();
   let lastFieldStr = lastField.join("");
 
+  let wins = getWinsFromLS();
+
   return (
     <div>
       <h1>Sudoku List</h1>
@@ -21,7 +23,7 @@ export function SudokuList() {
               {puzzleList[difficulty].map((puzzle, i) => {
                 let puzzleStr = puzzle.join("");
                 let unfinished = lastFieldStr === puzzleStr;
-                let solved = wins[puzzleStr]?.win;
+                let solved = wins[puzzleStr]?.win || false;
 
                 return (
                   <a href={"#puzzle-" + puzzleStr} key={i}>

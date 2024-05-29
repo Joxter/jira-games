@@ -564,7 +564,7 @@ export function applyEditCellActions(puzzle: Field, history: History): Field {
 export function getWinsFromLS() {
   try {
     let wins: WinsPersistent = JSON.parse(localStorage.getItem("sudoku-wins")!);
-    return wins;
+    return wins || {};
   } catch (err) {
     console.error(err);
     return {};
@@ -618,7 +618,7 @@ export function getSavedFromLS(): [Field, History] {
     }
     return [Array(81).fill(0), { current: -1, steps: [] }];
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     return [Array(81).fill(0), { current: -1, steps: [] }];
   }
 }
