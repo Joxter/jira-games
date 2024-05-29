@@ -1,6 +1,9 @@
 import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
 import { viewCandidates } from "./utils";
+import { useEffect, useRef } from "preact/hooks";
+import { $history, openWinModal } from "./sudoku.model";
+import { useUnit } from "effector-react/effector-react.umd";
 
 type CellProps = {
   value: number;
@@ -71,5 +74,46 @@ export function NumRow({
         return <button onClick={() => onClick(n)}>{n}</button>;
       })}
     </div>
+  );
+}
+
+export function Time() {
+  let [{ time }] = useUnit([$history]);
+  let hour = Math.floor(time / 360);
+  let min = Math.floor((time - hour * 60) / 360);
+  let sec = time % 60;
+
+  return (
+    <span style={{ fontVariantNumeric: "tabular-nums" }}>
+      {[hour, min, sec].map((it) => it.toString().padStart(2, "0")).join(":")}
+    </span>
+  );
+}
+
+export function WinModal() {
+  let dialogRef = useRef<HTMLDialogElement | null>(null);
+
+  useEffect(() => {
+    let unsub = openWinModal.watch((nums) => {
+      dialogRef.current?.showModal();
+    });
+
+    return () => unsub();
+  }, []);
+
+  return (
+    <dialog ref={dialogRef} className={css.winModal}>
+      <h1>win!</h1>
+      <p>
+        Your time: <Time />
+      </p>
+      <button
+        onClick={() => {
+          dialogRef.current?.close();
+        }}
+      >
+        close
+      </button>
+    </dialog>
   );
 }

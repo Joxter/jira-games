@@ -120,3 +120,24 @@
 .puzzleList h2 {
   text-align: center;
 }
+
+.winModal {
+  overflow: hidden;
+
+  margin: auto;
+  width: max-content;
+  height: max-content;
+  max-width: 90vw;
+  max-height: 90vh;
+  border: 2px solid #d5d5cd;
+  border-radius: 20px;
+  z-index: 10;
+}
+
+.winModal::backdrop {
+  background-color: rgba(0, 0, 0, 0.49);
+}
+
+.winModal[open] {
+  display: grid;
+}

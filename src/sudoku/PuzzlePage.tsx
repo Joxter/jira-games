@@ -13,11 +13,13 @@ import {
   resetClicked,
   $field,
   $puzzle,
+  addSecToTime,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
-import { fieldToLayout } from "./utils";
-import { Cell, NumRow } from "./Components";
+import { fastSolve, fieldToLayout } from "./utils";
+import { Cell, NumRow, Time, WinModal } from "./Components";
+import { Field } from "./types";
 
 export function PuzzlePage() {
   const [puzzle, field, candidates, current, highLightCells] = useUnit([
@@ -45,6 +47,16 @@ export function PuzzlePage() {
   }, []);
 
   useEffect(() => {
+    let id = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        addSecToTime();
+      }
+    }, 1000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
     let unsub = showCellError.watch((nums) => {
       nums.forEach((n) => {
         let cell = fieldRef.current!.querySelector("#cell" + n) as HTMLElement;
@@ -57,6 +69,8 @@ export function PuzzlePage() {
 
   return (
     <div>
+      <WinModal />
+      <Time />
       <div
         ref={fieldRef}
         className={css.field}
@@ -135,6 +149,30 @@ export function PuzzlePage() {
         </div>
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
+      <button
+        onClick={() => {
+          let unsolvedCells = field
+            .map((n, i) => [n, i])
+            .filter(([n]) => n === 0)
+            .map(([n, i]) => i);
+          let answer = fastSolve(field);
+
+          if (answer) setNumber(answer);
+
+          function setNumber(answer: Field) {
+            let cellId = unsolvedCells.pop();
+            if (cellId) {
+              cellClicked(cellId);
+              cellChanged(answer[cellId]);
+              setTimeout(() => {
+                setNumber(answer);
+              }, 50);
+            }
+          }
+        }}
+      >
+        magic solve
+      </button>
     </div>
   );
 }

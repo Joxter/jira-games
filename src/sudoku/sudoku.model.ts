@@ -7,7 +7,6 @@ import {
 } from "effector";
 import { ChangeCellProps, Field, History } from "./types";
 import {
-  addCandidateToHistory,
   applyEditCellActions,
   applyStepsForCandidates,
   changeCellHandler,
@@ -30,13 +29,19 @@ const changeCellFx = createEffect<
   number[]
 >(changeCellHandler);
 
-export const $history = createStore<History>({ current: -1, steps: [] });
+export const $history = createStore<History>({
+  current: -1,
+  steps: [],
+  time: 0,
+});
 export const undo = createEvent();
 export const redo = createEvent();
 export const resetClicked = createEvent();
+export const winClicked = createEvent();
 
 export const puzzleSelected = createEvent<Field>();
-export const pageOpened = createEvent();
+export const addSecToTime = createEvent();
+export const openWinModal = createEvent();
 export const initSudoku = createEvent<{
   puzzle: Field;
   history: History;
@@ -53,6 +58,13 @@ export const $candidates = combine($puzzle, $history, applyStepsForCandidates);
 export const $field = combine($puzzle, $history, (puzzle, history) => {
   return applyEditCellActions(puzzle, history);
 });
+export const $isWin = $field.map((field) => field.every((it) => it > 0));
+
+export const payerWins = $isWin.updates.filter({
+  fn: (isWin) => isWin,
+});
+
+// $field.watch(console.log);
 
 sample({
   source: [$puzzle, $history, $currentCell] as const,
@@ -73,17 +85,28 @@ sample({
 });
 
 sample({ clock: changeCellFx.failData, target: showCellError });
+sample({ clock: payerWins, target: openWinModal });
+
+sample({
+  source: $history,
+  clock: addSecToTime,
+  filter: $isWin.map((it) => !it),
+  fn: (history) => {
+    return { ...history, time: history.time + 1 };
+  },
+  target: $history,
+});
 
 $history
   .on(undo, (state) => {
     return {
-      steps: state.steps,
+      ...state,
       current: state.current >= 0 ? state.current - 1 : state.current,
     };
   })
   .on(redo, (state) => {
     return {
-      steps: state.steps,
+      ...state,
       current: state.steps[state.current + 1]
         ? state.current + 1
         : state.current,
@@ -101,7 +124,7 @@ $history
     if (puzzle.join("") === savedPuzzle.join("")) {
       return savedHistory;
     } else {
-      return { current: -1, steps: [] };
+      return { current: -1, steps: [], time: 0 };
     }
   })
   .reset(resetClicked);

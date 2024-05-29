@@ -98,6 +98,7 @@ export function changeCellHandler(data: ChangeCellProps) {
     return {
       field,
       history: {
+        time: history.time,
         steps: [...history.steps, action],
         current: history.current + 1,
       },
@@ -107,6 +108,7 @@ export function changeCellHandler(data: ChangeCellProps) {
   return {
     field,
     history: {
+      time: history.time,
       steps: [...history.steps.slice(0, history.current + 1), action],
       current: history.current + 1,
     },
@@ -624,10 +626,10 @@ export function getSavedFromLS(): [Field, History] {
     ) {
       return [puzzle, history];
     }
-    return [Array(81).fill(0), { current: -1, steps: [] }];
+    return [Array(81).fill(0), { current: -1, steps: [], time: 0 }];
   } catch (err) {
     // console.error(err);
-    return [Array(81).fill(0), { current: -1, steps: [] }];
+    return [Array(81).fill(0), { current: -1, steps: [], time: 0 }];
   }
 }
 
@@ -702,11 +704,12 @@ export function fieldToLayout(field: number[]): [number, number][][] {
   return layout;
 }
 
-export function fastSolve(_board: Field) {
+export function fastSolve(_board: Field): Field | null {
   let board = [..._board];
+  let win = [..._board];
   let solutionCount = solveSudoku();
 
-  return solutionCount === 1 ? board : null;
+  return solutionCount === 1 ? win : null;
 
   function isInvalid(index: number, num: number): number[] | false {
     const row = Math.floor(index / 9);
@@ -756,6 +759,7 @@ export function fastSolve(_board: Field) {
         return false;
       }
       solutionCount++;
+      win = [...board];
       return solutionCount === 1;
     }
   }
