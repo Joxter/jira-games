@@ -1,9 +1,7 @@
-import { Difficulty } from "./lib";
 
 export type Field = number[];
 export type Candidates = number[];
-
-export type Diff = Difficulty;
+export type WinsPersistent = Record<string, { win: boolean }>;
 
 export type Action =
   | { type: "edit-cell"; id: number; val: number }

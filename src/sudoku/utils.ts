@@ -1,6 +1,12 @@
 import { isInvalid } from "./lib/sudoku-solver";
-import { Candidates, ChangeCellProps, Field, History } from "./types";
-import { Difficulty } from "./lib";
+import {
+  Candidates,
+  ChangeCellProps,
+  Field,
+  History,
+  WinsPersistent,
+} from "./types";
+import { Difficulty, solve } from "./lib";
 
 export const CANDIDATES = [
   1 << 0,
@@ -555,10 +561,35 @@ export function applyEditCellActions(puzzle: Field, history: History): Field {
   return res;
 }
 
-export function saveFieldsToLS(field: Field, history: History) {
+export function getWinsFromLS() {
   try {
-    localStorage.setItem("sudoku_field", JSON.stringify(field));
-    localStorage.setItem("sudoku_history", JSON.stringify(history));
+    let wins: WinsPersistent = JSON.parse(localStorage.getItem("sudoku-wins")!);
+    return wins;
+  } catch (err) {
+    console.error(err);
+    return {};
+  }
+}
+
+export function saveWinToLS(puzzle: Field) {
+  try {
+    let wins = getWinsFromLS();
+
+    wins[puzzle.join("")] = { win: true };
+    localStorage.setItem(`sudoku-wins`, JSON.stringify(wins));
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+export function saveFieldsToLS(puzzle: Field, history: History) {
+  try {
+    localStorage.setItem(
+      `sudoku-last-state`,
+      JSON.stringify({ history, puzzle }),
+    );
     return true;
   } catch (err) {
     console.error(err);
@@ -567,16 +598,15 @@ export function saveFieldsToLS(field: Field, history: History) {
 }
 
 export function resetLS() {
-  localStorage.removeItem("sudoku_history");
-  localStorage.removeItem("sudoku_field");
+  localStorage.removeItem("sudoku-last-state");
+  // localStorage.removeItem("sudoku-wins");
 }
 
 export function getSavedFromLS(): [Field, History] {
   try {
-    let rawPuzzle = localStorage.getItem("sudoku_field") || "[]";
-    let rawHistory = localStorage.getItem("sudoku_history") || "{}";
-    let puzzle = JSON.parse(rawPuzzle) as any as any[];
-    let history = JSON.parse(rawHistory) as any;
+    let raw = JSON.parse(localStorage.getItem("sudoku-last-state") || "{}");
+    let puzzle = raw.puzzle as any as any[];
+    let history = raw.history as any;
 
     if (
       puzzle.every((it) => {
@@ -662,4 +692,63 @@ export function fieldToLayout(field: number[]): [number, number][][] {
   });
 
   return layout;
+}
+
+export function fastSolve(_board: Field) {
+  let board = [..._board];
+  let solutionCount = solveSudoku();
+
+  return solutionCount === 1 ? board : null;
+
+  function isInvalid(index: number, num: number): number[] | false {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
+    const res = new Set<number>();
+
+    for (let i = 0; i < 9; i++) {
+      if (board[row * 9 + i] === num) res.add(row * 9 + i);
+      if (board[col + 9 * i] === num) res.add(col + 9 * i);
+    }
+
+    const startRow = row - (row % 3);
+    const startCol = col - (col % 3);
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[(startRow + i) * 9 + startCol + j] === num) {
+          res.add((startRow + i) * 9 + startCol + j);
+        }
+      }
+    }
+
+    return res.size === 0 ? false : [...res];
+  }
+
+  function solveSudoku(): number {
+    let solutionCount = 0;
+
+    _solveSudoku();
+
+    return solutionCount;
+
+    function _solveSudoku(): boolean {
+      for (let i = 0; i < 81; i++) {
+        if (board[i]) continue;
+
+        for (let num = 1; num <= 9; num++) {
+          if (isInvalid(i, num)) continue;
+
+          board[i] = num;
+          _solveSudoku();
+          if (solutionCount > 1) {
+            return false;
+          }
+          board[i] = 0;
+        }
+
+        return false;
+      }
+      solutionCount++;
+      return solutionCount === 1;
+    }
+  }
 }

@@ -2,7 +2,7 @@ import { useUnit } from "effector-react";
 import { $puzzleList } from "./sudoku.model";
 import css from "./PuzzlePage.module.css";
 import { all_difficulties } from "./lib/constants";
-import { getSavedFromLS } from "./utils";
+import { getSavedFromLS, getWinsFromLS } from "./utils";
 
 export function SudokuList() {
   const [puzzleList] = useUnit([$puzzleList]);
@@ -19,11 +19,14 @@ export function SudokuList() {
             <div className={css.puzzleList}>
               <h2>{difficulty}</h2>
               {puzzleList[difficulty].map((puzzle, i) => {
-                let unfinished = lastFieldStr === puzzle.join("");
+                let puzzleStr = puzzle.join("");
+                let unfinished = lastFieldStr === puzzleStr;
+                let solved = wins[puzzleStr]?.win;
 
                 return (
-                  <a href={"#puzzle-" + puzzle.join("")} key={i}>
-                    Puzzle {i} {unfinished && "(unfinished)"}
+                  <a href={"#puzzle-" + puzzleStr} key={i}>
+                    Puzzle {i} {unfinished && "(unfinished)"}{" "}
+                    {solved && "[SOLVED]"}
                   </a>
                 );
               })}
