@@ -1,5 +1,6 @@
 import { isInvalid } from "./lib/sudoku-solver";
 import {
+  Action,
   Candidates,
   ChangeCellProps,
   Field,
@@ -21,30 +22,24 @@ export const CANDIDATES = [
   1 << 9,
 ];
 
-export function addCandidateToHistory(
-  history: History,
-  index: number | null,
-  val: number,
-) {
-  if (index === null) return history;
+export function applyEditCellActions(puzzle: Field, history: History): Field {
+  let res = [...puzzle];
+  let { current, steps } = history;
 
-  if (history.current === history.steps.length - 1) {
-    return {
-      steps: [
-        ...history.steps,
-        { type: "edit-candidate" as const, id: index, val },
-      ],
-      current: history.current + 1,
-    };
-  } else {
-    return {
-      steps: [
-        ...history.steps.slice(0, history.current + 1),
-        { type: "edit-candidate" as const, id: index, val },
-      ],
-      current: history.current + 1,
-    };
+  for (let i = 0; i <= current; i++) {
+    let { type, cell, value } = steps[i];
+    if (type === "edit-cell") {
+      if (res[cell] == value) {
+        res[cell] = 0;
+      } else {
+        res[cell] = value;
+      }
+    } else if (type === "edit-candidate") {
+      res[cell] = 0;
+    }
   }
+
+  return res;
 }
 
 export function applyStepsForCandidates(
@@ -54,41 +49,32 @@ export function applyStepsForCandidates(
   let res = Array(81).fill(0);
 
   for (let i = 0; i <= current; i++) {
-    let { type, id, val } = steps[i];
+    let { type, cell, value } = steps[i];
     if (type === "edit-cell") {
-      res[id] = 0;
+      res[cell] = 0;
     } else if (type === "edit-candidate") {
-      res[id] = res[id] ^ CANDIDATES[val];
+      res[cell] = res[cell] ^ CANDIDATES[value];
     }
   }
 
   return res;
 }
 
-export function changeCellHandler(data: ChangeCellProps) {
-  const { puzzle, history, cell, value, type } = data;
-  if (cell === null) return null;
+export function changeCellHandler(data: ChangeCellProps): History | null {
+  const { puzzle, history, action } = data;
+  const { cell, value, type } = action;
   if (puzzle[cell]) return null;
 
   let field = applyEditCellActions(puzzle, history);
-  let action: any;
 
   if (type === "edit-cell") {
-    if (field[cell] === value) {
-      field[cell] = 0;
-      action = { type: "edit-cell" as const, id: cell, val: 0 };
-    } else {
-      if (value > 0) {
-        let errCell = isInvalid(field, cell, value);
-        if (errCell) throw errCell;
-      }
-
-      field[cell] = value;
-      action = { type: "edit-cell" as const, id: cell, val: value };
+    if (field[cell] !== value && value > 0) {
+      let errCells = isInvalid(field, cell, value);
+      if (errCells) throw errCells;
     }
   } else if (type === "edit-candidate") {
-    field[cell] = 0;
-    action = { type: "edit-candidate" as const, id: cell, val: value };
+    // do nothing
+    //
   } else {
     console.warn("UNREACHABLE, wrong type: " + type);
     return null;
@@ -96,22 +82,16 @@ export function changeCellHandler(data: ChangeCellProps) {
 
   if (history.current === history.steps.length - 1) {
     return {
-      field,
-      history: {
-        time: history.time,
-        steps: [...history.steps, action],
-        current: history.current + 1,
-      },
+      time: history.time,
+      steps: [...history.steps, action],
+      current: history.current + 1,
     };
   }
 
   return {
-    field,
-    history: {
-      time: history.time,
-      steps: [...history.steps.slice(0, history.current + 1), action],
-      current: history.current + 1,
-    },
+    time: history.time,
+    steps: [...history.steps.slice(0, history.current + 1), action],
+    current: history.current + 1,
   };
 }
 
@@ -553,22 +533,6 @@ export function viewCandidates(candidates: number): number[] {
     .reverse()
     .map((it, i) => (it === "1" ? i : 0))
     .filter((n) => n > 0);
-}
-
-export function applyEditCellActions(puzzle: Field, history: History): Field {
-  let res = [...puzzle];
-  let { current, steps } = history;
-
-  for (let i = 0; i <= current; i++) {
-    let { type, id, val } = steps[i];
-    if (type === "edit-cell") {
-      res[id] = val;
-    } else if (type === "edit-candidate") {
-      res[id] = 0;
-    }
-  }
-
-  return res;
 }
 
 export function getWinsFromLS() {

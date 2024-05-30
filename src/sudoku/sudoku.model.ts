@@ -5,7 +5,7 @@ import {
   createStore,
   sample,
 } from "effector";
-import { ChangeCellProps, Field, History } from "./types";
+import { Action, ChangeCellProps, Field, History } from "./types";
 import {
   applyEditCellActions,
   applyStepsForCandidates,
@@ -18,22 +18,19 @@ import {
 
 export const $puzzleList = createStore(getPuzzles());
 export const $puzzle = createStore<Field>(Array(81).fill(0));
-// export const $field = createStore<Field>(Array(81).fill(0));
-
-export const $currentCell = createStore<number | null>(null);
-export const $highLightCells = $currentCell.map(getHighlightCells);
-
-const changeCellFx = createEffect<
-  ChangeCellProps,
-  { field: Field; history: History } | null,
-  number[]
->(changeCellHandler);
-
 export const $history = createStore<History>({
   current: -1,
   steps: [],
   time: 0,
 });
+
+export const $currentCell = createStore<number | null>(null);
+export const $highLightCells = $currentCell.map(getHighlightCells);
+
+const changeCellFx = createEffect<ChangeCellProps, History | null, number[]>(
+  changeCellHandler,
+);
+
 export const undo = createEvent();
 export const redo = createEvent();
 export const resetClicked = createEvent();
@@ -52,11 +49,14 @@ export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
 export const cellChanged = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
+export const userAction = createEvent<Action>();
 export const showCellError = createEvent<number[]>();
 
-export const $candidates = combine($puzzle, $history, applyStepsForCandidates);
 export const $field = combine($puzzle, $history, (puzzle, history) => {
   return applyEditCellActions(puzzle, history);
+});
+export const $candidates = combine($puzzle, $history, (puzzle, history) => {
+  return applyStepsForCandidates(puzzle, history);
 });
 export const $isWin = $field.map((field) => field.every((it) => it > 0));
 
@@ -64,22 +64,30 @@ export const payerWins = $isWin.updates.filter({
   fn: (isWin) => isWin,
 });
 
-// $field.watch(console.log);
-
 sample({
-  source: [$puzzle, $history, $currentCell] as const,
+  source: $currentCell,
   clock: cellChanged,
-  fn: ([puzzle, history, cell], value) => {
-    return { puzzle, history, cell, value, type: "edit-cell" as const };
+  filter: $currentCell.map((it) => it !== null),
+  fn: (cell, value) => {
+    return { cell: cell!, value, type: "edit-cell" as const };
   },
-  target: changeCellFx,
+  target: userAction,
+});
+sample({
+  source: $currentCell,
+  clock: cellCandidateChanged,
+  filter: $currentCell.map((it) => it !== null),
+  fn: (cell, value) => {
+    return { cell: cell!, value, type: "edit-candidate" as const };
+  },
+  target: userAction,
 });
 
 sample({
-  source: [$puzzle, $history, $currentCell] as const,
-  clock: cellCandidateChanged,
-  fn: ([puzzle, history, cell], value) => {
-    return { puzzle, history, cell, value, type: "edit-candidate" as const };
+  source: [$puzzle, $history] as const,
+  clock: userAction,
+  fn: ([puzzle, history], action) => {
+    return { puzzle, history, action };
   },
   target: changeCellFx,
 });
@@ -112,8 +120,8 @@ $history
         : state.current,
     };
   })
-  .on(changeCellFx.doneData, (state, res) => {
-    return res ? res.history : state;
+  .on(changeCellFx.doneData, (state, newHistory) => {
+    return newHistory ? newHistory : state;
   })
   .on(initSudoku, (state, data) => {
     return data ? data.history : state;
@@ -156,13 +164,12 @@ $currentCell
 
 sample({
   source: [$puzzle, $history] as const,
-  clock: [
-    changeCellFx.doneData,
-    cellCandidateChanged,
-    puzzleSelected,
-    resetClicked,
-  ],
+  clock: [changeCellFx.doneData, puzzleSelected, resetClicked],
 }).watch(([puzzle, history]) => {
-  console.log("SAVED", history.current);
+  // console.log("SAVED", history.current);
   saveFieldsToLS(puzzle, history);
 });
+
+// $candidates.watch(console.log);
+// $field.watch(console.log);
+// $history.watch(console.log);

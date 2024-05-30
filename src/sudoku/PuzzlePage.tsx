@@ -49,7 +49,7 @@ export function PuzzlePage() {
   useEffect(() => {
     let id = setInterval(() => {
       if (document.visibilityState === "visible") {
-        addSecToTime();
+        // addSecToTime();
       }
     }, 1000);
 
