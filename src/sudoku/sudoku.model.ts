@@ -52,18 +52,6 @@ export const cellCandidateChanged = createEvent<number>();
 export const userAction = createEvent<Action>();
 export const showCellError = createEvent<number[]>();
 
-export const $field = combine($puzzle, $history, (puzzle, history) => {
-  return applyEditCellActions(puzzle, history);
-});
-export const $candidates = combine($puzzle, $history, (puzzle, history) => {
-  return applyStepsForCandidates(puzzle, history);
-});
-export const $isWin = $field.map((field) => field.every((it) => it > 0));
-
-export const payerWins = $isWin.updates.filter({
-  fn: (isWin) => isWin,
-});
-
 sample({
   source: $currentCell,
   clock: cellChanged,
@@ -93,17 +81,6 @@ sample({
 });
 
 sample({ clock: changeCellFx.failData, target: showCellError });
-sample({ clock: payerWins, target: openWinModal });
-
-sample({
-  source: $history,
-  clock: addSecToTime,
-  filter: $isWin.map((it) => !it),
-  fn: (history) => {
-    return { ...history, time: history.time + 1 };
-  },
-  target: $history,
-});
 
 $history
   .on(undo, (state) => {
@@ -173,3 +150,27 @@ sample({
 // $candidates.watch(console.log);
 // $field.watch(console.log);
 // $history.watch(console.log);
+
+export const $field = combine($puzzle, $history, (puzzle, history) => {
+  return applyEditCellActions(puzzle, history);
+});
+export const $candidates = combine($puzzle, $history, (puzzle, history) => {
+  return applyStepsForCandidates(puzzle, history);
+});
+export const $isWin = $field.map((field) => field.every((it) => it > 0));
+
+export const payerWins = $isWin.updates.filter({
+  fn: (isWin) => isWin,
+});
+
+sample({ clock: payerWins, target: openWinModal });
+
+sample({
+  source: $history,
+  clock: addSecToTime,
+  filter: $isWin.map((it) => !it),
+  fn: (history) => {
+    return { ...history, time: history.time + 1 };
+  },
+  target: $history,
+});
