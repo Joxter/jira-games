@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build-all": "tsc && vite build",
     "prod": "vite build -c ./vite-sudoku-prod.config.ts",
     "test": "vitest run",
     "preview": "vite preview"
