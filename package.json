@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build-all": "tsc && vite build",
-    "prod": "vite build -c ./vite-sudoku-prod.config.ts",
+    "build": "tsc && vite build",
+    "prod-sudoku": "vite build -c ./vite-sudoku-prod.config.ts",
     "test": "vitest run",
     "preview": "vite preview"
   },
