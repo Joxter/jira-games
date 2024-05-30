@@ -728,3 +728,11 @@ export function fastSolve(_board: Field): Field | null {
     }
   }
 }
+
+export function formatTime(time: number) {
+  let hour = Math.floor(time / (60 * 60));
+  let min = Math.floor((time % 3600) / 60);
+  let sec = time % 60;
+
+  return [hour, min, sec].map((it) => it.toString().padStart(2, "0")).join(":");
+}

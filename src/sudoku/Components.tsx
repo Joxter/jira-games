@@ -1,6 +1,6 @@
 import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
-import { viewCandidates } from "./utils";
+import { formatTime, viewCandidates } from "./utils";
 import { useEffect, useRef } from "preact/hooks";
 import { $history, openWinModal } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
@@ -86,13 +86,10 @@ export function NumRow({
 
 export function Time() {
   let [{ time }] = useUnit([$history]);
-  let hour = Math.floor(time / (60 * 60));
-  let min = Math.floor((time - hour * 60) / 60);
-  let sec = time % 60;
 
   return (
     <span style={{ fontVariantNumeric: "tabular-nums" }}>
-      {[hour, min, sec].map((it) => it.toString().padStart(2, "0")).join(":")}
+      {formatTime(time)}
     </span>
   );
 }
