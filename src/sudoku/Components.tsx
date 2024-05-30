@@ -69,9 +69,16 @@ export function NumRow({
   candidate?: boolean;
 }) {
   return (
-    <div className={css.numRow} style={{ opacity: candidate ? 0.7 : 1 }}>
+    <div className={css.numRow}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
-        return <button onClick={() => onClick(n)}>{n}</button>;
+        return (
+          <button
+            style={{ color: candidate ? "#9f9f9a" : "#1e5adc" }}
+            onClick={() => onClick(n)}
+          >
+            {n}
+          </button>
+        );
       })}
     </div>
   );

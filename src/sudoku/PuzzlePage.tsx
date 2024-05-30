@@ -68,7 +68,31 @@ export function PuzzlePage() {
   }, []);
 
   return (
-    <div>
+    <div style={{ marginTop: "auto" }}>
+      <button
+        onClick={() => {
+          let unsolvedCells = field
+            .map((n, i) => [n, i])
+            .filter(([n]) => n === 0)
+            .map(([n, i]) => i);
+          let answer = fastSolve(field);
+
+          if (answer) setNumber(answer);
+
+          function setNumber(answer: Field) {
+            let cellId = unsolvedCells.pop();
+            if (cellId) {
+              cellClicked(cellId);
+              cellChanged(answer[cellId]);
+              setTimeout(() => {
+                setNumber(answer);
+              }, 50);
+            }
+          }
+        }}
+      >
+        magic solve
+      </button>
       <WinModal />
       <Time />
       <div
@@ -143,36 +167,14 @@ export function PuzzlePage() {
       <div className={css.nums}>
         <NumRow onClick={(n) => cellChanged(n)} />
         <div className={css.numsActions}>
+{/*
           <button onClick={() => resetClicked()}>X</button>
-          <button onClick={() => undo()}>undo</button>
-          <button onClick={() => redo()}>redo</button>
+*/}
+          <button onClick={() => undo()}>{'<-'}</button>
+          <button onClick={() => redo()}>{'->'}</button>
         </div>
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
-      <button
-        onClick={() => {
-          let unsolvedCells = field
-            .map((n, i) => [n, i])
-            .filter(([n]) => n === 0)
-            .map(([n, i]) => i);
-          let answer = fastSolve(field);
-
-          if (answer) setNumber(answer);
-
-          function setNumber(answer: Field) {
-            let cellId = unsolvedCells.pop();
-            if (cellId) {
-              cellClicked(cellId);
-              cellChanged(answer[cellId]);
-              setTimeout(() => {
-                setNumber(answer);
-              }, 50);
-            }
-          }
-        }}
-      >
-        magic solve
-      </button>
     </div>
   );
 }
