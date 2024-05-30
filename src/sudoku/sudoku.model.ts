@@ -14,6 +14,7 @@ import {
   getHighlightCells,
   getPuzzles,
   saveFieldsToLS,
+  saveWinToLS,
 } from "./utils";
 
 export const $puzzleList = createStore(getPuzzles());
@@ -164,6 +165,10 @@ export const payerWins = $isWin.updates.filter({
 });
 
 sample({ clock: payerWins, target: openWinModal });
+
+sample({ source: $puzzle, clock: payerWins }).watch((puzzle) => {
+  saveWinToLS(puzzle);
+});
 
 sample({
   source: $history,
