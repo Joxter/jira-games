@@ -86,8 +86,8 @@ export function NumRow({
 
 export function Time() {
   let [{ time }] = useUnit([$history]);
-  let hour = Math.floor(time / 360);
-  let min = Math.floor((time - hour * 60) / 360);
+  let hour = Math.floor(time / (60 * 60));
+  let min = Math.floor((time - hour * 60) / 60);
   let sec = time % 60;
 
   return (
