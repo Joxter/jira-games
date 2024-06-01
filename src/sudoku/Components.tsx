@@ -64,19 +64,39 @@ export function Cell({
 export function NumRow({
   onClick,
   candidate,
+  invalidNums,
+  doneNums,
 }: {
   onClick: (value: number) => void;
   candidate?: boolean;
+  invalidNums?: number[] | null;
+  doneNums?: number[] | null;
 }) {
   return (
     <div className={css.numRow}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
+        let isInvalid = invalidNums && invalidNums.includes(n);
+        let isDone = doneNums && doneNums.includes(n);
+
+        let borderRadius: Record<string, string> = {
+          1: "11px 0 0 0",
+          3: "0 11px 0 0",
+          7: "0 0 0 11px",
+          9: "0 0 11px 0",
+        };
+
         return (
           <button
-            style={{ color: candidate ? "#9f9f9a" : "#1e5adc" }}
+            style={{
+              borderRadius: borderRadius[n] || "",
+            }}
             onClick={() => onClick(n)}
+            className={cn(
+              (isDone && css.done) || (isInvalid && css.invalid),
+              candidate && css.numCandidate,
+            )}
           >
-            {n}
+            {doneNums && doneNums.includes(n) ? ":)" : n}
           </button>
         );
       })}

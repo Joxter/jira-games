@@ -17,7 +17,7 @@ import {
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
-import { fastSolve, fieldToLayout } from "./utils";
+import { fastSolve, fieldToLayout, getRelated } from "./utils";
 import { Cell, NumRow, Time, WinModal } from "./Components";
 import { Field } from "./types";
 
@@ -165,13 +165,25 @@ export function PuzzlePage() {
       </div>
       <br />
       <div className={css.nums}>
-        <NumRow onClick={(n) => cellChanged(n)} />
+        <NumRow
+          onClick={(n) => cellChanged(n)}
+          invalidNums={
+            current !== null
+              ? getRelated(current).map((id) => {
+                  return field[id];
+                })
+              : null
+          }
+          doneNums={[1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => {
+            return field.filter((a) => a === n).length === 9;
+          })}
+        />
         <div className={css.numsActions}>
-{/*
+          {/*
           <button onClick={() => resetClicked()}>X</button>
 */}
-          <button onClick={() => undo()}>{'<-'}</button>
-          <button onClick={() => redo()}>{'->'}</button>
+          <button onClick={() => undo()}>{"<-"}</button>
+          <button onClick={() => redo()}>{"->"}</button>
         </div>
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>

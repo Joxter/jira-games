@@ -65,8 +65,10 @@ export function Sudoku() {
 
   return (
     <div className={css.page}>
-      <a href="#list">to list</a>
-{/*
+      <div>
+        <a href="#list">to list</a>
+      </div>
+      {/*
       <p style={{ wordWrap: "break-word" }}>{LS[0].join("")}</p>
       <p>{LS[1].current}</p>
       <p>{JSON.stringify(LS[1].steps.slice(0, 3))}</p>

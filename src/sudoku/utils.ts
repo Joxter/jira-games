@@ -766,3 +766,7 @@ export function getBox(index: number): number[] {
   }
   return res;
 }
+
+export function getRelated(index: number): number[] {
+  return [...new Set([...getRow(index), ...getCol(index), ...getBox(index)])];
+}
