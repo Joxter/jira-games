@@ -736,3 +736,33 @@ export function formatTime(time: number) {
 
   return [hour, min, sec].map((it) => it.toString().padStart(2, "0")).join(":");
 }
+
+export function getRow(index: number): number[] {
+  const row = Math.floor(index / 9);
+  let res = [];
+  for (let i = 0; i < 9; i++) res.push(row * 9 + i);
+  return res;
+}
+
+export function getCol(index: number): number[] {
+  const col = index % 9;
+  const res = [];
+  for (let i = 0; i < 9; i++) res.push(col + 9 * i);
+  return res;
+}
+
+export function getBox(index: number): number[] {
+  const row = Math.floor(index / 9);
+  const col = index % 9;
+
+  const res = [];
+  const startRow = row - (row % 3);
+  const startCol = col - (col % 3);
+
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      res.push((startRow + i) * 9 + startCol + j);
+    }
+  }
+  return res;
+}
