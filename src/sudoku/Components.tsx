@@ -2,7 +2,7 @@ import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
 import { formatTime, viewCandidates } from "./utils";
 import { useEffect, useRef } from "preact/hooks";
-import { $history, openWinModal } from "./sudoku.model";
+import { $history, openWinModal, winCloseClicked } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
 
 type CellProps = {
@@ -118,11 +118,18 @@ export function WinModal() {
   let dialogRef = useRef<HTMLDialogElement | null>(null);
 
   useEffect(() => {
-    let unsub = openWinModal.watch((nums) => {
+    let unsub = openWinModal.watch(() => {
       dialogRef.current?.showModal();
     });
+    let unsub2 = winCloseClicked.watch(() => {
+      location.hash = "#list";
+      dialogRef.current?.close();
+    });
 
-    return () => unsub();
+    return () => {
+      unsub();
+      unsub2();
+    };
   }, []);
 
   return (
@@ -133,7 +140,7 @@ export function WinModal() {
       </p>
       <button
         onClick={() => {
-          dialogRef.current?.close();
+          winCloseClicked();
         }}
       >
         close

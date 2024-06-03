@@ -36,6 +36,8 @@ export const undo = createEvent();
 export const redo = createEvent();
 export const resetClicked = createEvent();
 export const winClicked = createEvent();
+export const winCloseClicked = createEvent();
+export const seveToPuzzleToLS = createEvent();
 
 export const puzzleSelected = createEvent<Field>();
 export const addSecToTime = createEvent();
@@ -142,7 +144,13 @@ $currentCell
 
 sample({
   source: [$puzzle, $history] as const,
-  clock: [changeCellFx.doneData, puzzleSelected, resetClicked],
+  clock: [
+    changeCellFx.doneData,
+    puzzleSelected,
+    resetClicked,
+    userAction,
+    seveToPuzzleToLS,
+  ],
 }).watch(([puzzle, history]) => {
   // console.log("SAVED", history.current);
   saveFieldsToLS(puzzle, history);

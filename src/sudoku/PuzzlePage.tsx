@@ -13,6 +13,7 @@ import {
   $field,
   $puzzle,
   addSecToTime,
+  seveToPuzzleToLS,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "preact/hooks";
@@ -63,7 +64,10 @@ export function PuzzlePage() {
       });
     });
 
-    return () => unsub();
+    return () => {
+      unsub();
+      seveToPuzzleToLS();
+    };
   }, []);
 
   return (
@@ -71,6 +75,7 @@ export function PuzzlePage() {
       <div>
         <a href="#list">close</a>
       </div>
+{/*
       <button
         onClick={() => {
           let unsolvedCells = field
@@ -95,6 +100,8 @@ export function PuzzlePage() {
       >
         magic solve
       </button>
+*/}
+
       <WinModal />
       <Time />
       <div
