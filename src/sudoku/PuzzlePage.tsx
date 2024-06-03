@@ -10,7 +10,6 @@ import {
   undo,
   redo,
   showCellError,
-  resetClicked,
   $field,
   $puzzle,
   addSecToTime,
@@ -69,6 +68,9 @@ export function PuzzlePage() {
 
   return (
     <div style={{ marginTop: "auto" }}>
+      <div>
+        <a href="#list">close</a>
+      </div>
       <button
         onClick={() => {
           let unsolvedCells = field

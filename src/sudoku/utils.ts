@@ -8,6 +8,7 @@ import {
   WinsPersistent,
 } from "./types";
 import { Difficulty, solve } from "./lib";
+import { all_difficulties } from "./lib/constants";
 
 export const CANDIDATES = [
   1 << 0,
@@ -93,6 +94,17 @@ export function changeCellHandler(data: ChangeCellProps): History | null {
     steps: [...history.steps.slice(0, history.current + 1), action],
     current: history.current + 1,
   };
+}
+
+export function getDifficulty(
+  puzzles: Record<Difficulty, Field[]>,
+  target: string,
+): Difficulty | null {
+  return (
+    all_difficulties.find((d) => {
+      return puzzles[d].map((it) => it.join("")).includes(target);
+    }) || null
+  );
 }
 
 export function getPuzzles(): Record<Difficulty, Field[]> {

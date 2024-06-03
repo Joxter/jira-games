@@ -104,12 +104,12 @@ export function NumRow({
   );
 }
 
-export function Time() {
+export function Time({ time: propsTime }: { time?: number }) {
   let [{ time }] = useUnit([$history]);
 
   return (
     <span style={{ fontVariantNumeric: "tabular-nums" }}>
-      {formatTime(time)}
+      {formatTime(propsTime ?? time)}
     </span>
   );
 }
