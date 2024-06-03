@@ -71,11 +71,11 @@ export function PuzzlePage() {
   }, []);
 
   return (
-    <div style={{ marginTop: "auto" }}>
+    <>
       <div>
         <a href="#list">close</a>
       </div>
-{/*
+      {/*
       <button
         onClick={() => {
           let unsolvedCells = field
@@ -103,6 +103,20 @@ export function PuzzlePage() {
 */}
 
       <WinModal />
+      <div style={{ marginTop: "auto" }}>
+        <button
+          onClick={() => {
+            let answer = fastSolve(field);
+            if (answer) {
+              alert("solvable..");
+            } else {
+              alert("unsolvable :(");
+            }
+          }}
+        >
+          is valid?
+        </button>
+      </div>
       <Time />
       <div
         ref={fieldRef}
@@ -196,7 +210,7 @@ export function PuzzlePage() {
         </div>
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
-    </div>
+    </>
   );
 }
 

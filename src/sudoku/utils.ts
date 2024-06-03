@@ -53,6 +53,9 @@ export function applyStepsForCandidates(
     let { type, cell, value } = steps[i];
     if (type === "edit-cell") {
       res[cell] = 0;
+      getBox(cell).forEach((c) => {
+        res[c] = res[c] & ~CANDIDATES[value];
+      });
     } else if (type === "edit-candidate") {
       res[cell] = res[cell] ^ CANDIDATES[value];
     }
