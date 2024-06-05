@@ -30,7 +30,10 @@ export function PuzzlePage() {
     $highLightCells,
   ]);
 
+  let [cellSize, setCellSize] = useState("30");
+
   const fieldRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handler(ev: any) {
@@ -56,6 +59,23 @@ export function PuzzlePage() {
     return () => clearInterval(id);
   }, []);
 
+  const widthSmal = 1;
+  const widthBig = 3;
+  const fieldPadding = 5;
+
+  useEffect(() => {
+    if (pageRef.current) {
+      const fieldWrapper =
+        pageRef.current.getBoundingClientRect().width - fieldPadding;
+
+      let cellSize = Math.floor(
+        (fieldWrapper - fieldPadding * 2 - 4 * widthBig - 6 * widthSmal) / 9,
+      );
+
+      setCellSize(cellSize.toString());
+    }
+  }, []);
+
   useEffect(() => {
     let unsub = showCellError.watch((nums) => {
       nums.forEach((n) => {
@@ -70,12 +90,8 @@ export function PuzzlePage() {
     };
   }, []);
 
-  const widthSmal = 1;
-  const widthBig = 3;
-  const cellSize = 38;
-
   return (
-    <>
+    <div>
       <div>
         <a href="#list">close</a>
       </div>
@@ -125,102 +141,104 @@ export function PuzzlePage() {
       </div>
       <br />
       <Time />
-      <div
-        className={css.field}
-        style={{
-          width: `calc(9 * ${cellSize}px + 4 * ${widthBig}px + 6 * ${widthSmal}px)`,
-          height: `calc(9 * ${cellSize}px + 4 * ${widthBig}px + 6 * ${widthSmal}px)`,
-        }}
-        ref={fieldRef}
-        onKeyDown={(ev) => {
-          if (
-            ev.code === "ArrowUp" ||
-            ev.code === "ArrowDown" ||
-            ev.code === "ArrowLeft" ||
-            ev.code === "ArrowRight"
-          ) {
-            arrowClicked(ev.code);
-          } else if (ev.code === "Backspace" || ev.code === "Delete") {
-            ev.preventDefault();
-            cellChanged(0);
-          } else if (
-            [
-              "Digit0",
-              "Digit1",
-              "Digit2",
-              "Digit3",
-              "Digit4",
-              "Digit5",
-              "Digit6",
-              "Digit7",
-              "Digit8",
-              "Digit9",
-            ].includes(ev.code)
-          ) {
-            const newVal = +ev.code.slice(5);
+      <div ref={pageRef} style={{ padding: `0 ${fieldPadding}px` }}>
+        <div
+          className={css.field}
+          style={{
+            "--cell-size": `${cellSize}px`,
+            "--width-smal": `${widthSmal}px`,
+            "--width-big": `${widthBig}px`,
+          }}
+          ref={fieldRef}
+          onKeyDown={(ev) => {
+            if (
+              ev.code === "ArrowUp" ||
+              ev.code === "ArrowDown" ||
+              ev.code === "ArrowLeft" ||
+              ev.code === "ArrowRight"
+            ) {
+              arrowClicked(ev.code);
+            } else if (ev.code === "Backspace" || ev.code === "Delete") {
+              ev.preventDefault();
+              cellChanged(0);
+            } else if (
+              [
+                "Digit0",
+                "Digit1",
+                "Digit2",
+                "Digit3",
+                "Digit4",
+                "Digit5",
+                "Digit6",
+                "Digit7",
+                "Digit8",
+                "Digit9",
+              ].includes(ev.code)
+            ) {
+              const newVal = +ev.code.slice(5);
 
-            if (ev.shiftKey) {
-              cellCandidateChanged(newVal);
-            } else {
-              cellChanged(newVal);
-            }
-          }
-        }}
-      >
-        {field.map((value, index) => {
-          return (
-            <Cell
-              style={{
-                ...getBorders(widthSmal, widthBig, index),
-                width: cellSize + "px",
-                height: cellSize + "px",
-              }}
-              candidates={candidates[index]}
-              key={index}
-              index={index}
-              isPuzzle={!!puzzle[index]}
-              isCurrent={current === index}
-              isSame={
-                (value &&
-                  current !== null &&
-                  current !== index &&
-                  field[current] === value) ||
-                false
+              if (ev.shiftKey) {
+                cellCandidateChanged(newVal);
+              } else {
+                cellChanged(newVal);
               }
-              isHighLight={highLightCells.includes(index)}
-              value={value}
-              onClick={() => {
-                cellClicked(index);
-              }}
-            />
-          );
-        })}
-      </div>
-      <br />
-      <div className={css.nums}>
-        <NumRow
-          onClick={(n) => cellChanged(n)}
-          invalidNums={
-            current !== null
-              ? getRelated(current).map((id) => {
-                  return field[id];
-                })
-              : null
-          }
-          doneNums={[1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => {
-            return field.filter((a) => a === n).length === 9;
+            }
+          }}
+        >
+          {field.map((value, index) => {
+            return (
+              <Cell
+                style={{
+                  ...getBorders(widthSmal, widthBig, index),
+                  width: "var(--cell-size)",
+                  height: "var(--cell-size)",
+                }}
+                candidates={candidates[index]}
+                key={index}
+                index={index}
+                isPuzzle={!!puzzle[index]}
+                isCurrent={current === index}
+                isSame={
+                  (value &&
+                    current !== null &&
+                    current !== index &&
+                    field[current] === value) ||
+                  false
+                }
+                isHighLight={highLightCells.includes(index)}
+                value={value}
+                onClick={() => {
+                  cellClicked(index);
+                }}
+              />
+            );
           })}
-        />
-        <div className={css.numsActions}>
-          {/*
+        </div>
+        <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
+          <NumRow
+            onClick={(n) => cellChanged(n)}
+            invalidNums={
+              current !== null
+                ? getRelated(current).map((id) => {
+                    return field[id];
+                  })
+                : null
+            }
+            doneNums={[1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => {
+              return field.filter((a) => a === n).length === 9;
+            })}
+          />
+          <div className={css.numsActions}>
+            {/*
           <button onClick={() => resetClicked()}>X</button>
 */}
-          <button onClick={() => undo()}>{"<-"}</button>
-          <button onClick={() => redo()}>{"->"}</button>
+            <button onClick={() => undo()}>{"<-"}</button>
+            <button onClick={() => redo()}>{"->"}</button>
+          </div>
+          <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
         </div>
-        <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
-    </>
+    </div>
   );
 }
 

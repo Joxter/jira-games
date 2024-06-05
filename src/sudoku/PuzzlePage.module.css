@@ -1,18 +1,32 @@
+:root {
+  background-color: #f1f1ec;
+}
+
 .page {
   display: grid;
   margin: 0 auto;
   background-color: #f1f1ec;
-  padding: 16px;
   width: 100%;
   max-width: 400px;
   min-height: 100%;
-  align-content: start;
+  align-content: end;
+  padding-bottom: 20px;
 }
 
 .field {
   display: flex;
   flex-wrap: wrap;
+  margin: 0 auto;
   box-sizing: content-box;
+  --cell-size: 40px;
+  --width-smal: 1px;
+  --width-big: 3px;
+  width: calc(
+    9 * var(--cell-size) + 4 * var(--width-big) + 6 * var(--width-smal)
+  );
+  height: calc(
+    9 * var(--cell-size) + 4 * var(--width-big) + 6 * var(--width-smal)
+  );
 }
 
 .cell {
@@ -71,6 +85,7 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
+  margin-top: 12px;
 }
 
 .numsActions {

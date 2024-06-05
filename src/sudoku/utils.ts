@@ -797,8 +797,8 @@ export function getBorders(
   borderBottom: string;
 } {
   let b0 = "none";
-  let b1 = `${widthSmal}px solid #555`;
-  let b3 = `${widthBig}px solid #555`;
+  let b1 = `var(--width-smal) solid #555`;
+  let b3 = `var(--width-big) solid #555`;
 
   let borderLeft = b1;
   let borderTop = b1;
