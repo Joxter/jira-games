@@ -134,6 +134,10 @@
   color: #1f3141;
 }
 
+.homePage {
+  padding: 20px 12px;
+}
+
 .newGames {
   display: grid;
 }
