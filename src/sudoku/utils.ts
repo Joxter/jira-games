@@ -785,3 +785,50 @@ export function getBox(index: number): number[] {
 export function getRelated(index: number): number[] {
   return [...new Set([...getRow(index), ...getCol(index), ...getBox(index)])];
 }
+
+export function getBorders(
+  w1: number,
+  w2: number,
+  cell: number,
+): {
+  borderLeft: string;
+  borderRight: string;
+  borderTop: string;
+  borderBottom: string;
+} {
+  let b0 = "none";
+  let b1 = `${w1}px solid #555`;
+  let b3 = `${w2}px solid #555`;
+
+  let borderLeft = b1;
+  let borderTop = b1;
+  let borderRight = b0;
+  let borderBottom = b0;
+
+  if (cell <= 8) {
+    borderTop = b3;
+  }
+  if (cell >= 72) {
+    borderBottom = b3;
+  }
+  if ((cell + 1) % 9 === 0) {
+    borderRight = b3;
+  }
+
+  let from = Math.floor(cell / 27) * 27;
+  let fromTo = from + 9;
+  if (cell >= from && cell < fromTo) {
+    borderTop = b3;
+  }
+
+  if (cell % 3 === 0) {
+    borderLeft = b3;
+  }
+
+  return {
+    borderLeft,
+    borderRight,
+    borderTop,
+    borderBottom,
+  };
+}

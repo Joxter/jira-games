@@ -16,8 +16,8 @@ import {
   seveToPuzzleToLS,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
-import { useEffect, useRef } from "preact/hooks";
-import { fastSolve, fieldToLayout, getRelated } from "./utils";
+import { useEffect, useRef, useState } from "preact/hooks";
+import { fastSolve, fieldToLayout, getBorders, getRelated } from "./utils";
 import { Cell, NumRow, Time, WinModal } from "./Components";
 import { Field } from "./types";
 
@@ -70,6 +70,9 @@ export function PuzzlePage() {
     };
   }, []);
 
+  const width = [1, 3]; // thin, thick
+  const cellSize = 38;
+
   return (
     <>
       <div>
@@ -118,6 +121,31 @@ export function PuzzlePage() {
         </button>
       </div>
       <Time />
+      <div
+        className={css.field2}
+        style={{
+          width:
+            "calc(9 * ${cellSize}px + 4 * ${width[1]}px + 6 * ${width[0]}px)",
+          height:
+            "calc(9 * ${cellSize}px + 4 * ${width[1]}px + 6 * ${width[0]}px)",
+        }}
+      >
+        {field.map((value, i) => {
+          return (
+            <div
+              style={{
+                ...getBorders(width[0], width[1], i),
+                width: cellSize + "px",
+                height: cellSize + "px",
+              }}
+            >
+              <InnerCell />
+              {/*<span>{value}</span>*/}
+            </div>
+          );
+        })}
+      </div>
+      <br />
       <div
         ref={fieldRef}
         className={css.field}
@@ -211,6 +239,26 @@ export function PuzzlePage() {
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
     </>
+  );
+}
+
+function InnerCell() {
+  let [size, setSize] = useState("");
+  let refCell = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => {
+    if (refCell.current) {
+      let rect = refCell.current?.getBoundingClientRect();
+      if (rect) {
+        setSize(rect.width + "*" + rect.height);
+      }
+    }
+  }, []);
+
+  return (
+    <span ref={refCell} className={css.innerCell}>
+      {size}
+    </span>
   );
 }
 

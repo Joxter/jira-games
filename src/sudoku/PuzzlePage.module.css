@@ -16,6 +16,24 @@
   border: 1px solid #d5d5cd;
 }
 
+.field2 {
+  box-sizing: content-box;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.field2 div {
+  position: relative;
+  box-sizing: inherit;
+}
+
+.innerCell {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+}
+
 .smalBox {
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
