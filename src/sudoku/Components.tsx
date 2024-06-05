@@ -14,6 +14,7 @@ type CellProps = {
   isHighLight: boolean;
   onClick: () => void;
   candidates: number;
+  style: any;
 };
 
 export function Cell({
@@ -25,6 +26,7 @@ export function Cell({
   onClick,
   candidates,
   index,
+  style,
 }: CellProps) {
   return (
     <button
@@ -39,6 +41,7 @@ export function Cell({
         isHighLight && css.cellHighLight,
         isSame && css.sameNumber,
       )}
+      style={style}
     >
       {candidates > 0 ? (
         <div className={css.candidates}>
@@ -107,11 +110,7 @@ export function NumRow({
 export function Time({ time: propsTime }: { time?: number }) {
   let [{ time }] = useUnit([$history]);
 
-  return (
-    <span style={{ fontVariantNumeric: "tabular-nums" }}>
-      {formatTime(propsTime ?? time)}
-    </span>
-  );
+  return <span style={{ fontVariantNumeric: "tabular-nums" }}>-</span>;
 }
 
 export function WinModal() {

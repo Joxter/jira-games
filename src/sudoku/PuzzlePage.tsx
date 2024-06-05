@@ -70,7 +70,8 @@ export function PuzzlePage() {
     };
   }, []);
 
-  const width = [1, 3]; // thin, thick
+  const widthSmal = 1;
+  const widthBig = 3;
   const cellSize = 38;
 
   return (
@@ -78,6 +79,7 @@ export function PuzzlePage() {
       <div>
         <a href="#list">close</a>
       </div>
+      <br />
       {/*
       <button
         onClick={() => {
@@ -104,6 +106,7 @@ export function PuzzlePage() {
         magic solve
       </button>
 */}
+      <br />
 
       <WinModal />
       <div style={{ marginTop: "auto" }}>
@@ -120,35 +123,15 @@ export function PuzzlePage() {
           is valid?
         </button>
       </div>
+      <br />
       <Time />
       <div
-        className={css.field2}
-        style={{
-          width:
-            "calc(9 * ${cellSize}px + 4 * ${width[1]}px + 6 * ${width[0]}px)",
-          height:
-            "calc(9 * ${cellSize}px + 4 * ${width[1]}px + 6 * ${width[0]}px)",
-        }}
-      >
-        {field.map((value, i) => {
-          return (
-            <div
-              style={{
-                ...getBorders(width[0], width[1], i),
-                width: cellSize + "px",
-                height: cellSize + "px",
-              }}
-            >
-              <InnerCell />
-              {/*<span>{value}</span>*/}
-            </div>
-          );
-        })}
-      </div>
-      <br />
-      <div
-        ref={fieldRef}
         className={css.field}
+        style={{
+          width: `calc(9 * ${cellSize}px + 4 * ${widthBig}px + 6 * ${widthSmal}px)`,
+          height: `calc(9 * ${cellSize}px + 4 * ${widthBig}px + 6 * ${widthSmal}px)`,
+        }}
+        ref={fieldRef}
         onKeyDown={(ev) => {
           if (
             ev.code === "ArrowUp" ||
@@ -184,33 +167,32 @@ export function PuzzlePage() {
           }
         }}
       >
-        {fieldToLayout(field).map((small, i) => {
+        {field.map((value, index) => {
           return (
-            <div className={css.smalBox} key={i}>
-              {small.map(([val, index]) => {
-                return (
-                  <Cell
-                    candidates={candidates[index]}
-                    key={index}
-                    index={index}
-                    isPuzzle={!!puzzle[index]}
-                    isCurrent={current === index}
-                    isSame={
-                      (val &&
-                        current !== null &&
-                        current !== index &&
-                        field[current] === val) ||
-                      false
-                    }
-                    isHighLight={highLightCells.includes(index)}
-                    value={val}
-                    onClick={() => {
-                      cellClicked(index);
-                    }}
-                  />
-                );
-              })}
-            </div>
+            <Cell
+              style={{
+                ...getBorders(widthSmal, widthBig, index),
+                width: cellSize + "px",
+                height: cellSize + "px",
+              }}
+              candidates={candidates[index]}
+              key={index}
+              index={index}
+              isPuzzle={!!puzzle[index]}
+              isCurrent={current === index}
+              isSame={
+                (value &&
+                  current !== null &&
+                  current !== index &&
+                  field[current] === value) ||
+                false
+              }
+              isHighLight={highLightCells.includes(index)}
+              value={value}
+              onClick={() => {
+                cellClicked(index);
+              }}
+            />
           );
         })}
       </div>
@@ -239,26 +221,6 @@ export function PuzzlePage() {
         <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
       </div>
     </>
-  );
-}
-
-function InnerCell() {
-  let [size, setSize] = useState("");
-  let refCell = useRef<HTMLSpanElement | null>(null);
-
-  useEffect(() => {
-    if (refCell.current) {
-      let rect = refCell.current?.getBoundingClientRect();
-      if (rect) {
-        setSize(rect.width + "*" + rect.height);
-      }
-    }
-  }, []);
-
-  return (
-    <span ref={refCell} className={css.innerCell}>
-      {size}
-    </span>
   );
 }
 

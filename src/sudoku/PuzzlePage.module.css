@@ -10,45 +10,18 @@
 }
 
 .field {
-  display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-template-columns: 1fr 1fr 1fr;
-  border: 1px solid #d5d5cd;
-}
-
-.field2 {
-  box-sizing: content-box;
   display: flex;
   flex-wrap: wrap;
-}
-
-.field2 div {
-  position: relative;
-  box-sizing: inherit;
-}
-
-.innerCell {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  font-size: 10px;
-}
-
-.smalBox {
-  display: grid;
-  grid-template-rows: 1fr 1fr 1fr;
-  grid-template-columns: 1fr 1fr 1fr;
-  border: 0.5px solid #d5d5cd;
+  box-sizing: content-box;
 }
 
 .cell {
   position: relative;
-  border: 0.5px solid #d5d5cd;
   background-color: #fff;
-  aspect-ratio: 1;
   padding: 0;
+  box-sizing: inherit;
   color: #0086ff;
-  font-weight: 300;
+  /*font-weight: 300;*/
   font-size: 24px;
   transition: background-color 50ms linear;
 }
@@ -57,36 +30,24 @@
   color: #213547;
 }
 
-.cellInner {
-  border: 1px solid transparent;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  padding: 2px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  line-height: 18px;
-}
-
 .cellHighLight {
   background-color: #fafaf4;
 }
 
 .cellCurrent {
   box-shadow: inset 0 0 0 2px #82e81f;
-  border-color: #82e81f;
+  /*border-color: #82e81f;*/
 }
 
 .sameNumber {
   box-shadow: inset 0 0 0 2px #3d74ea;
-  border-color: #3d74ea;
+  /*border-color: #3d74ea;*/
 }
 
 .candidates {
+  position: absolute;
+  left: 0;
+  top: 0;
   display: grid;
   grid-template-rows: 1fr 1fr 1fr;
   grid-template-columns: 1fr 1fr 1fr;
@@ -101,7 +62,7 @@
 
 .candidate {
   color: #213547;
-  font-weight: 300;
+  /*font-weight: 300;*/
   font-size: 10px !important;
   line-height: 9px !important;
 }
@@ -137,7 +98,7 @@
   background-color: #fff;
   border-radius: 0;
   font-size: 26px;
-  font-weight: 300;
+  /*font-weight: 300;*/
   padding: 0;
   color: #3d74ea;
   width: 40px;

@@ -787,8 +787,8 @@ export function getRelated(index: number): number[] {
 }
 
 export function getBorders(
-  w1: number,
-  w2: number,
+  widthSmal: number,
+  widthBig: number,
   cell: number,
 ): {
   borderLeft: string;
@@ -797,8 +797,8 @@ export function getBorders(
   borderBottom: string;
 } {
   let b0 = "none";
-  let b1 = `${w1}px solid #555`;
-  let b3 = `${w2}px solid #555`;
+  let b1 = `${widthSmal}px solid #555`;
+  let b3 = `${widthBig}px solid #555`;
 
   let borderLeft = b1;
   let borderTop = b1;
