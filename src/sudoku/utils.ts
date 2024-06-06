@@ -78,7 +78,6 @@ export function changeCellHandler(data: ChangeCellProps): History | null {
     }
   } else if (type === "edit-candidate") {
     // do nothing
-    //
   } else {
     console.warn("UNREACHABLE, wrong type: " + type);
     return null;
@@ -86,16 +85,18 @@ export function changeCellHandler(data: ChangeCellProps): History | null {
 
   if (history.current === history.steps.length - 1) {
     return {
-      time: history.time,
+      ...history,
       steps: [...history.steps, action],
       current: history.current + 1,
+      lastStepTime: Date.now(),
     };
   }
 
   return {
-    time: history.time,
+    ...history,
     steps: [...history.steps.slice(0, history.current + 1), action],
     current: history.current + 1,
+    lastStepTime: Date.now(),
   };
 }
 

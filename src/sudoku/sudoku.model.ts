@@ -112,7 +112,13 @@ $history
     if (puzzle.join("") === savedPuzzle.join("")) {
       return savedHistory;
     } else {
-      return { current: -1, steps: [], time: 0 };
+      return {
+        current: -1,
+        steps: [],
+        time: 0,
+        started: Date.now(),
+        lastStepTime: Date.now(),
+      };
     }
   })
   .reset(resetClicked);
