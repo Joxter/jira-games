@@ -4,7 +4,7 @@ export type WinsPersistent = Record<
   string,
   {
     win: boolean;
-    date?: number;
+    winDate?: number;
   }
 >;
 
@@ -14,6 +14,7 @@ export type Action =
 // todo add "win clicked" event, refactor events, add proper play/win state
 
 export type History = {
+  puzzle: string;
   steps: Action[];
   current: number;
   time: number;
@@ -22,7 +23,6 @@ export type History = {
 };
 
 export type ChangeCellProps = {
-  puzzle: Field;
   history: History;
   action: Action;
 };

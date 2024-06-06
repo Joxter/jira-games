@@ -24,16 +24,18 @@ function getPuzzleFromUrl(): Field | null {
 }
 
 const initP = getPuzzleFromUrl();
-const [lastField, lastHistory] = getSavedFromLS();
+const allHistory = getSavedFromLS();
 
 if (initP) {
-  if (lastField.join("") === initP.join("")) {
-    initSudoku({ puzzle: lastField, history: lastHistory });
+  let savedLogs = allHistory.find((it) => initP.join("") === it.puzzle);
+
+  if (savedLogs) {
+    initSudoku([initP.join(""), allHistory]);
   } else {
-    initSudoku(null);
+    initSudoku([null, allHistory]);
   }
 } else {
-  initSudoku(null);
+  initSudoku([null, allHistory]);
 }
 
 export function Sudoku() {
@@ -56,7 +58,7 @@ export function Sudoku() {
   const PageComponent = useMemo(() => {
     const initP = getPuzzleFromUrl();
     if (initP) {
-      puzzleSelected(initP);
+      puzzleSelected(initP.join(""));
       return PuzzlePage;
     } else {
       return SudokuList;

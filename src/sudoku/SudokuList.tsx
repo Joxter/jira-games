@@ -15,8 +15,7 @@ import { Time } from "./Components";
 export function SudokuList() {
   const [puzzleList] = useUnit([$puzzleList]);
 
-  let [lastField, { time }] = getSavedFromLS();
-  let lastFieldStr = lastField.join("");
+  let allHistory = getSavedFromLS();
 
   let wins = getWinsFromLS();
 
@@ -39,13 +38,21 @@ export function SudokuList() {
             </a>
           );
         })}
-        {!wins[lastFieldStr]?.win && (
+        {allHistory.length > 0 && (
           <>
             <h2>Continue</h2>
-            <a href={"#puzzle-" + lastFieldStr} className={css.startNew}>
-              {getDifficulty(puzzleList, lastFieldStr) || "unknown difficulty"}{" "}
-              (<Time time={time} />)
-            </a>
+            {allHistory
+              .filter((it) => {
+                return !wins[it.puzzle]?.win;
+              })
+              .map(({ puzzle, time }) => {
+                return (
+                  <a href={"#puzzle-" + puzzle} className={css.startNew}>
+                    {getDifficulty(puzzleList, puzzle) || "unknown difficulty"}{" "}
+                    (<Time time={time} />)
+                  </a>
+                );
+              })}
           </>
         )}
         <h2>Settings</h2>

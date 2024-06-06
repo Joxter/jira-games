@@ -18,12 +18,9 @@ import {
 } from "./utils";
 
 export const $puzzleList = createStore(getPuzzles());
-export const $puzzle = createStore<Field>(Array(81).fill(0));
-export const $currentLogs = createStore<History>({
-  current: -1,
-  steps: [],
-  time: 0,
-});
+export const $puzzle = createStore<string>("");
+export const $currentLogs = createStore<History | null>(null);
+export const $allHistory = createStore<History[]>([]);
 
 export const $currentCell = createStore<number | null>(null);
 export const $highLightCells = $currentCell.map(getHighlightCells);
@@ -39,13 +36,10 @@ export const winClicked = createEvent();
 export const winCloseClicked = createEvent();
 export const seveToPuzzleToLS = createEvent();
 
-export const puzzleSelected = createEvent<Field>();
+export const puzzleSelected = createEvent<string>();
 export const addSecToTime = createEvent();
 export const openWinModal = createEvent();
-export const initSudoku = createEvent<{
-  puzzle: Field;
-  history: History;
-} | null>();
+export const initSudoku = createEvent<[string | null, History[]]>();
 
 // gameplay
 export const arrowClicked = createEvent<string>();
@@ -78,7 +72,7 @@ sample({
   source: [$puzzle, $currentLogs] as const,
   clock: userAction,
   fn: ([puzzle, history], action) => {
-    return { puzzle, history, action };
+    return { puzzle, history: history!, action };
   },
   target: changeCellFx,
 });
@@ -87,12 +81,16 @@ sample({ clock: changeCellFx.failData, target: showCellError });
 
 $currentLogs
   .on(undo, (state) => {
+    if (!state) return state;
+
     return {
       ...state,
       current: state.current >= 0 ? state.current - 1 : state.current,
     };
   })
   .on(redo, (state) => {
+    if (!state) return state;
+
     return {
       ...state,
       current: state.steps[state.current + 1]
@@ -100,19 +98,23 @@ $currentLogs
         : state.current,
     };
   })
-  .on(changeCellFx.doneData, (state, newHistory) => {
-    return newHistory ? newHistory : state;
+  .on(changeCellFx.doneData, (state, newLogs) => {
+    return newLogs ? newLogs : state;
   })
-  .on(initSudoku, (state, data) => {
-    return data ? data.history : state;
+  .on(initSudoku, (state, [initPuzzle, allHistory]) => {
+    let current = allHistory.find((it) => it.puzzle === initPuzzle);
+    return current || state;
   })
-  .on(puzzleSelected, (_, puzzle) => {
-    let [savedPuzzle, savedHistory] = getSavedFromLS();
+  .on(puzzleSelected, (_, puzzle): History => {
+    let savedHistory = getSavedFromLS();
 
-    if (puzzle.join("") === savedPuzzle.join("")) {
-      return savedHistory;
+    let currentLogs = savedHistory.find((it) => it.puzzle === puzzle);
+
+    if (currentLogs) {
+      return currentLogs;
     } else {
       return {
+        puzzle,
         current: -1,
         steps: [],
         time: 0,
@@ -123,12 +125,16 @@ $currentLogs
   })
   .reset(resetClicked);
 
+$allHistory.on(initSudoku, (state, [, allHistory]) => {
+  return allHistory;
+});
+
 $puzzle
   .on(puzzleSelected, (state, puzzleStr) => {
     return puzzleStr;
   })
-  .on(initSudoku, (state, data) => {
-    return data ? data.puzzle : state;
+  .on(initSudoku, (state, [puzzle]) => {
+    return puzzle || state;
   });
 
 $currentCell
@@ -149,7 +155,7 @@ $currentCell
   });
 
 sample({
-  source: [$puzzle, $currentLogs] as const,
+  source: $currentLogs,
   clock: [
     changeCellFx.doneData,
     puzzleSelected,
@@ -157,25 +163,27 @@ sample({
     userAction,
     seveToPuzzleToLS,
   ],
-}).watch(([puzzle, history]) => {
+}).watch((history) => {
   // console.log("SAVED", history.current);
-  saveFieldsToLS(puzzle, history);
+  if (history) saveFieldsToLS(history);
 });
 
 // $candidates.watch(console.log);
 // $field.watch(console.log);
 // $currentLogs.watch(console.log);
 
-export const $field = combine($puzzle, $currentLogs, (puzzle, history) => {
-  return applyEditCellActions(puzzle, history);
+export const $field = $currentLogs.map((history) => {
+  return history ? applyEditCellActions(history) : null;
 });
-export const $candidates = combine($puzzle, $currentLogs, (puzzle, history) => {
-  return applyStepsForCandidates(puzzle, history);
+export const $candidates = $currentLogs.map((history) => {
+  return history ? applyStepsForCandidates(history) : null;
 });
-export const $isWin = $field.map((field) => field.every((it) => it > 0));
+export const $isWin = $field.map(
+  (field) => field && field.every((it) => it > 0),
+);
 
 export const payerWins = $isWin.updates.filter({
-  fn: (isWin) => isWin,
+  fn: (isWin) => !!isWin,
 });
 
 sample({ clock: payerWins, target: openWinModal });
@@ -189,6 +197,7 @@ sample({
   clock: addSecToTime,
   filter: $isWin.map((it) => !it),
   fn: (history) => {
+    if (!history) return history;
     return { ...history, time: history.time + 1 };
   },
   target: $currentLogs,

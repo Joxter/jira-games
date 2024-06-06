@@ -23,8 +23,8 @@ export const CANDIDATES = [
   1 << 9,
 ];
 
-export function applyEditCellActions(puzzle: Field, history: History): Field {
-  let res = [...puzzle];
+export function applyEditCellActions(history: History): Field {
+  const res = parseToField(history.puzzle);
   let { current, steps } = history;
 
   for (let i = 0; i <= current; i++) {
@@ -43,10 +43,10 @@ export function applyEditCellActions(puzzle: Field, history: History): Field {
   return res;
 }
 
-export function applyStepsForCandidates(
-  puzzle: Field,
-  { steps, current }: History,
-): Candidates {
+export function applyStepsForCandidates({
+  steps,
+  current,
+}: History): Candidates {
   let res = Array(81).fill(0);
 
   for (let i = 0; i <= current; i++) {
@@ -65,11 +65,12 @@ export function applyStepsForCandidates(
 }
 
 export function changeCellHandler(data: ChangeCellProps): History | null {
-  const { puzzle, history, action } = data;
+  const { history, action } = data;
+  const puzzle = history.puzzle.split("").map((it) => +it);
   const { cell, value, type } = action;
   if (puzzle[cell]) return null;
 
-  let field = applyEditCellActions(puzzle, history);
+  let field = applyEditCellActions(history);
 
   if (type === "edit-cell") {
     if (field[cell] !== value && value > 0) {
@@ -561,11 +562,11 @@ export function getWinsFromLS() {
   }
 }
 
-export function saveWinToLS(puzzle: Field) {
+export function saveWinToLS(puzzle: string) {
   try {
     let wins = getWinsFromLS();
 
-    wins[puzzle.join("")] = { win: true };
+    wins[puzzle] = { win: true, winDate: Date.now() };
     localStorage.setItem(`sudoku-wins`, JSON.stringify(wins));
     return true;
   } catch (err) {
@@ -574,12 +575,18 @@ export function saveWinToLS(puzzle: Field) {
   }
 }
 
-export function saveFieldsToLS(puzzle: Field, history: History) {
+export function saveFieldsToLS(history: History) {
   try {
-    localStorage.setItem(
-      `sudoku-last-state`,
-      JSON.stringify({ history, puzzle }),
-    );
+    let saved = getSavedFromLS();
+
+    let rewriteIndex = saved.findIndex((it) => history.puzzle === it.puzzle);
+    if (rewriteIndex) {
+      saved[rewriteIndex] = history;
+    } else {
+      saved.push(history);
+    }
+
+    localStorage.setItem(`sudoku-history`, JSON.stringify(saved));
     return true;
   } catch (err) {
     console.error(err);
@@ -588,28 +595,22 @@ export function saveFieldsToLS(puzzle: Field, history: History) {
 }
 
 export function resetLS() {
-  localStorage.removeItem("sudoku-last-state");
+  localStorage.removeItem("sudoku-history");
   // localStorage.removeItem("sudoku-wins");
 }
 
-export function getSavedFromLS(): [Field, History] {
+export function getSavedFromLS(): History[] {
   try {
-    let raw = JSON.parse(localStorage.getItem("sudoku-last-state") || "{}");
-    let puzzle = raw.puzzle as any as any[];
+    let raw = JSON.parse(localStorage.getItem("sudoku-history") || "[]");
     let history = raw.history as any;
 
-    if (
-      puzzle.every((it) => {
-        return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(it);
-      }) &&
-      puzzle.length === 81
-    ) {
-      return [puzzle, history];
+    if (Array.isArray(history)) {
+      return history;
     }
-    return [Array(81).fill(0), { current: -1, steps: [], time: 0 }];
+    return [];
   } catch (err) {
     // console.error(err);
-    return [Array(81).fill(0), { current: -1, steps: [], time: 0 }];
+    return [];
   }
 }
 
@@ -832,4 +833,8 @@ export function getBorders(
     borderTop,
     borderBottom,
   };
+}
+
+function parseToField(str: string) {
+  return str.split("").map((it) => +it);
 }
