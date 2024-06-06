@@ -7,6 +7,7 @@ import {
   getSavedFromLS,
   getWinsFromLS,
   randomFrom,
+  removeFromHistoryLS,
 } from "./utils";
 import { Difficulty } from "./lib";
 import { Field } from "./types";
@@ -47,10 +48,20 @@ export function SudokuList() {
               })
               .map(({ puzzle, time }) => {
                 return (
-                  <a href={"#puzzle-" + puzzle} className={css.startNew}>
-                    {getDifficulty(puzzleList, puzzle) || "unknown difficulty"}{" "}
-                    (<Time time={time} />)
-                  </a>
+                  <p className={css.continue}>
+                    <a href={"#puzzle-" + puzzle}>
+                      {getDifficulty(puzzleList, puzzle) ||
+                        "unknown difficulty"}{" "}
+                      (<Time time={time} />)
+                    </a>
+                    <button
+                      onClick={() => {
+                        removeFromHistoryLS(puzzle);
+                      }}
+                    >
+                      remove
+                    </button>
+                  </p>
                 );
               })}
           </>

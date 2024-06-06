@@ -575,7 +575,7 @@ export function saveWinToLS(puzzle: string) {
   }
 }
 
-export function saveFieldsToLS(history: History) {
+export function saveHistoryToLS(history: History) {
   try {
     let saved = getSavedFromLS();
 
@@ -597,6 +597,20 @@ export function saveFieldsToLS(history: History) {
 export function resetLS() {
   localStorage.removeItem("sudoku-history");
   // localStorage.removeItem("sudoku-wins");
+}
+
+export function removeFromHistoryLS(puzzle: string) {
+  try {
+    let saved = getSavedFromLS();
+
+    localStorage.setItem(
+      `sudoku-history`,
+      JSON.stringify(saved.filter((it) => it.puzzle !== puzzle)),
+    );
+  } catch (err) {
+    // console.error(err);
+    return [];
+  }
 }
 
 export function getSavedFromLS(): History[] {

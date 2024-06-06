@@ -13,7 +13,7 @@ import {
   getSavedFromLS,
   getHighlightCells,
   getPuzzles,
-  saveFieldsToLS,
+  saveHistoryToLS,
   saveWinToLS,
 } from "./utils";
 
@@ -165,7 +165,7 @@ sample({
   ],
 }).watch((logs) => {
   console.log("SAVED", logs);
-  if (logs) saveFieldsToLS(logs);
+  if (logs) saveHistoryToLS(logs);
 });
 
 // $candidates.watch(console.log);
