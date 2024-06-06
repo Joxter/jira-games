@@ -2,7 +2,7 @@ import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
 import { formatTime, viewCandidates } from "./utils";
 import { useEffect, useRef } from "preact/hooks";
-import { $history, openWinModal, winCloseClicked } from "./sudoku.model";
+import { $currentLogs, openWinModal, winCloseClicked } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
 
 type CellProps = {
@@ -108,9 +108,13 @@ export function NumRow({
 }
 
 export function Time({ time: propsTime }: { time?: number }) {
-  let [{ time }] = useUnit([$history]);
+  let [{ time }] = useUnit([$currentLogs]);
 
-  return <span style={{ fontVariantNumeric: "tabular-nums" }}>-</span>;
+  return (
+    <span style={{ fontVariantNumeric: "tabular-nums" }}>
+      {formatTime(propsTime ?? time)}
+    </span>
+  );
 }
 
 export function WinModal() {

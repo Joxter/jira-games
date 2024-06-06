@@ -19,7 +19,7 @@ import {
 
 export const $puzzleList = createStore(getPuzzles());
 export const $puzzle = createStore<Field>(Array(81).fill(0));
-export const $history = createStore<History>({
+export const $currentLogs = createStore<History>({
   current: -1,
   steps: [],
   time: 0,
@@ -75,7 +75,7 @@ sample({
 });
 
 sample({
-  source: [$puzzle, $history] as const,
+  source: [$puzzle, $currentLogs] as const,
   clock: userAction,
   fn: ([puzzle, history], action) => {
     return { puzzle, history, action };
@@ -85,7 +85,7 @@ sample({
 
 sample({ clock: changeCellFx.failData, target: showCellError });
 
-$history
+$currentLogs
   .on(undo, (state) => {
     return {
       ...state,
@@ -149,7 +149,7 @@ $currentCell
   });
 
 sample({
-  source: [$puzzle, $history] as const,
+  source: [$puzzle, $currentLogs] as const,
   clock: [
     changeCellFx.doneData,
     puzzleSelected,
@@ -164,12 +164,12 @@ sample({
 
 // $candidates.watch(console.log);
 // $field.watch(console.log);
-// $history.watch(console.log);
+// $currentLogs.watch(console.log);
 
-export const $field = combine($puzzle, $history, (puzzle, history) => {
+export const $field = combine($puzzle, $currentLogs, (puzzle, history) => {
   return applyEditCellActions(puzzle, history);
 });
-export const $candidates = combine($puzzle, $history, (puzzle, history) => {
+export const $candidates = combine($puzzle, $currentLogs, (puzzle, history) => {
   return applyStepsForCandidates(puzzle, history);
 });
 export const $isWin = $field.map((field) => field.every((it) => it > 0));
@@ -185,11 +185,11 @@ sample({ source: $puzzle, clock: payerWins }).watch((puzzle) => {
 });
 
 sample({
-  source: $history,
+  source: $currentLogs,
   clock: addSecToTime,
   filter: $isWin.map((it) => !it),
   fn: (history) => {
     return { ...history, time: history.time + 1 };
   },
-  target: $history,
+  target: $currentLogs,
 });
