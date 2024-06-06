@@ -580,7 +580,7 @@ export function saveFieldsToLS(history: History) {
     let saved = getSavedFromLS();
 
     let rewriteIndex = saved.findIndex((it) => history.puzzle === it.puzzle);
-    if (rewriteIndex) {
+    if (rewriteIndex > -1) {
       saved[rewriteIndex] = history;
     } else {
       saved.push(history);
@@ -601,11 +601,18 @@ export function resetLS() {
 
 export function getSavedFromLS(): History[] {
   try {
-    let raw = JSON.parse(localStorage.getItem("sudoku-history") || "[]");
-    let history = raw.history as any;
-
-    if (Array.isArray(history)) {
-      return history;
+    let historyRaw = JSON.parse(localStorage.getItem("sudoku-history") || "[]");
+    if (Array.isArray(historyRaw)) {
+      return historyRaw;
+    } else if (historyRaw.puzzle && historyRaw.history) {
+      return [
+        {
+          ...historyRaw.history,
+          puzzle: Array.isArray(historyRaw.puzzle)
+            ? historyRaw.join("")
+            : historyRaw.puzzle,
+        },
+      ];
     }
     return [];
   } catch (err) {

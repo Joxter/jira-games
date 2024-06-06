@@ -56,7 +56,12 @@ export function PuzzlePage() {
       }
     }, 1000);
 
-    return () => clearInterval(id);
+    document.addEventListener("visibilitychange", seveToPuzzleToLS);
+
+    return () => {
+      document.removeEventListener("visibilitychange", seveToPuzzleToLS);
+      clearInterval(id);
+    };
   }, []);
 
   const widthSmal = 1;
@@ -85,11 +90,12 @@ export function PuzzlePage() {
     });
 
     return () => {
-      unsub();
       seveToPuzzleToLS();
+      unsub();
     };
   }, []);
 
+  if (!candidates || !field) return <p>??????????</p>;
   return (
     <div>
       <div>
@@ -128,6 +134,8 @@ export function PuzzlePage() {
       <div style={{ marginTop: "auto" }}>
         <button
           onClick={() => {
+            if (!field) return;
+
             let answer = fastSolve(field);
             if (answer) {
               alert("solvable..");

@@ -108,11 +108,12 @@ export function NumRow({
 }
 
 export function Time({ time: propsTime }: { time?: number }) {
-  let [{ time }] = useUnit([$currentLogs]);
+  let [logs] = useUnit([$currentLogs]);
+  let t = propsTime ?? logs?.time;
 
   return (
     <span style={{ fontVariantNumeric: "tabular-nums" }}>
-      {formatTime(propsTime ?? time)}
+      {t ? formatTime(t) : ""}
     </span>
   );
 }

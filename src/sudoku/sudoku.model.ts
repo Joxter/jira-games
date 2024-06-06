@@ -34,7 +34,7 @@ export const redo = createEvent();
 export const resetClicked = createEvent();
 export const winClicked = createEvent();
 export const winCloseClicked = createEvent();
-export const seveToPuzzleToLS = createEvent();
+export const seveToPuzzleToLS = createEvent<any>();
 
 export const puzzleSelected = createEvent<string>();
 export const addSecToTime = createEvent();
@@ -160,12 +160,12 @@ sample({
     changeCellFx.doneData,
     puzzleSelected,
     resetClicked,
-    userAction,
+    // userAction.filter({ fn: ({ type }) => type === "edit-candidate" }),
     seveToPuzzleToLS,
   ],
-}).watch((history) => {
-  // console.log("SAVED", history.current);
-  if (history) saveFieldsToLS(history);
+}).watch((logs) => {
+  console.log("SAVED", logs);
+  if (logs) saveFieldsToLS(logs);
 });
 
 // $candidates.watch(console.log);
