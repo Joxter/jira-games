@@ -57,6 +57,9 @@ export function SudokuList() {
                     <button
                       onClick={() => {
                         removeFromHistoryLS(puzzle);
+                        setTimeout(() => {
+                          location.reload();
+                        }, 100);
                       }}
                     >
                       remove

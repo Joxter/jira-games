@@ -354,7 +354,6 @@ function Pile({
   type,
   name,
   text,
-  cards,
   mode,
   onClick,
 }: {
