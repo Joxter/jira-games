@@ -40,22 +40,19 @@ if (initP) {
 
 export function Sudoku() {
   const [page, setPage] = useState(initP ? location.hash : "#list");
-  const [LS, setLS] = useState(getSavedFromLS());
 
   useEffect(() => {
     function handler() {
+      console.log("hashchange", location.hash);
       setPage(location.hash || "#list");
     }
     window.addEventListener("hashchange", handler);
-
-    setInterval(() => {
-      setLS(getSavedFromLS());
-    }, 300);
 
     return () => window.removeEventListener("hashchange", handler);
   }, []);
 
   const PageComponent = useMemo(() => {
+    // console.log('123');
     const initP = getPuzzleFromUrl();
     if (initP) {
       puzzleSelected(initP.join(""));
@@ -67,10 +64,28 @@ export function Sudoku() {
 
   return (
     <div className={css.page}>
-      {/*
-      <p style={{ wordWrap: "break-word" }}>{LS[0].join("")}</p>
-      <p>{LS[1].current}</p>
-      <p>{JSON.stringify(LS[1].steps.slice(0, 3))}</p>
+      <DebugLS />
+      <PageComponent key={page} />
+    </div>
+  );
+}
+
+function DebugLS() {
+  const [LS, setLS] = useState(getSavedFromLS());
+
+  useEffect(() => {
+    let id = setInterval(() => {
+      setLS(getSavedFromLS());
+    }, 300);
+
+    return () => {
+      clearInterval(id);
+    };
+  }, []);
+
+  return (
+    <div style={{ overflow: "hidden" }}>
+      <p style={{ wordWrap: "break-word" }}>{JSON.stringify(LS)}</p>
       <button
         onClick={() => {
           resetLS();
@@ -78,8 +93,6 @@ export function Sudoku() {
       >
         reset LS
       </button>
-*/}
-      <PageComponent key={page} />
     </div>
   );
 }

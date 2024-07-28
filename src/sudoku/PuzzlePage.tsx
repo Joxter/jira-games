@@ -204,7 +204,7 @@ export function PuzzlePage() {
                 candidates={candidates[index]}
                 key={index}
                 index={index}
-                isPuzzle={!!puzzle[index]}
+                isPuzzle={puzzle[index] !== "0"}
                 isCurrent={current === index}
                 isSame={
                   (value &&
