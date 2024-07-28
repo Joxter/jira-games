@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch",
     "build": "tsc && vite build",
+    "serve": "npx serve ./dist",
     "prod-sudoku": "vite build -c ./vite-sudoku-prod.config.ts",
     "test": "vitest run",
     "preview": "vite preview"
