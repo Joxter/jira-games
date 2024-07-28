@@ -64,7 +64,7 @@ export function Sudoku() {
 
   return (
     <div className={css.page}>
-      <DebugLS />
+      {false && <DebugLS/>}
       <PageComponent key={page} />
     </div>
   );
