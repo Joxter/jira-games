@@ -43,7 +43,6 @@ export function Sudoku() {
 
   useEffect(() => {
     function handler() {
-      console.log("hashchange", location.hash);
       setPage(location.hash || "#list");
     }
     window.addEventListener("hashchange", handler);
