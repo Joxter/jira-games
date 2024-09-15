@@ -23,6 +23,7 @@ export const $currentLogs = createStore<History | null>(null);
 export const $allHistory = createStore<History[]>([]);
 
 export const $currentCell = createStore<number | null>(null);
+export const $inputMode = createStore<"normal" | "candidate">("normal");
 export const $highLightCells = $currentCell.map(getHighlightCells);
 
 const changeCellFx = createEffect<ChangeCellProps, History | null, number[]>(
@@ -31,6 +32,7 @@ const changeCellFx = createEffect<ChangeCellProps, History | null, number[]>(
 
 export const undo = createEvent();
 export const redo = createEvent();
+export const inputModeChanged = createEvent<"normal" | "candidate">();
 export const resetClicked = createEvent();
 export const winClicked = createEvent();
 export const winCloseClicked = createEvent();
@@ -44,24 +46,41 @@ export const initSudoku = createEvent<[string | null, History[]]>();
 // gameplay
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
-export const cellChanged = createEvent<number>();
+export const numberClicked = createEvent<number>();
 export const cellCandidateChanged = createEvent<number>();
 export const userAction = createEvent<Action>();
 export const showCellError = createEvent<number[]>();
 
+$inputMode.on(inputModeChanged, (_, s) => s);
+
 sample({
   source: $currentCell,
-  clock: cellChanged,
+  clock: numberClicked,
   filter: $currentCell.map((it) => it !== null),
   fn: (cell, value) => {
     return { cell: cell!, value, type: "edit-cell" as const };
   },
   target: userAction,
 });
+
 sample({
   source: $currentCell,
   clock: cellCandidateChanged,
   filter: $currentCell.map((it) => it !== null),
+  fn: (cell, value) => {
+    return { cell: cell!, value, type: "edit-candidate" as const };
+  },
+  target: userAction,
+});
+
+sample({
+  source: $currentCell,
+  clock: numberClicked,
+  filter: combine(
+    $currentCell,
+    $inputMode,
+    (cell, mode) => cell !== null && mode === "candidate",
+  ),
   fn: (cell, value) => {
     return { cell: cell!, value, type: "edit-candidate" as const };
   },

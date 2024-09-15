@@ -5,7 +5,7 @@ import {
   $highLightCells,
   arrowClicked,
   cellCandidateChanged,
-  cellChanged,
+  numberClicked,
   cellClicked,
   undo,
   redo,
@@ -14,21 +14,25 @@ import {
   $puzzle,
   addSecToTime,
   seveToPuzzleToLS,
+  inputModeChanged,
+  $inputMode,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { fastSolve, fieldToLayout, getBorders, getRelated } from "./utils";
-import { Cell, NumRow, Time, WinModal } from "./Components";
-import { Field } from "./types";
+import { fastSolve, getBorders, getRelated } from "./utils";
+import { Cell, NumRow, WinModal } from "./Components";
+import { cn } from "../unit";
 
 export function PuzzlePage() {
-  const [puzzle, field, candidates, current, highLightCells] = useUnit([
-    $puzzle,
-    $field,
-    $candidates,
-    $currentCell,
-    $highLightCells,
-  ]);
+  const [puzzle, field, candidates, current, highLightCells, inputMode] =
+    useUnit([
+      $puzzle,
+      $field,
+      $candidates,
+      $currentCell,
+      $highLightCells,
+      $inputMode,
+    ]);
 
   let [cellSize, setCellSize] = useState("30");
 
@@ -148,7 +152,6 @@ export function PuzzlePage() {
         </button>
       </div>
       <br />
-      <Time />
       <div ref={pageRef} style={{ padding: `0 ${fieldPadding}px` }}>
         <div
           className={css.field}
@@ -168,7 +171,7 @@ export function PuzzlePage() {
               arrowClicked(ev.code);
             } else if (ev.code === "Backspace" || ev.code === "Delete") {
               ev.preventDefault();
-              cellChanged(0);
+              numberClicked(0);
             } else if (
               [
                 "Digit0",
@@ -188,7 +191,7 @@ export function PuzzlePage() {
               if (ev.shiftKey) {
                 cellCandidateChanged(newVal);
               } else {
-                cellChanged(newVal);
+                numberClicked(newVal);
               }
             }
           }}
@@ -223,8 +226,12 @@ export function PuzzlePage() {
           })}
         </div>
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
+          <div className={css.numsActions}>
+            <button onClick={() => undo()}>{"<-"}</button>
+            <button onClick={() => redo()}>{"->"}</button>
+          </div>
           <NumRow
-            onClick={(n) => cellChanged(n)}
+            onClick={(n) => numberClicked(n)}
             invalidNums={
               current !== null
                 ? getRelated(current).map((id) => {
@@ -237,13 +244,19 @@ export function PuzzlePage() {
             })}
           />
           <div className={css.numsActions}>
-            {/*
-          <button onClick={() => resetClicked()}>X</button>
-*/}
-            <button onClick={() => undo()}>{"<-"}</button>
-            <button onClick={() => redo()}>{"->"}</button>
+            <button
+              className={cn(inputMode === "normal" && css.current)}
+              onClick={() => inputModeChanged("normal")}
+            >
+              normal
+            </button>
+            <button
+              className={cn(inputMode === "candidate" && css.current)}
+              onClick={() => inputModeChanged("candidate")}
+            >
+              canditate
+            </button>
           </div>
-          <NumRow candidate onClick={(n) => cellCandidateChanged(n)} />
         </div>
       </div>
     </div>

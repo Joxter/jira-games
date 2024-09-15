@@ -83,7 +83,7 @@
 
 .nums {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   margin-top: 12px;
 }
@@ -93,6 +93,18 @@
   width: 50px;
   gap: 12px;
   align-content: end;
+}
+
+.numsActions button {
+  background-color: #ffffff;
+  border: 1px solid #555;
+  border-radius: 3px;
+  padding: 4px;
+}
+
+.numsActions .current {
+  background-color: #555;
+  color: #ffffff;
 }
 
 .numRow {
