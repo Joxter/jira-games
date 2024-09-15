@@ -22,6 +22,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { fastSolve, getBorders, getRelated } from "./utils";
 import { Cell, NumRow, WinModal } from "./Components";
 import { cn } from "../unit";
+import { useLocale } from "./locale/locale.model";
 
 export function PuzzlePage() {
   const [puzzle, field, candidates, current, highLightCells, inputMode] =
@@ -33,6 +34,8 @@ export function PuzzlePage() {
       $highLightCells,
       $inputMode,
     ]);
+
+  let locale = useLocale();
 
   let [cellSize, setCellSize] = useState("30");
 
@@ -103,7 +106,7 @@ export function PuzzlePage() {
   return (
     <div>
       <div>
-        <a href="#list">close</a>
+        <a href="#list">{locale.close}</a>
       </div>
       <br />
       {/*
@@ -148,7 +151,7 @@ export function PuzzlePage() {
             }
           }}
         >
-          is valid?
+          {locale.is_valid}
         </button>
       </div>
       <br />
@@ -227,8 +230,8 @@ export function PuzzlePage() {
         </div>
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
           <div className={css.numsActions}>
-            <button onClick={() => undo()}>{"<-"}</button>
-            <button onClick={() => redo()}>{"->"}</button>
+            <button onClick={() => undo()}>{locale.undo}</button>
+            <button onClick={() => redo()}>{locale.redo}</button>
           </div>
           <NumRow
             onClick={(n) => numberClicked(n)}
@@ -248,13 +251,13 @@ export function PuzzlePage() {
               className={cn(inputMode === "normal" && css.current)}
               onClick={() => inputModeChanged("normal")}
             >
-              normal
+              {locale.mode.normal}
             </button>
             <button
               className={cn(inputMode === "candidate" && css.current)}
               onClick={() => inputModeChanged("candidate")}
             >
-              canditate
+              {locale.mode.candidate}
             </button>
           </div>
         </div>

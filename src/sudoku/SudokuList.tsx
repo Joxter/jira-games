@@ -1,7 +1,14 @@
 import { useUnit } from "effector-react";
 import { $puzzleList } from "./sudoku.model";
 import css from "./PuzzlePage.module.css";
-import { all_difficulties } from "./lib/constants";
+import {
+  all_difficulties,
+  DIFFICULTY_EASY,
+  DIFFICULTY_EXPERT,
+  DIFFICULTY_HARD,
+  DIFFICULTY_MASTER,
+  DIFFICULTY_MEDIUM,
+} from "./lib/constants";
 import {
   getDifficulty,
   getSavedFromLS,
@@ -12,11 +19,26 @@ import {
 import { Difficulty } from "./lib";
 import { Field } from "./types";
 import { Time } from "./Components";
+import {
+  $locale,
+  localeChanged,
+  narrowLocale,
+  useLocale,
+} from "./locale/locale.model";
+
+const difToLocale = {
+  [DIFFICULTY_EASY]: "1",
+  [DIFFICULTY_MEDIUM]: "2",
+  [DIFFICULTY_HARD]: "3",
+  [DIFFICULTY_EXPERT]: "4",
+  [DIFFICULTY_MASTER]: "5",
+} as const;
 
 export function SudokuList() {
-  const [puzzleList] = useUnit([$puzzleList]);
+  const [puzzleList, currentLocale] = useUnit([$puzzleList, $locale]);
 
   let allHistory = getSavedFromLS();
+  let locale = useLocale();
 
   let wins = getWinsFromLS();
 
@@ -25,23 +47,25 @@ export function SudokuList() {
   return (
     <div className={css.homePage}>
       <div className={css.newGames}>
-        <h2>New puzzle</h2>
+        <h2>{locale.new_puzzle}</h2>
 
         {all_difficulties.map((difficulty) => {
           let puzzleStr = newPuzzles[difficulty].join("");
+          let localeKey = difToLocale[difficulty];
+
           return (
             <a
               href={"#puzzle-" + puzzleStr}
               className={css.startNew}
               key={difficulty}
             >
-              {difficulty}
+              {locale.difficulty[localeKey]}
             </a>
           );
         })}
         {allHistory.length > 0 && (
           <>
-            <h2>Continue</h2>
+            <h2>{locale.unfinished}</h2>
             {allHistory
               .filter((it) => {
                 return !wins[it.puzzle]?.win;
@@ -62,15 +86,35 @@ export function SudokuList() {
                         }, 100);
                       }}
                     >
-                      remove
+                      {locale.remove}
                     </button>
                   </p>
                 );
               })}
           </>
         )}
-        <h2>Settings</h2>
-        <p>language</p>
+        <h2>{locale.setting}</h2>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <p>{locale.language}</p>
+          <select
+            value={currentLocale}
+            onChange={(ev) => {
+              // @ts-ignore
+              const l = ev.target?.value;
+
+              localeChanged(narrowLocale(l));
+            }}
+          >
+            <option value={"ru"}>Русский</option>
+            <option value={"en"}>English</option>
+          </select>
+        </div>
       </div>
     </div>
   );
