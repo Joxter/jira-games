@@ -13,6 +13,7 @@ export const ru = {
     normal: "обычно",
     candidate: "кандидат",
   },
+  clearCell: "0",
   undo: "<-",
   redo: "->",
   close: "закрыть",

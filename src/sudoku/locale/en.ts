@@ -13,6 +13,7 @@ export const en = {
     normal: "normal",
     candidate: "candidate",
   },
+  clearCell: "0",
   undo: "<-",
   redo: "->",
   close: "close",

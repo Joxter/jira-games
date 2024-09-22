@@ -230,6 +230,7 @@ export function PuzzlePage() {
         </div>
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
           <div className={css.numsActions}>
+            <button onClick={() => numberClicked(0)}>{locale.clearCell}</button>
             <button onClick={() => undo()}>{locale.undo}</button>
             <button onClick={() => redo()}>{locale.redo}</button>
           </div>
