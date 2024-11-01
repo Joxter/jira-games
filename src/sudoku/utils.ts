@@ -7,8 +7,15 @@ import {
   History,
   WinsPersistent,
 } from "./types";
-import { Difficulty, solve } from "./lib";
-import { all_difficulties } from "./lib/constants";
+import { Difficulty } from "./lib";
+import {
+  all_difficulties,
+  DIFFICULTY_EASY,
+  DIFFICULTY_EXPERT,
+  DIFFICULTY_HARD,
+  DIFFICULTY_MASTER,
+  DIFFICULTY_MEDIUM,
+} from "./lib/constants";
 
 export const CANDIDATES = [
   1 << 0,
@@ -23,7 +30,7 @@ export const CANDIDATES = [
   1 << 9,
 ];
 
-export function applyEditCellActions(history: History): Field {
+export function applyStepsForNumbers(history: History): Field {
   const res = parseToField(history.puzzle);
   let { current, steps } = history;
 
@@ -57,20 +64,24 @@ export function applyStepsForCandidates({
         res[c] = res[c] & ~CANDIDATES[value];
       });
     } else if (type === "edit-candidate") {
-      res[cell] = res[cell] ^ CANDIDATES[value];
+      if (value === 0) {
+        res[cell] = 0;
+      } else {
+        res[cell] = res[cell] ^ CANDIDATES[value];
+      }
     }
   }
 
   return res;
 }
 
-export function changeCellHandler(data: ChangeCellProps): History | null {
+export function changeCellEffectHandler(data: ChangeCellProps): History | null {
   const { history, action } = data;
   const puzzle = history.puzzle.split("").map((it) => +it);
   const { cell, value, type } = action;
   if (puzzle[cell]) return null;
 
-  let field = applyEditCellActions(history);
+  let field = applyStepsForNumbers(history);
 
   if (type === "edit-cell") {
     if (field[cell] !== value && value > 0) {
@@ -104,11 +115,11 @@ export function changeCellHandler(data: ChangeCellProps): History | null {
 export function getDifficulty(
   puzzles: Record<Difficulty, Field[]>,
   target: string,
-): Difficulty | null {
+): Difficulty {
   return (
     all_difficulties.find((d) => {
       return puzzles[d].map((it) => it.join("")).includes(target);
-    }) || null
+    }) || all_difficulties[0]
   );
 }
 
@@ -561,6 +572,14 @@ export function getWinsFromLS() {
     return {};
   }
 }
+
+export const difToLocale = {
+  [DIFFICULTY_EASY]: "1",
+  [DIFFICULTY_MEDIUM]: "2",
+  [DIFFICULTY_HARD]: "3",
+  [DIFFICULTY_EXPERT]: "4",
+  [DIFFICULTY_MASTER]: "5",
+} as const;
 
 export function saveWinToLS(puzzle: string) {
   try {

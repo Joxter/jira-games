@@ -19,7 +19,6 @@ export function useLocale() {
   const locale = useUnit($locale);
 
   if (locale === "ru") return ru;
-
   return en;
 }
 

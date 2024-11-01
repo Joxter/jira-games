@@ -7,9 +7,9 @@ import {
 } from "effector";
 import { Action, ChangeCellProps, Field, History } from "./types";
 import {
-  applyEditCellActions,
+  applyStepsForNumbers,
   applyStepsForCandidates,
-  changeCellHandler,
+  changeCellEffectHandler,
   getSavedFromLS,
   getHighlightCells,
   getPuzzles,
@@ -27,7 +27,7 @@ export const $inputMode = createStore<"normal" | "candidate">("normal");
 export const $highLightCells = $currentCell.map(getHighlightCells);
 
 const changeCellFx = createEffect<ChangeCellProps, History | null, number[]>(
-  changeCellHandler,
+  changeCellEffectHandler,
 );
 
 export const undo = createEvent();
@@ -46,8 +46,8 @@ export const initSudoku = createEvent<[string | null, History[]]>();
 // gameplay
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
-export const numberClicked = createEvent<number>();
-export const cellCandidateChanged = createEvent<number>();
+export const numberPressed = createEvent<number>();
+export const numberWithShiftPressed = createEvent<number>();
 export const userAction = createEvent<Action>();
 export const showCellError = createEvent<number[]>();
 
@@ -55,7 +55,7 @@ $inputMode.on(inputModeChanged, (_, s) => s);
 
 sample({
   source: $currentCell,
-  clock: numberClicked,
+  clock: numberPressed,
   filter: $currentCell.map((it) => it !== null),
   fn: (cell, value) => {
     return { cell: cell!, value, type: "edit-cell" as const };
@@ -65,7 +65,7 @@ sample({
 
 sample({
   source: $currentCell,
-  clock: cellCandidateChanged,
+  clock: numberWithShiftPressed,
   filter: $currentCell.map((it) => it !== null),
   fn: (cell, value) => {
     return { cell: cell!, value, type: "edit-candidate" as const };
@@ -75,7 +75,7 @@ sample({
 
 sample({
   source: $currentCell,
-  clock: numberClicked,
+  clock: numberPressed,
   filter: combine(
     $currentCell,
     $inputMode,
@@ -192,7 +192,7 @@ sample({
 // $currentLogs.watch(console.log);
 
 export const $field = $currentLogs.map((history) => {
-  return history ? applyEditCellActions(history) : null;
+  return history ? applyStepsForNumbers(history) : null;
 });
 export const $candidates = $currentLogs.map((history) => {
   return history ? applyStepsForCandidates(history) : null;

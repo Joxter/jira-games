@@ -51,7 +51,6 @@ export function Sudoku() {
   }, []);
 
   const PageComponent = useMemo(() => {
-    // console.log('123');
     const initP = getPuzzleFromUrl();
     if (initP) {
       puzzleSelected(initP.join(""));

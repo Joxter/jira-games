@@ -10,6 +10,7 @@ import {
   DIFFICULTY_MEDIUM,
 } from "./lib/constants";
 import {
+  difToLocale,
   getDifficulty,
   getSavedFromLS,
   getWinsFromLS,
@@ -25,14 +26,6 @@ import {
   narrowLocale,
   useLocale,
 } from "./locale/locale.model";
-
-const difToLocale = {
-  [DIFFICULTY_EASY]: "1",
-  [DIFFICULTY_MEDIUM]: "2",
-  [DIFFICULTY_HARD]: "3",
-  [DIFFICULTY_EXPERT]: "4",
-  [DIFFICULTY_MASTER]: "5",
-} as const;
 
 export function SudokuList() {
   const [puzzleList, currentLocale] = useUnit([$puzzleList, $locale]);
@@ -71,12 +64,13 @@ export function SudokuList() {
                 return !wins[it.puzzle]?.win;
               })
               .map(({ puzzle, time }) => {
+                let localeKey = difToLocale[getDifficulty(puzzleList, puzzle)];
+
                 return (
                   <p className={css.continue}>
                     <a href={"#puzzle-" + puzzle}>
-                      {getDifficulty(puzzleList, puzzle) ||
-                        "unknown difficulty"}{" "}
-                      (<Time time={time} />)
+                      {locale.difficulty[localeKey] || "unknown difficulty"} (
+                      <Time time={time} />)
                     </a>
                     <button
                       onClick={() => {

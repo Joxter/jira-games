@@ -4,8 +4,8 @@ import {
   $currentCell,
   $highLightCells,
   arrowClicked,
-  cellCandidateChanged,
-  numberClicked,
+  numberWithShiftPressed,
+  numberPressed,
   cellClicked,
   undo,
   redo,
@@ -174,7 +174,7 @@ export function PuzzlePage() {
               arrowClicked(ev.code);
             } else if (ev.code === "Backspace" || ev.code === "Delete") {
               ev.preventDefault();
-              numberClicked(0);
+              numberPressed(0);
             } else if (
               [
                 "Digit0",
@@ -192,9 +192,9 @@ export function PuzzlePage() {
               const newVal = +ev.code.slice(5);
 
               if (ev.shiftKey) {
-                cellCandidateChanged(newVal);
+                numberWithShiftPressed(newVal);
               } else {
-                numberClicked(newVal);
+                numberPressed(newVal);
               }
             }
           }}
@@ -230,12 +230,12 @@ export function PuzzlePage() {
         </div>
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
           <div className={css.numsActions}>
-            <button onClick={() => numberClicked(0)}>{locale.clearCell}</button>
+            <button onClick={() => numberPressed(0)}>{locale.clearCell}</button>
             <button onClick={() => undo()}>{locale.undo}</button>
             <button onClick={() => redo()}>{locale.redo}</button>
           </div>
           <NumRow
-            onClick={(n) => numberClicked(n)}
+            onClick={(n) => numberPressed(n)}
             invalidNums={
               current !== null
                 ? getRelated(current).map((id) => {
