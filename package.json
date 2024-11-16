@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@techstark/opencv-js": "^4.10.0-release.1",
     "effector": "^23.2.0",
     "effector-react": "^23.2.0",
     "express": "^4.19.2",
