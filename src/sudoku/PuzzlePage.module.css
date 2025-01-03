@@ -14,19 +14,13 @@
 }
 
 .field {
-  display: flex;
-  flex-wrap: wrap;
+  position: relative;
+  display: grid;
   margin: 0 auto;
-  box-sizing: content-box;
-  --cell-size: 40px;
-  --width-smal: 1px;
-  --width-big: 3px;
-  width: calc(
-    9 * var(--cell-size) + 4 * var(--width-big) + 6 * var(--width-smal)
-  );
-  height: calc(
-    9 * var(--cell-size) + 4 * var(--width-big) + 6 * var(--width-smal)
-  );
+  --cell-size: 100px;
+  --border-size: 200px;
+  grid-template-columns: repeat(9, var(--cell-size));
+  width: calc(9 * var(--cell-size) + 10 * var(--border-size));
 }
 
 .cell {
@@ -35,7 +29,7 @@
   padding: 0;
   box-sizing: inherit;
   color: #0086ff;
-  /*font-weight: 300;*/
+  border: none;
   font-size: 24px;
   transition: background-color 50ms linear;
 }

@@ -19,7 +19,7 @@ import {
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef, useState } from "preact/hooks";
-import { fastSolve, getBorders, getRelated } from "./utils";
+import { fastSolve, getBorders2, getRelated } from "./utils";
 import { Cell, NumRow, WinModal } from "./Components";
 import { cn } from "../unit";
 import { useLocale } from "./locale/locale.model";
@@ -71,8 +71,7 @@ export function PuzzlePage() {
     };
   }, []);
 
-  const widthSmal = 1;
-  const widthBig = 3;
+  const borderSize = 2;
   const fieldPadding = 5;
 
   useEffect(() => {
@@ -81,7 +80,7 @@ export function PuzzlePage() {
         pageRef.current.getBoundingClientRect().width - fieldPadding;
 
       let cellSize = Math.floor(
-        (fieldWrapper - fieldPadding * 2 - 4 * widthBig - 6 * widthSmal) / 9,
+        (fieldWrapper - fieldPadding * 2 - 10 * borderSize) / 9,
       );
 
       setCellSize(cellSize.toString());
@@ -159,9 +158,9 @@ export function PuzzlePage() {
         <div
           className={css.field}
           style={{
+            gap: `${borderSize}px`,
             "--cell-size": `${cellSize}px`,
-            "--width-smal": `${widthSmal}px`,
-            "--width-big": `${widthBig}px`,
+            "--border-size": `${borderSize}px`,
           }}
           ref={fieldRef}
           onKeyDown={(ev) => {
@@ -203,10 +202,10 @@ export function PuzzlePage() {
             return (
               <Cell
                 style={{
-                  ...getBorders(widthSmal, widthBig, index),
                   width: "var(--cell-size)",
                   height: "var(--cell-size)",
                 }}
+                borders={getBorders2(borderSize, +cellSize, index)}
                 candidates={candidates[index]}
                 key={index}
                 index={index}

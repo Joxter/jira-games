@@ -828,51 +828,106 @@ export function getRelated(index: number): number[] {
   return [...new Set([...getRow(index), ...getCol(index), ...getBox(index)])];
 }
 
-export function getBorders(
-  widthSmal: number,
-  widthBig: number,
+export function getBorders2(
+  borderSize: number,
+  cellSize: number,
   cell: number,
-): {
-  borderLeft: string;
-  borderRight: string;
-  borderTop: string;
-  borderBottom: string;
-} {
-  let b0 = "none";
-  let b1 = `var(--width-smal) solid #555`;
-  let b3 = `var(--width-big) solid #555`;
+): Record<any, any>[] {
+  let borderLen = cellSize + borderSize + borderSize;
 
-  let borderLeft = b1;
-  let borderTop = b1;
-  let borderRight = b0;
-  let borderBottom = b0;
+  let rowNumber = cell % 9;
+  let colNumber = Math.floor(cell / 9);
+
+  let colorDark = "#555";
+  let colorLight = "#eee";
+
+  let borderLeft = vert(
+    rowNumber * cellSize + (rowNumber - 1) * borderSize,
+    colNumber * cellSize + (colNumber - 1) * borderSize,
+    colorLight,
+  );
+  let borderTop = hor(
+    rowNumber * cellSize + (rowNumber - 1) * borderSize,
+    colNumber * cellSize + (colNumber - 1) * borderSize,
+    colorLight,
+  );
+  let borderRight = vert(
+    (rowNumber + 1) * cellSize + rowNumber * borderSize,
+    colNumber * cellSize + (colNumber - 1) * borderSize,
+    colorLight,
+  );
+  let borderBottom = hor(
+    rowNumber * cellSize + (rowNumber - 1) * borderSize,
+    (colNumber + 1) * cellSize + colNumber * borderSize,
+    colorLight,
+  );
 
   if (cell <= 8) {
-    borderTop = b3;
+    borderTop = hor(
+      rowNumber * cellSize + (rowNumber - 1) * borderSize,
+      colNumber * cellSize + (colNumber - 1) * borderSize,
+      colorDark,
+    );
   }
   if (cell >= 72) {
-    borderBottom = b3;
+    borderBottom = hor(
+      rowNumber * cellSize + (rowNumber - 1) * borderSize,
+      (colNumber + 1) * cellSize + colNumber * borderSize,
+      colorDark,
+    );
   }
   if ((cell + 1) % 9 === 0) {
-    borderRight = b3;
+    borderRight = vert(
+      (rowNumber + 1) * cellSize + rowNumber * borderSize,
+      colNumber * cellSize + (colNumber - 1) * borderSize,
+      colorDark,
+    );
   }
 
   let from = Math.floor(cell / 27) * 27;
   let fromTo = from + 9;
   if (cell >= from && cell < fromTo) {
-    borderTop = b3;
+    borderTop = hor(
+      rowNumber * cellSize + (rowNumber - 1) * borderSize,
+      colNumber * cellSize + (colNumber - 1) * borderSize,
+      colorDark,
+    );
   }
 
   if (cell % 3 === 0) {
-    borderLeft = b3;
+    borderLeft = vert(
+      rowNumber * cellSize + (rowNumber - 1) * borderSize,
+      colNumber * cellSize + (colNumber - 1) * borderSize,
+      colorDark,
+    );
   }
 
-  return {
-    borderLeft,
-    borderRight,
-    borderTop,
-    borderBottom,
-  };
+  return [borderLeft, borderRight, borderTop, borderBottom];
+
+  function lineStyles(p: {
+    left: number;
+    top: number;
+    w: number;
+    h: number;
+    color: string;
+  }) {
+    return {
+      backgroundColor: p.color,
+      position: "absolute",
+      left: `${p.left}px`,
+      top: `${p.top}px`,
+      width: `${p.w}px`,
+      height: `${p.h}px`,
+      zIndex: p.color === colorDark ? 10 : 1,
+    };
+  }
+
+  function vert(left: number, top: number, color: string) {
+    return lineStyles({ left, top, color, w: borderSize, h: borderLen });
+  }
+  function hor(left: number, top: number, color: string) {
+    return lineStyles({ left, top, color, w: borderLen, h: borderSize });
+  }
 }
 
 function parseToField(str: string) {

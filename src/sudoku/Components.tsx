@@ -7,6 +7,7 @@ import { useUnit } from "effector-react/effector-react.umd";
 
 type CellProps = {
   value: number;
+  borders: Record<any, any>[];
   index: number;
   isCurrent: boolean;
   isSame: boolean;
@@ -19,6 +20,7 @@ type CellProps = {
 
 export function Cell({
   value,
+  borders,
   isCurrent,
   isSame,
   isHighLight,
@@ -29,38 +31,43 @@ export function Cell({
   style,
 }: CellProps) {
   return (
-    <button
-      id={"cell" + index}
-      onClick={() => {
-        onClick();
-      }}
-      className={cn(
-        css.cell,
-        isPuzzle && css.cellPuzzle,
-        isCurrent && css.cellCurrent,
-        isHighLight && css.cellHighLight,
-        isSame && css.sameNumber,
-      )}
-      style={style}
-    >
-      {candidates > 0 ? (
-        <div className={css.candidates}>
-          {viewCandidates(candidates).map((n) => {
-            return (
-              <span
-                className={css.candidate}
-                style={{ gridArea: "c" + n }}
-                key={n}
-              >
-                {n}
-              </span>
-            );
-          })}
-        </div>
-      ) : (
-        <span>{value === 0 ? "" : value}</span>
-      )}
-    </button>
+    <>
+      {borders.map((styles) => {
+        return <div style={{ ...styles }} />;
+      })}
+      <button
+        id={"cell" + index}
+        onClick={() => {
+          onClick();
+        }}
+        className={cn(
+          css.cell,
+          isPuzzle && css.cellPuzzle,
+          isCurrent && css.cellCurrent,
+          isHighLight && css.cellHighLight,
+          isSame && css.sameNumber,
+        )}
+        style={style}
+      >
+        {candidates > 0 ? (
+          <div className={css.candidates}>
+            {viewCandidates(candidates).map((n) => {
+              return (
+                <span
+                  className={css.candidate}
+                  style={{ gridArea: "c" + n }}
+                  key={n}
+                >
+                  {n}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <span>{value === 0 ? "" : value}</span>
+        )}
+      </button>
+    </>
   );
 }
 
