@@ -5,6 +5,7 @@ import { PuzzlePage } from "./PuzzlePage";
 import { SudokuList } from "./SudokuList";
 import { getSavedFromLS, isValidPuzzle, resetLS } from "./utils";
 import { Field } from "./types";
+import { Route, Router, Switch } from "wouter";
 
 function getPuzzleFromUrl(): Field | null {
   let h = location.hash;
@@ -39,33 +40,23 @@ if (initP) {
 }
 
 export function Sudoku() {
-  const [page, setPage] = useState(initP ? location.hash : "#list");
-
-  useEffect(() => {
-    function handler() {
-      setPage(location.hash || "#list");
-    }
-    window.addEventListener("hashchange", handler);
-
-    return () => window.removeEventListener("hashchange", handler);
-  }, []);
-
-  const PageComponent = useMemo(() => {
-    const initP = getPuzzleFromUrl();
-    if (initP) {
-      puzzleSelected(initP.join(""));
-      return PuzzlePage;
-    } else {
-      return SudokuList;
-    }
-  }, [page]);
-
   return (
     <div className={css.page}>
-      {false && <DebugLS/>}
-      <PageComponent key={page} />
+      {false && <DebugLS />}
+      <Router base="/">
+        <Switch>
+          <Route path="/" component={SudokuList} />
+          <Route path="/new-game" component={SudokuList} />
+          <Route path="/current" component={PuzzlePage} />
+          <Route path="/settings" component={SettingPage} />
+        </Switch>
+      </Router>
     </div>
   );
+}
+
+function SettingPage() {
+  return <div>settings</div>;
 }
 
 function DebugLS() {
