@@ -25,7 +25,7 @@ export function Sudoku() {
   return (
     <div className={css.page}>
       {false && <DebugLS />}
-      <Router base="/">
+      <Router base="https://joxter.github.io/jira-games/">
         <Switch>
           <Route path="/" component={SudokuList} />
           <Route path="/new-game" component={SudokuList} />
