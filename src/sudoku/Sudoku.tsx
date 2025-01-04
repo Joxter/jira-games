@@ -1,28 +1,10 @@
-import { initSudoku, puzzleSelected } from "./sudoku.model";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { initSudoku } from "./sudoku.model";
+import { useEffect, useState } from "preact/hooks";
 import css from "./PuzzlePage.module.css";
 import { PuzzlePage } from "./PuzzlePage";
 import { SudokuList } from "./SudokuList";
-import { getSavedFromLS, isValidPuzzle, resetLS } from "./utils";
-import { Field } from "./types";
+import { getPuzzleFromUrl, getSavedFromLS, resetLS } from "./utils";
 import { Route, Router, Switch } from "wouter";
-
-function getPuzzleFromUrl(): Field | null {
-  let h = location.hash;
-
-  if (h.startsWith("#puzzle-")) {
-    let puzzleRaw = h
-      .split("-")[1]
-      .split("")
-      .map((it) => +it);
-
-    if (isValidPuzzle(puzzleRaw)) {
-      return puzzleRaw;
-    }
-  }
-
-  return null;
-}
 
 const initP = getPuzzleFromUrl();
 const allHistory = getSavedFromLS();
@@ -47,7 +29,7 @@ export function Sudoku() {
         <Switch>
           <Route path="/" component={SudokuList} />
           <Route path="/new-game" component={SudokuList} />
-          <Route path="/current" component={PuzzlePage} />
+          <Route path="/current-game" component={PuzzlePage} />
           <Route path="/settings" component={SettingPage} />
         </Switch>
       </Router>

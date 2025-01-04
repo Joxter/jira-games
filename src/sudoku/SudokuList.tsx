@@ -1,14 +1,7 @@
 import { useUnit } from "effector-react";
-import { $puzzleList } from "./sudoku.model";
+import { $puzzleList, puzzleSelected } from "./sudoku.model";
 import css from "./PuzzlePage.module.css";
-import {
-  all_difficulties,
-  DIFFICULTY_EASY,
-  DIFFICULTY_EXPERT,
-  DIFFICULTY_HARD,
-  DIFFICULTY_MASTER,
-  DIFFICULTY_MEDIUM,
-} from "./lib/constants";
+import { all_difficulties } from "./lib/constants";
 import {
   difToLocale,
   getDifficulty,
@@ -26,6 +19,7 @@ import {
   narrowLocale,
   useLocale,
 } from "./locale/locale.model";
+import { Link } from "wouter";
 
 export function SudokuList() {
   const [puzzleList, currentLocale] = useUnit([$puzzleList, $locale]);
@@ -47,13 +41,16 @@ export function SudokuList() {
           let localeKey = difToLocale[difficulty];
 
           return (
-            <a
-              href={"#puzzle-" + puzzleStr}
+            <Link
+              href={"/current-game?puzzle=" + puzzleStr}
               className={css.startNew}
               key={difficulty}
+              onClick={() => {
+                puzzleSelected(puzzleStr);
+              }}
             >
               {locale.difficulty[localeKey]}
-            </a>
+            </Link>
           );
         })}
         {allHistory.length > 0 && (
@@ -63,15 +60,16 @@ export function SudokuList() {
               .filter((it) => {
                 return !wins[it.puzzle]?.win;
               })
-              .map(({ puzzle, time }) => {
+              .map(({ puzzle, time }, i) => {
                 let localeKey = difToLocale[getDifficulty(puzzleList, puzzle)];
+                puzzleSelected(puzzle);
 
                 return (
-                  <p className={css.continue}>
-                    <a href={"#puzzle-" + puzzle}>
+                  <p className={css.continue} key={i + puzzle}>
+                    <Link href={"/current-game?puzzle=" + puzzle}>
                       {locale.difficulty[localeKey] || "unknown difficulty"} (
                       <Time time={time} />)
-                    </a>
+                    </Link>
                     <button
                       onClick={() => {
                         removeFromHistoryLS(puzzle);

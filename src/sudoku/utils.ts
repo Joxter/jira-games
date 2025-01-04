@@ -933,3 +933,18 @@ export function getBorders2(
 function parseToField(str: string) {
   return str.split("").map((it) => +it);
 }
+
+export function getPuzzleFromUrl(): Field | null {
+  let url = new URL(window.location.href);
+  let puzzle = url.searchParams.get("puzzle");
+
+  if (puzzle) {
+    let puzzleRaw = puzzle.split("").map((it) => +it);
+
+    if (isValidPuzzle(puzzleRaw)) {
+      return puzzleRaw;
+    }
+  }
+
+  return null;
+}
