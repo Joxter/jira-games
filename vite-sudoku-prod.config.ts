@@ -5,9 +5,4 @@ import preact from "@preact/preset-vite";
 export default defineConfig({
   plugins: [preact()],
   base: "https://joxter.github.io/jira-games",
-  build: {
-    rollupOptions: {
-      input: "sudoku.html",
-    },
-  },
 });
