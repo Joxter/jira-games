@@ -2,40 +2,33 @@ import css from "./PuzzlePage.module.css";
 import {
   $candidates,
   $currentCell,
-  $highLightCells,
-  arrowClicked,
-  numberWithShiftPressed,
   numberPressed,
   cellClicked,
   undo,
   redo,
-  showCellError,
   $field,
-  $puzzle,
   addSecToTime,
   seveToPuzzleToLS,
   inputModeChanged,
   $inputMode,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
-import { useEffect, useRef, useState } from "preact/hooks";
-import { fastSolve, getBorders2, getRelated } from "./utils";
-import { Cell, NumRow, WinModal } from "./Components";
+import { useEffect, useRef } from "preact/hooks";
+import { fastSolve, getRelated } from "./utils";
+import { NumRow, WinModal } from "./Components";
 import { cn } from "../unit";
 import { useLocale } from "./locale/locale.model";
 import { Field } from "./Field.tsx";
 import { Link } from "wouter";
+import { Layout } from "./components/Layout.tsx";
 
 export function PuzzlePage() {
-  const [puzzle, field, candidates, current, highLightCells, inputMode] =
-    useUnit([
-      $puzzle,
-      $field,
-      $candidates,
-      $currentCell,
-      $highLightCells,
-      $inputMode,
-    ]);
+  const [field, candidates, current, inputMode] = useUnit([
+    $field,
+    $candidates,
+    $currentCell,
+    $inputMode,
+  ]);
 
   let locale = useLocale();
 
@@ -86,24 +79,10 @@ export function PuzzlePage() {
   //   }
   // }, []);
 
-  useEffect(() => {
-    let unsub = showCellError.watch((nums) => {
-      nums.forEach((n) => {
-        let cell = document.querySelector("#cell" + n) as HTMLElement;
-        if (cell) showErrorAnimation(cell);
-      });
-    });
-
-    return () => {
-      seveToPuzzleToLS();
-      unsub();
-    };
-  }, []);
-
   if (!candidates || !field) return <p>no field</p>;
 
   return (
-    <div>
+    <Layout>
       <div>
         <Link href="/new-game">{locale.close}</Link>
       </div>
@@ -164,34 +143,6 @@ export function PuzzlePage() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function showErrorAnimation(cell: HTMLElement) {
-  cell.style.position = "relative";
-  cell.style.zIndex = "10";
-
-  let animate = cell.animate(
-    [{ transform: "scale(1)" }, { transform: "scale(1.3)" }],
-    {
-      duration: 50,
-      iterations: 2,
-      direction: "alternate",
-    },
-  );
-  animate.onfinish = () => {
-    cell.style.zIndex = "initial";
-  };
-
-  cell.animate(
-    [
-      { borderColor: "red", color: "red" },
-      { borderColor: "#d5d5cd", color: "#213547" },
-    ],
-    {
-      duration: 1500,
-      iterations: 1,
-    },
+    </Layout>
   );
 }

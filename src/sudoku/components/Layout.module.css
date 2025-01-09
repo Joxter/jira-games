@@ -1,0 +1,27 @@
+.root {
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  margin: 0 auto;
+  background-color: #f1f1ec;
+  width: 100%;
+  max-width: 400px;
+  min-height: 100%;
+  align-content: end;
+  padding-bottom: 20px;
+}
+
+.content {
+  /*background-color: red;*/
+}
+
+.navigation {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px;
+  background-color: #fff;
+}
+
+.logo {
+  width: 20px;
+  height: 20px;
+}

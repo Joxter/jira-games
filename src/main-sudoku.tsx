@@ -1,11 +1,11 @@
 import "./main.css";
 import css from "./app.module.css";
 import { render } from "preact";
-import { Sudoku } from "./sudoku/Sudoku";
+import { SudokuRouter } from "./sudoku/SudokuRouter.tsx";
 
 render(
   <div class={css.root}>
-    <Sudoku />
+    <SudokuRouter />
   </div>,
   document.getElementById("app")!,
 );

@@ -5,7 +5,7 @@ import {
   createStore,
   sample,
 } from "effector";
-import { Action, ChangeCellProps, Field, History } from "./types";
+import { Action, ChangeCellProps, History } from "./types";
 import {
   applyStepsForNumbers,
   applyStepsForCandidates,

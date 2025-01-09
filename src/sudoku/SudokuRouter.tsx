@@ -2,9 +2,10 @@ import { initSudoku } from "./sudoku.model";
 import { useEffect, useState } from "preact/hooks";
 import css from "./PuzzlePage.module.css";
 import { PuzzlePage } from "./PuzzlePage";
-import { SudokuList } from "./SudokuList";
+import { NewGamePage } from "./NewGamePage.tsx";
 import { getPuzzleFromUrl, getSavedFromLS, resetLS } from "./utils";
 import { Route, Router, Switch } from "wouter";
+import { SettingPage } from "./SettingsPage.tsx";
 
 const initP = getPuzzleFromUrl();
 const allHistory = getSavedFromLS();
@@ -21,24 +22,22 @@ if (initP) {
   initSudoku([null, allHistory]);
 }
 
-export function Sudoku() {
+export function SudokuRouter() {
   return (
-    <div className={css.page}>
+    <>
       {false && <DebugLS />}
-      <Router base="/jira-games/">
+      <Router
+        base={window.location.hostname === "localhost" ? "" : "/jira-games"}
+      >
         <Switch>
-          <Route path="/" component={SudokuList} />
-          <Route path="/new-game" component={SudokuList} />
+          <Route path="/" component={NewGamePage} />
+          <Route path="/new-game" component={NewGamePage} />
           <Route path="/current-game" component={PuzzlePage} />
           <Route path="/settings" component={SettingPage} />
         </Switch>
       </Router>
-    </div>
+    </>
   );
-}
-
-function SettingPage() {
-  return <div>settings</div>;
 }
 
 function DebugLS() {
