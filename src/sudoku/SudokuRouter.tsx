@@ -34,10 +34,16 @@ export function SudokuRouter() {
           <Route path="/new-game" component={NewGamePage} />
           <Route path="/current-game" component={PuzzlePage} />
           <Route path="/settings" component={SettingPage} />
+          <Route path="/debug" component={DebugLS} />
+          <Route path="*" component={NotFound} />
         </Switch>
       </Router>
     </>
   );
+}
+
+function NotFound() {
+  return <p>404</p>;
 }
 
 function DebugLS() {

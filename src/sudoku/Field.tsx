@@ -125,30 +125,34 @@ export function Field({ cellSize }: { cellSize: number }) {
     >
       {field.map((value, index) => {
         return (
-          <Cell
-            style={{
-              width: "var(--cell-size)",
-              height: "var(--cell-size)",
-            }}
-            borders={getBorders2(borderSize, +cellSize, index)}
-            candidates={candidates[index]}
-            key={index}
-            index={index}
-            isPuzzle={puzzle[index] !== "0"}
-            isCurrent={current === index}
-            isSame={
-              (value &&
-                current !== null &&
-                current !== index &&
-                field[current] === value) ||
-              false
-            }
-            isHighLight={highLightCells.includes(index)}
-            value={value}
-            onClick={() => {
-              cellClicked(index);
-            }}
-          />
+          <>
+            {getBorders2(borderSize, +cellSize, index).map((styles) => {
+              return <div style={{ ...styles }} />;
+            })}
+            <Cell
+              style={{
+                width: "var(--cell-size)",
+                height: "var(--cell-size)",
+              }}
+              candidates={candidates[index]}
+              key={index}
+              index={index}
+              isPuzzle={puzzle[index] !== "0"}
+              isCurrent={current === index}
+              isSame={
+                (value &&
+                  current !== null &&
+                  current !== index &&
+                  field[current] === value) ||
+                false
+              }
+              isHighLight={highLightCells.includes(index)}
+              value={value}
+              onClick={() => {
+                cellClicked(index);
+              }}
+            />
+          </>
         );
       })}
     </div>

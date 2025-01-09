@@ -839,48 +839,28 @@ export function getBorders2(
   let colNumber = Math.floor(cell / 9);
 
   let colorDark = "#555";
-  let colorLight = "#eee";
 
-  let borderLeft = vert(
-    rowNumber * cellSize + (rowNumber - 1) * borderSize,
-    colNumber * cellSize + (colNumber - 1) * borderSize,
-    colorLight,
-  );
-  let borderTop = hor(
-    rowNumber * cellSize + (rowNumber - 1) * borderSize,
-    colNumber * cellSize + (colNumber - 1) * borderSize,
-    colorLight,
-  );
-  let borderRight = vert(
-    (rowNumber + 1) * cellSize + rowNumber * borderSize,
-    colNumber * cellSize + (colNumber - 1) * borderSize,
-    colorLight,
-  );
-  let borderBottom = hor(
-    rowNumber * cellSize + (rowNumber - 1) * borderSize,
-    (colNumber + 1) * cellSize + colNumber * borderSize,
-    colorLight,
-  );
+  let borderLeft = null;
+  let borderTop = null;
+  let borderRight = null;
+  let borderBottom = null;
 
   if (cell <= 8) {
     borderTop = hor(
       rowNumber * cellSize + (rowNumber - 1) * borderSize,
       colNumber * cellSize + (colNumber - 1) * borderSize,
-      colorDark,
     );
   }
   if (cell >= 72) {
     borderBottom = hor(
       rowNumber * cellSize + (rowNumber - 1) * borderSize,
       (colNumber + 1) * cellSize + colNumber * borderSize,
-      colorDark,
     );
   }
   if ((cell + 1) % 9 === 0) {
     borderRight = vert(
       (rowNumber + 1) * cellSize + rowNumber * borderSize,
       colNumber * cellSize + (colNumber - 1) * borderSize,
-      colorDark,
     );
   }
 
@@ -890,7 +870,6 @@ export function getBorders2(
     borderTop = hor(
       rowNumber * cellSize + (rowNumber - 1) * borderSize,
       colNumber * cellSize + (colNumber - 1) * borderSize,
-      colorDark,
     );
   }
 
@@ -898,35 +877,28 @@ export function getBorders2(
     borderLeft = vert(
       rowNumber * cellSize + (rowNumber - 1) * borderSize,
       colNumber * cellSize + (colNumber - 1) * borderSize,
-      colorDark,
     );
   }
 
-  return [borderLeft, borderRight, borderTop, borderBottom];
+  return [borderLeft, borderRight, borderTop, borderBottom].filter(notNull);
 
-  function lineStyles(p: {
-    left: number;
-    top: number;
-    w: number;
-    h: number;
-    color: string;
-  }) {
+  function lineStyles(p: { left: number; top: number; w: number; h: number }) {
     return {
-      backgroundColor: p.color,
+      backgroundColor: colorDark,
       position: "absolute",
       left: `${p.left}px`,
       top: `${p.top}px`,
       width: `${p.w}px`,
       height: `${p.h}px`,
-      zIndex: p.color === colorDark ? 10 : 1,
+      zIndex: 10,
     };
   }
 
-  function vert(left: number, top: number, color: string) {
-    return lineStyles({ left, top, color, w: borderSize, h: borderLen });
+  function vert(left: number, top: number) {
+    return lineStyles({ left, top, w: borderSize, h: borderLen });
   }
-  function hor(left: number, top: number, color: string) {
-    return lineStyles({ left, top, color, w: borderLen, h: borderSize });
+  function hor(left: number, top: number) {
+    return lineStyles({ left, top, w: borderLen, h: borderSize });
   }
 }
 
@@ -947,4 +919,8 @@ export function getPuzzleFromUrl(): Field | null {
   }
 
   return null;
+}
+
+function notNull<T>(value: T | null): value is T {
+  return value !== null;
 }

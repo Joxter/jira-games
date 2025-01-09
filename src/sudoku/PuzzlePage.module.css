@@ -21,6 +21,10 @@
   border: none;
   font-size: 24px;
   transition: background-color 50ms linear;
+
+  & > * {
+    pointer-events: none;
+  }
 }
 
 .cellPuzzle {
