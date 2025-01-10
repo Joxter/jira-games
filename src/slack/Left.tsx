@@ -1,7 +1,6 @@
-import { useState } from "preact/hooks";
+import { PropsWithChildren, useState } from "react";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import css from "./Left.module.css";
-import { ComponentChildren } from "preact";
 
 export function Left() {
   return (
@@ -20,10 +19,7 @@ export function Left() {
 export function DrobdownList({
   title,
   children,
-}: {
-  title: string;
-  children: ComponentChildren;
-}) {
+}: PropsWithChildren<{ title: string }>) {
   let [isOpen, setIsOpen] = useState(true);
 
   return (

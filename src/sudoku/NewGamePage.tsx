@@ -20,10 +20,11 @@ import { Layout } from "./components/Layout.tsx";
 export function NewGamePage() {
   const [puzzleList] = useUnit([$puzzleList]);
 
-  let allHistory = getSavedFromLS();
-  let locale = useLocale();
-
   let wins = getWinsFromLS();
+  let allHistory = getSavedFromLS().filter((it) => {
+    return !wins[it.puzzle]?.win;
+  });
+  let locale = useLocale();
 
   const newPuzzles = getUnsolvedPuzzles(puzzleList);
 
@@ -53,34 +54,29 @@ export function NewGamePage() {
           {allHistory.length > 0 && (
             <>
               <h2>{locale.unfinished}</h2>
-              {allHistory
-                .filter((it) => {
-                  return !wins[it.puzzle]?.win;
-                })
-                .map(({ puzzle, time }, i) => {
-                  let localeKey =
-                    difToLocale[getDifficulty(puzzleList, puzzle)];
-                  puzzleSelected(puzzle);
+              {allHistory.map(({ puzzle, time }, i) => {
+                let localeKey = difToLocale[getDifficulty(puzzleList, puzzle)];
+                puzzleSelected(puzzle);
 
-                  return (
-                    <p className={css.continue} key={i + puzzle}>
-                      <Link href={"/current-game?puzzle=" + puzzle}>
-                        {locale.difficulty[localeKey] || "unknown difficulty"} (
-                        <Time time={time} />)
-                      </Link>
-                      <button
-                        onClick={() => {
-                          removeFromHistoryLS(puzzle);
-                          setTimeout(() => {
-                            location.reload();
-                          }, 100);
-                        }}
-                      >
-                        {locale.remove}
-                      </button>
-                    </p>
-                  );
-                })}
+                return (
+                  <p className={css.continue} key={i + puzzle}>
+                    <Link href={"/current-game?puzzle=" + puzzle}>
+                      {locale.difficulty[localeKey] || "unknown difficulty"} (
+                      <Time time={time} />)
+                    </Link>
+                    <button
+                      onClick={() => {
+                        removeFromHistoryLS(puzzle);
+                        setTimeout(() => {
+                          location.reload();
+                        }, 100);
+                      }}
+                    >
+                      {locale.remove}
+                    </button>
+                  </p>
+                );
+              })}
             </>
           )}
         </div>

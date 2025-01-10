@@ -15,12 +15,14 @@
     "effector-react": "^23.2.0",
     "express": "^4.19.2",
     "pokersolver": "^2.1.4",
-    "preact": "^10.19.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "wouter": "^3.3.5",
     "ws": "^8.16.0"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.8.1",
+    "@types/react-dom": "^19.0.2",
     "prettier": "^3.2.5",
     "typescript": "^5.2.2",
     "vite": "^5.1.4",

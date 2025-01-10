@@ -15,7 +15,7 @@ import {
   $inputMode,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef } from "react";
 import { getBorders2 } from "./utils";
 import { Cell } from "./Components";
 

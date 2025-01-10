@@ -1,7 +1,6 @@
-import { useState } from "preact/hooks";
+import { PropsWithChildren, useState } from "react";
 import css from "./Header.module.css";
 import { ChevronIcon } from "../ui/ChevronIcon";
-import { ComponentChildren } from "preact";
 import { Button } from "../ui/Button";
 import { cn } from "../unit";
 
@@ -52,10 +51,7 @@ function Icon9({ size = 24 }: { size?: number }) {
 function NavigationItem({
   children,
   isCurrent,
-}: {
-  children: ComponentChildren;
-  isCurrent?: boolean;
-}) {
+}: PropsWithChildren<{ isCurrent?: boolean }>) {
   const [open, setOpen] = useState(false);
 
   return (

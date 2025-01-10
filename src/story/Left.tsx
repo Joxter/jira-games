@@ -1,11 +1,11 @@
 import css from "./Left.module.css";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { cn } from "../unit";
-import { ComponentChildren } from "preact";
 import iconA from "../assets/icons/ic-actions-add-file.svg";
 import iconB from "../assets/icons/ic-media-backward.svg";
 import iconC from "../assets/icons/ic-chevron-left-right.svg";
 import iconD from "../assets/icons/ic-devices-controller.svg";
+import { PropsWithChildren } from "react";
 
 export function Left() {
   return (
@@ -77,11 +77,7 @@ function NavLink({
   href,
   isCurrent,
   children,
-}: {
-  href?: string;
-  isCurrent?: boolean;
-  children: ComponentChildren;
-}) {
+}: PropsWithChildren<{ href?: string; isCurrent?: boolean }>) {
   return (
     <a href={href || "#"} class={cn(css.navLink, isCurrent && css.current)}>
       {children}

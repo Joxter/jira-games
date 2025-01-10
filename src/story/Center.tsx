@@ -1,7 +1,7 @@
 import css from "./Center.module.css";
-import { ComponentChildren } from "preact";
 import iconA from "../assets/icons/ic-actions-add-file.svg";
 import iconB from "../assets/icons/ic-media-backward.svg";
+import { PropsWithChildren } from "react";
 
 export function Center() {
   return (
@@ -39,12 +39,11 @@ export function Comment({
   icon,
   date,
   children,
-}: {
+}: PropsWithChildren<{
   name: string;
   icon: string;
   date: string;
-  children: ComponentChildren;
-}) {
+}>) {
   return (
     <div>
       <p>{name}</p>

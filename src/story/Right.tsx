@@ -1,14 +1,13 @@
 import css from "./Right.module.css";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { cn } from "../unit";
-import { ComponentChildren } from "preact";
 import iconA from "../assets/icons/ic-devices-ipad.svg";
 import iconB from "../assets/icons/ic-emoji-quite-ok.svg";
 import iconC from "../assets/icons/ic-actions-add-ribbon.svg";
 import iconD from "../assets/icons/ic-media-volume.svg";
 import moreIcon from "../assets/icons/ic-actions-more-1.svg";
 import { Button } from "../ui/Button";
-import { useState } from "preact/hooks";
+import { PropsWithChildren, useState } from "react";
 
 export function Right() {
   return (
@@ -76,11 +75,7 @@ function Dropdown({
   children,
   title,
   isOpen,
-}: {
-  children?: ComponentChildren;
-  title: ComponentChildren;
-  isOpen?: boolean;
-}) {
+}: PropsWithChildren<{ title: any; isOpen?: boolean }>) {
   let [open, setOpen] = useState(isOpen);
 
   return (
@@ -97,13 +92,7 @@ function Dropdown({
   );
 }
 
-function InfoBlock({
-  title,
-  children,
-}: {
-  title: string;
-  children: ComponentChildren;
-}) {
+function InfoBlock({ title, children }: PropsWithChildren<{ title: string }>) {
   return (
     <div class={css.infoBlock}>
       <div class={css.ibTitle}>{title}</div>

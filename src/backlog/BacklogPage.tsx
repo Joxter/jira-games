@@ -1,11 +1,10 @@
-import { useEffect, useState } from "preact/hooks";
+import { PropsWithChildren, useEffect, useState } from "react";
 import css from "./BacklogPage.module.css";
 import overlay from "./image.png";
 import { Left } from "../story/Left";
 import { Header } from "../story/Header";
 import user from "../assets/icons/ic-users-info.svg";
 import { Header as InnerHeader } from "./Header";
-import { ComponentChildren } from "preact";
 import { ChevronIcon } from "../ui/ChevronIcon";
 import { CartRound } from "./CartRound";
 import { cn, lorem, random } from "../unit";
@@ -328,10 +327,9 @@ export function BacklogPage() {
 function GrayBox({
   children,
   title,
-}: {
-  children: ComponentChildren;
+}: PropsWithChildren<{
   title: string;
-}) {
+}>) {
   return (
     <div class={css.greyBox}>
       <div class={css.greyHeader}>
@@ -359,7 +357,7 @@ function Pile({
 }: {
   type: string;
   name: string;
-  text: ComponentChildren;
+  text: any;
   mode: "from" | "to" | null;
   onClick?: () => void;
 }) {

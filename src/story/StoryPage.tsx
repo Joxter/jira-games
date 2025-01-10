@@ -1,4 +1,4 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "react";
 import css from "./StoryPage.module.css";
 import overlay from "./overlay-img.png";
 import overlay2 from "./overlay-img-2.png";

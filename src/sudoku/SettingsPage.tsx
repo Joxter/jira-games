@@ -9,11 +9,11 @@ import { useUnit } from "effector-react";
 
 export function SettingPage() {
   const [currentLocale] = useUnit([$locale]);
-  let locale = useLocale();
+  let t = useLocale();
 
   return (
     <Layout>
-      <h2>Setting</h2>
+      <h2>{t.setting}</h2>
 
       <div
         style={{
@@ -22,7 +22,7 @@ export function SettingPage() {
           width: "100%",
         }}
       >
-        <p>{locale.language}</p>
+        <p>{t.language}</p>
         <select
           value={currentLocale}
           onChange={(ev) => {

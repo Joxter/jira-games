@@ -1,7 +1,7 @@
 import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
 import { formatTime, viewCandidates } from "./utils";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef } from "react";
 import { $currentLogs, openWinModal, winCloseClicked } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
 

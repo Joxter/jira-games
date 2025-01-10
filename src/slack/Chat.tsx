@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from "preact/hooks";
-import { ChevronIcon } from "../ui/ChevronIcon";
+import { useEffect, useRef, useState } from "react";
 import css from "./Chat.module.css";
-import { ComponentChildren } from "preact";
 import { Table } from "../poker-engine/src";
 
 /*
@@ -11,7 +9,7 @@ import { Table } from "../poker-engine/src";
 -  fold call call-any
 
 -  fold call60k call-any
- 
+
 */
 
 const actions = ["bet", "check", "call", "raise", "fold"] as const;

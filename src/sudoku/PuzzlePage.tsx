@@ -13,7 +13,7 @@ import {
   $inputMode,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef } from "react";
 import { fastSolve, getRelated } from "./utils";
 import { NumRow, WinModal } from "./Components";
 import { cn } from "../unit";

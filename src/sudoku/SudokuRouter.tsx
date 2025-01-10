@@ -1,6 +1,5 @@
 import { initSudoku } from "./sudoku.model";
-import { useEffect, useState } from "preact/hooks";
-import css from "./PuzzlePage.module.css";
+import { useEffect, useState } from "react";
 import { PuzzlePage } from "./PuzzlePage";
 import { NewGamePage } from "./NewGamePage.tsx";
 import { getPuzzleFromUrl, getSavedFromLS, resetLS } from "./utils";
