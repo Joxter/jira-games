@@ -4,6 +4,7 @@ import { formatTime, viewCandidates } from "./utils";
 import { useEffect, useRef } from "react";
 import { $currentLogs, openWinModal, winCloseClicked } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
+import { Link } from "wouter";
 
 type CellProps = {
   value: number;
@@ -126,7 +127,6 @@ export function WinModal() {
       dialogRef.current?.showModal();
     });
     let unsub2 = winCloseClicked.watch(() => {
-      location.hash = "#list";
       dialogRef.current?.close();
     });
 
@@ -142,13 +142,14 @@ export function WinModal() {
       <p>
         Your time: <Time />
       </p>
-      <button
+      <Link
+        href="/"
         onClick={() => {
           winCloseClicked();
         }}
       >
         close
-      </button>
+      </Link>
     </dialog>
   );
 }

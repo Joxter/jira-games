@@ -76,8 +76,8 @@
 
 .numsActions {
   display: grid;
-  width: 50px;
-  gap: 12px;
+  width: 70px;
+  gap: 2px;
   align-content: end;
 }
 

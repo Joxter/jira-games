@@ -186,3 +186,29 @@ function showErrorAnimation(cell: HTMLElement) {
     },
   );
 }
+
+export function revealAnimation(cell: HTMLElement, correct: boolean) {
+  cell.style.position = "relative";
+  cell.style.zIndex = "10";
+
+  let animate = cell.animate(
+    [{ transform: "scale(1.5)" }, { transform: "scale(1)" }],
+    { duration: 300, iterations: 1, easing: "ease-in-out" },
+  );
+  animate.onfinish = () => {
+    cell.style.zIndex = "initial";
+  };
+
+  cell.animate(
+    [
+      {
+        boxShadow: correct
+          ? "inset 0 0 2px 4px rgba(0, 255, 0, 0.2)"
+          : "inset 0 0 2px 4px rgba(255, 0, 0, 0.5)",
+        color: correct ? "green" : "red",
+      },
+      { boxShadow: "none", color: "#213547" },
+    ],
+    { duration: 1000, iterations: 1, easing: "ease-in-out" },
+  );
+}

@@ -46,6 +46,7 @@ export const initSudoku = createEvent<[string | null, History[]]>();
 // gameplay
 export const arrowClicked = createEvent<string>();
 export const cellClicked = createEvent<number | null>();
+export const revealNumber = createEvent<{ pos: number; number: number }>();
 export const numberPressed = createEvent<number>();
 export const numberWithShiftPressed = createEvent<number>();
 export const userAction = createEvent<Action>();
@@ -59,6 +60,14 @@ sample({
   filter: $currentCell.map((it) => it !== null),
   fn: (cell, value) => {
     return { cell: cell!, value, type: "edit-cell" as const };
+  },
+  target: userAction,
+});
+
+sample({
+  clock: revealNumber,
+  fn: ({ pos, number }) => {
+    return { cell: pos, value: number, type: "reveal-cell" as const };
   },
   target: userAction,
 });

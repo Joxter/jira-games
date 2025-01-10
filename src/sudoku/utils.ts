@@ -36,7 +36,9 @@ export function applyStepsForNumbers(history: History): Field {
 
   for (let i = 0; i <= current; i++) {
     let { type, cell, value } = steps[i];
-    if (type === "edit-cell") {
+    if (type === "reveal-cell") {
+      res[cell] = value;
+    } else if (type === "edit-cell") {
       if (res[cell] == value) {
         res[cell] = 0;
       } else {
@@ -83,7 +85,7 @@ export function changeCellEffectHandler(data: ChangeCellProps): History | null {
 
   let field = applyStepsForNumbers(history);
 
-  if (type === "edit-cell") {
+  if (type === "edit-cell" || type === "reveal-cell") {
     if (field[cell] !== value && value > 0) {
       let errCells = isInvalid(field, cell, value);
       if (errCells) throw errCells;

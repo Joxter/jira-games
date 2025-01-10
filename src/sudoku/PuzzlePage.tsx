@@ -11,6 +11,8 @@ import {
   seveToPuzzleToLS,
   inputModeChanged,
   $inputMode,
+  revealNumber,
+  $puzzle,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "react";
@@ -18,12 +20,13 @@ import { fastSolve, getRelated } from "./utils";
 import { NumRow, WinModal } from "./Components";
 import { cn } from "../unit";
 import { useLocale } from "./locale/locale.model";
-import { Field } from "./Field.tsx";
+import { Field, revealAnimation } from "./Field.tsx";
 import { Link } from "wouter";
 import { Layout } from "./components/Layout.tsx";
 
 export function PuzzlePage() {
-  const [field, candidates, current, inputMode] = useUnit([
+  const [puzzle, field, candidates, current, inputMode] = useUnit([
+    $puzzle,
     $field,
     $candidates,
     $currentCell,
@@ -96,13 +99,35 @@ export function PuzzlePage() {
 
             let answer = fastSolve(field);
             if (answer) {
-              alert("solvable..");
+              alert("solvable :)");
             } else {
               alert("unsolvable :(");
             }
           }}
         >
           {locale.is_valid}
+        </button>
+        <button
+          onClick={() => {
+            if (!field) return;
+
+            let answer = fastSolve(field);
+
+            if (answer) {
+              cellClicked(null);
+              answer.forEach((correct, i) => {
+                let fieldNum = field[i];
+
+                let cell = document.querySelector("#cell" + i) as HTMLElement;
+                setTimeout(() => {
+                  revealNumber({ number: correct, pos: i });
+                  revealAnimation(cell, fieldNum === correct);
+                }, i * 30);
+              });
+            }
+          }}
+        >
+          всё решить
         </button>
       </div>
       <br />
@@ -111,6 +136,21 @@ export function PuzzlePage() {
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
           <div className={css.numsActions}>
             <button onClick={() => numberPressed(0)}>{locale.clearCell}</button>
+            <button
+              onClick={() => {
+                if (!field || !current) return;
+
+                let answer = fastSolve(puzzle.split("").map((a) => +a));
+                if (!answer) return;
+
+                revealNumber({
+                  number: answer[current],
+                  pos: current,
+                });
+              }}
+            >
+              open
+            </button>
             <button onClick={() => undo()}>{locale.undo}</button>
             <button onClick={() => redo()}>{locale.redo}</button>
           </div>

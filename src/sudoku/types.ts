@@ -10,8 +10,8 @@ export type WinsPersistent = Record<
 
 export type Action =
   | { type: "edit-cell"; cell: number; value: number }
+  | { type: "reveal-cell"; cell: number; value: number }
   | { type: "edit-candidate"; cell: number; value: number };
-// todo add "win clicked" event, refactor events, add proper play/win state
 
 export type History = {
   puzzle: string;
