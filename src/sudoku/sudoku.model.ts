@@ -12,10 +12,10 @@ import {
   changeCellEffectHandler,
   getSavedFromLS,
   getHighlightCells,
-  getPuzzles,
   saveHistoryToLS,
   saveWinToLS,
 } from "./utils";
+import { getPuzzles } from "./puzzles/puzzles.ts";
 
 export const $puzzleList = createStore(getPuzzles());
 export const $puzzle = createStore<string>("");
