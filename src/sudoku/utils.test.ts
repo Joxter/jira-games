@@ -86,13 +86,34 @@ describe("utils", () => {
       { puzzle: "3002003102000004", solution: "3142243142131324" },
       { puzzle: "3001100000000020", solution: "3241143223144123" },
       { puzzle: "3301100000000020", solution: null },
-      { puzzle: "1143040041000010", solution: null },
+      { puzzle: "1100000000000000", solution: null },
     ])("should work for 4*4 sudoku", ({ puzzle, solution }) => {
       expect(
         fastSolve(strToField(puzzle), {
           power: 4,
           boxHeight: 2,
           boxWidth: 2,
+        })?.join("") || null,
+      ).toEqual(solution);
+    });
+
+    it.each([
+      {
+        puzzle: "050001004600400050100004043000060240",
+        solution: "652431314625436152125364243516561243",
+      },
+      {
+        puzzle: "506000000020060000000501004000000103",
+        solution: "526314431625165432243561314256652143",
+      },
+      { puzzle: "550001004600400050100004043000060240", solution: null },
+      { puzzle: "110000000000000000000000000000000000", solution: null },
+    ])("should work for 6*6 sudoku", ({ puzzle, solution }) => {
+      expect(
+        fastSolve(strToField(puzzle), {
+          power: 6,
+          boxHeight: 2,
+          boxWidth: 3,
         })?.join("") || null,
       ).toEqual(solution);
     });

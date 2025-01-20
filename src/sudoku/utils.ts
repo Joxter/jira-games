@@ -324,6 +324,7 @@ export function fastSolve(
       return null;
     }
   }
+  console.log("GO");
 
   let solutionCount = solveSudoku();
 
@@ -343,8 +344,8 @@ export function fastSolve(
 
     const startRow = row - (row % params.boxHeight);
     const startCol = col - (col % params.boxWidth);
-    for (let i = 0; i < params.power / params.boxHeight; i++) {
-      for (let j = 0; j < params.power / params.boxWidth; j++) {
+    for (let i = 0; i < params.boxHeight; i++) {
+      for (let j = 0; j < params.boxWidth; j++) {
         if (board[(startRow + i) * params.power + startCol + j] === num) {
           res.add((startRow + i) * params.power + startCol + j);
         }
