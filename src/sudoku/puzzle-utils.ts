@@ -13,7 +13,11 @@ type MyPuzzle = {
   width: number;
   height: number;
   //
-  // borders?: Array<[number, number]>; // todo add borders
+
+  // todo:
+  //  - borders?: Array<[number, number]>; // todo add borders
+  //  - isValid: (number[]) => boolean
+  //  - solve: (number[]) => number[]
 };
 
 export function generateFromSchema(schema: string): MyPuzzle {
@@ -21,7 +25,14 @@ export function generateFromSchema(schema: string): MyPuzzle {
   let grid = schema.split("\n").map((row, i) => {
     return row.split("");
   });
-  let chars = [...new Set(schema.replace(/\s/g, "").split(""))];
+
+  let chars: string[] = [];
+  schema
+    .replace(/\s/g, "")
+    .split("")
+    .forEach((ch) => {
+      if (!chars.includes(ch)) chars.push(ch);
+    });
 
   let boxes = Object.fromEntries(chars.map((ch) => [ch, [] as number[]]));
   let rows = Object.fromEntries(chars.map((ch) => [ch, [] as number[]]));

@@ -300,33 +300,58 @@ export function fieldToLayout(field: number[]): [number, number][][] {
   return layout;
 }
 
-export function fastSolve(_board: Field): Field | null {
+type Params = {
+  power: number;
+  boxWidth: number;
+  boxHeight: number;
+};
+
+const classic9Params: Params = {
+  power: 9,
+  boxWidth: 3,
+  boxHeight: 3,
+};
+
+export function fastSolve(
+  _board: Field,
+  params: Params = classic9Params,
+): Field | null {
   let board = [..._board];
   let win = [..._board];
+
+  for (let i = 0; i < params.power * params.power; i++) {
+    if (board[i] && isInvalid(i, board[i]) !== false) {
+      return null;
+    }
+  }
+
   let solutionCount = solveSudoku();
 
   return solutionCount === 1 ? win : null;
 
   function isInvalid(index: number, num: number): number[] | false {
-    const row = Math.floor(index / 9);
-    const col = index % 9;
+    const row = Math.floor(index / params.power);
+    const col = index % params.power;
     const res = new Set<number>();
 
-    for (let i = 0; i < 9; i++) {
-      if (board[row * 9 + i] === num) res.add(row * 9 + i);
-      if (board[col + 9 * i] === num) res.add(col + 9 * i);
+    for (let i = 0; i < params.power; i++) {
+      if (board[row * params.power + i] === num)
+        res.add(row * params.power + i);
+      if (board[col + params.power * i] === num)
+        res.add(col + params.power * i);
     }
 
-    const startRow = row - (row % 3);
-    const startCol = col - (col % 3);
-    for (let i = 0; i < 3; i++) {
-      for (let j = 0; j < 3; j++) {
-        if (board[(startRow + i) * 9 + startCol + j] === num) {
-          res.add((startRow + i) * 9 + startCol + j);
+    const startRow = row - (row % params.boxHeight);
+    const startCol = col - (col % params.boxWidth);
+    for (let i = 0; i < params.power / params.boxHeight; i++) {
+      for (let j = 0; j < params.power / params.boxWidth; j++) {
+        if (board[(startRow + i) * params.power + startCol + j] === num) {
+          res.add((startRow + i) * params.power + startCol + j);
         }
       }
     }
 
+    res.delete(index);
     return res.size === 0 ? false : [...res];
   }
 
@@ -338,10 +363,10 @@ export function fastSolve(_board: Field): Field | null {
     return solutionCount;
 
     function _solveSudoku(): boolean {
-      for (let i = 0; i < 81; i++) {
+      for (let i = 0; i < params.power * params.power; i++) {
         if (board[i]) continue;
 
-        for (let num = 1; num <= 9; num++) {
+        for (let num = 1; num <= params.power; num++) {
           if (isInvalid(i, num)) continue;
 
           board[i] = num;
