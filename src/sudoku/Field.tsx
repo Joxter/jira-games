@@ -15,9 +15,9 @@ import {
   $inputMode,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
-import { useEffect, useRef } from "react";
-import { getBorders2 } from "./utils";
+import { useEffect, useMemo, useRef } from "react";
 import { Cell } from "./Components";
+import { generateFromSchema } from "./puzzle-utils.ts";
 
 export function Field({ cellSize }: { cellSize: number }) {
   const [puzzle, field, candidates, current, highLightCells, inputMode] =
@@ -77,6 +77,21 @@ export function Field({ cellSize }: { cellSize: number }) {
     };
   }, []);
 
+  const borders = useMemo(() => {
+    let schema = `
+111222333
+111222333
+111222333
+444555666
+444555666
+444555666
+777888999
+777888999
+777888999
+`;
+    return generateFromSchema(schema).getBorders(borderSize, +cellSize);
+  }, [borderSize, +cellSize]);
+
   if (!candidates || !field) return <p>no field</p>;
 
   return (
@@ -123,12 +138,25 @@ export function Field({ cellSize }: { cellSize: number }) {
         }
       }}
     >
+      {borders.map((b, i) => {
+        return (
+          <div
+            key={i}
+            style={{
+              backgroundColor: "#555",
+              position: "absolute",
+              left: `${b.left}px`,
+              top: `${b.top}px`,
+              width: `${b.width}px`,
+              height: `${b.height}px`,
+              zIndex: 10,
+            }}
+          />
+        );
+      })}
       {field.map((value, index) => {
         return (
           <>
-            {getBorders2(borderSize, +cellSize, index).map((styles) => {
-              return <div style={{ ...styles }} />;
-            })}
             <Cell
               style={{
                 width: "var(--cell-size)",

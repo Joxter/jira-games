@@ -429,80 +429,6 @@ export function getRelated(index: number): number[] {
   return [...new Set([...getRow(index), ...getCol(index), ...getBox(index)])];
 }
 
-export function getBorders2(
-  borderSize: number,
-  cellSize: number,
-  cell: number,
-): Record<any, any>[] {
-  let borderLen = cellSize + borderSize + borderSize;
-
-  let rowNumber = cell % 9;
-  let colNumber = Math.floor(cell / 9);
-
-  let colorDark = "#555";
-
-  let borderLeft = null;
-  let borderTop = null;
-  let borderRight = null;
-  let borderBottom = null;
-
-  if (cell <= 8) {
-    borderTop = hor(
-      rowNumber * cellSize + (rowNumber - 1) * borderSize,
-      colNumber * cellSize + (colNumber - 1) * borderSize,
-    );
-  }
-  if (cell >= 72) {
-    borderBottom = hor(
-      rowNumber * cellSize + (rowNumber - 1) * borderSize,
-      (colNumber + 1) * cellSize + colNumber * borderSize,
-    );
-  }
-  if ((cell + 1) % 9 === 0) {
-    borderRight = vert(
-      (rowNumber + 1) * cellSize + rowNumber * borderSize,
-      colNumber * cellSize + (colNumber - 1) * borderSize,
-    );
-  }
-
-  let from = Math.floor(cell / 27) * 27;
-  let fromTo = from + 9;
-  if (cell >= from && cell < fromTo) {
-    borderTop = hor(
-      rowNumber * cellSize + (rowNumber - 1) * borderSize,
-      colNumber * cellSize + (colNumber - 1) * borderSize,
-    );
-  }
-
-  if (cell % 3 === 0) {
-    borderLeft = vert(
-      rowNumber * cellSize + (rowNumber - 1) * borderSize,
-      colNumber * cellSize + (colNumber - 1) * borderSize,
-    );
-  }
-
-  return [borderLeft, borderRight, borderTop, borderBottom].filter(notNull);
-
-  function lineStyles(p: { left: number; top: number; w: number; h: number }) {
-    return {
-      backgroundColor: colorDark,
-      position: "absolute",
-      left: `${p.left}px`,
-      top: `${p.top}px`,
-      width: `${p.w}px`,
-      height: `${p.h}px`,
-      zIndex: 10,
-    };
-  }
-
-  function vert(left: number, top: number) {
-    return lineStyles({ left, top, w: borderSize, h: borderLen });
-  }
-  function hor(left: number, top: number) {
-    return lineStyles({ left, top, w: borderLen, h: borderSize });
-  }
-}
-
 function parseToField(str: string) {
   return str.split("").map((it) => +it);
 }
@@ -522,6 +448,6 @@ export function getPuzzleFromUrl(): Field | null {
   return null;
 }
 
-function notNull<T>(value: T | null): value is T {
+export function notNull<T>(value: T | null): value is T {
   return value !== null;
 }
