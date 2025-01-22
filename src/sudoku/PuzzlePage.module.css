@@ -6,10 +6,12 @@
   position: relative;
   display: grid;
   margin: 0 auto;
-  --cell-size: 100px;
-  --border-size: 200px;
-  grid-template-columns: repeat(9, var(--cell-size));
-  width: calc(9 * var(--cell-size) + 10 * var(--border-size));
+}
+
+.darkBorder {
+  pointer-events: none;
+  position: absolute;
+  background-color: #555;
 }
 
 .cell {

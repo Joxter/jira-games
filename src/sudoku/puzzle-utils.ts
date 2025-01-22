@@ -74,8 +74,8 @@ export function generateFromSchema(schema: string): MyPuzzle {
 
         let borderSize = borderW + borderW + borderH;
         let leftTop = {
-          left: j * borderSize - (j + 1) * borderW,
-          top: i * borderSize - (i + 1) * borderW,
+          left: j * borderSize - j * borderW,
+          top: i * borderSize - i * borderW,
         };
 
         if (ch !== leftCh) {
@@ -87,7 +87,7 @@ export function generateFromSchema(schema: string): MyPuzzle {
       }
     }
 
-    return borders.toSorted((a, b) => a.top - b.top || a.left - b.left);
+    return borders;
   }
 
   return {

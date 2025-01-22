@@ -11,7 +11,7 @@ describe("puzzle-utils", () => {
 3344
 `;
 
-      expect(generateFromSchema(schema)).toEqual({
+      expect(generateFromSchema(schema)).toMatchObject({
         power: 4,
         rows: [
           [0, 1, 2, 3],
@@ -49,7 +49,7 @@ describe("puzzle-utils", () => {
 777888999
 `;
 
-      expect(generateFromSchema(schema)).toEqual({
+      expect(generateFromSchema(schema)).toMatchObject({
         power: 9,
         rows: [
           [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -99,7 +99,7 @@ describe("puzzle-utils", () => {
 555666
 `;
 
-      expect(generateFromSchema(schema)).toEqual({
+      expect(generateFromSchema(schema)).toMatchObject({
         power: 6,
         rows: [
           [0, 1, 2, 3, 4, 5],
@@ -139,7 +139,7 @@ describe("puzzle-utils", () => {
 33555
 `;
 
-      expect(generateFromSchema(schema)).toEqual({
+      expect(generateFromSchema(schema)).toMatchObject({
         power: 5,
         rows: [
           [0, 1, 2, 3, 4],
@@ -165,6 +165,95 @@ describe("puzzle-utils", () => {
         width: 5,
         height: 5,
       });
+    });
+
+    it("getBordersBasic example", () => {
+      let schema = `
+111222333
+111222333
+111222333
+444555666
+444555666
+444555666
+777888999
+777888999
+777888999
+`;
+
+      expect(generateFromSchema(schema).getBorders(2, 10)).toEqual([
+        { left: 0, top: 0, width: 2, height: 14 },
+        { left: 0, top: 0, width: 14, height: 2 },
+        { left: 12, top: 0, width: 14, height: 2 },
+        { left: 24, top: 0, width: 14, height: 2 },
+        { left: 36, top: 0, width: 2, height: 14 },
+        { left: 36, top: 0, width: 14, height: 2 },
+        { left: 48, top: 0, width: 14, height: 2 },
+        { left: 60, top: 0, width: 14, height: 2 },
+        { left: 72, top: 0, width: 2, height: 14 },
+        { left: 72, top: 0, width: 14, height: 2 },
+        { left: 84, top: 0, width: 14, height: 2 },
+        { left: 96, top: 0, width: 14, height: 2 },
+        { left: 108, top: 0, width: 2, height: 14 },
+        { left: 0, top: 12, width: 2, height: 14 },
+        { left: 36, top: 12, width: 2, height: 14 },
+        { left: 72, top: 12, width: 2, height: 14 },
+        { left: 108, top: 12, width: 2, height: 14 },
+        { left: 0, top: 24, width: 2, height: 14 },
+        { left: 36, top: 24, width: 2, height: 14 },
+        { left: 72, top: 24, width: 2, height: 14 },
+        { left: 108, top: 24, width: 2, height: 14 },
+        { left: 0, top: 36, width: 2, height: 14 },
+        { left: 0, top: 36, width: 14, height: 2 },
+        { left: 12, top: 36, width: 14, height: 2 },
+        { left: 24, top: 36, width: 14, height: 2 },
+        { left: 36, top: 36, width: 2, height: 14 },
+        { left: 36, top: 36, width: 14, height: 2 },
+        { left: 48, top: 36, width: 14, height: 2 },
+        { left: 60, top: 36, width: 14, height: 2 },
+        { left: 72, top: 36, width: 2, height: 14 },
+        { left: 72, top: 36, width: 14, height: 2 },
+        { left: 84, top: 36, width: 14, height: 2 },
+        { left: 96, top: 36, width: 14, height: 2 },
+        { left: 108, top: 36, width: 2, height: 14 },
+        { left: 0, top: 48, width: 2, height: 14 },
+        { left: 36, top: 48, width: 2, height: 14 },
+        { left: 72, top: 48, width: 2, height: 14 },
+        { left: 108, top: 48, width: 2, height: 14 },
+        { left: 0, top: 60, width: 2, height: 14 },
+        { left: 36, top: 60, width: 2, height: 14 },
+        { left: 72, top: 60, width: 2, height: 14 },
+        { left: 108, top: 60, width: 2, height: 14 },
+        { left: 0, top: 72, width: 2, height: 14 },
+        { left: 0, top: 72, width: 14, height: 2 },
+        { left: 12, top: 72, width: 14, height: 2 },
+        { left: 24, top: 72, width: 14, height: 2 },
+        { left: 36, top: 72, width: 2, height: 14 },
+        { left: 36, top: 72, width: 14, height: 2 },
+        { left: 48, top: 72, width: 14, height: 2 },
+        { left: 60, top: 72, width: 14, height: 2 },
+        { left: 72, top: 72, width: 2, height: 14 },
+        { left: 72, top: 72, width: 14, height: 2 },
+        { left: 84, top: 72, width: 14, height: 2 },
+        { left: 96, top: 72, width: 14, height: 2 },
+        { left: 108, top: 72, width: 2, height: 14 },
+        { left: 0, top: 84, width: 2, height: 14 },
+        { left: 36, top: 84, width: 2, height: 14 },
+        { left: 72, top: 84, width: 2, height: 14 },
+        { left: 108, top: 84, width: 2, height: 14 },
+        { left: 0, top: 96, width: 2, height: 14 },
+        { left: 36, top: 96, width: 2, height: 14 },
+        { left: 72, top: 96, width: 2, height: 14 },
+        { left: 108, top: 96, width: 2, height: 14 },
+        { left: 0, top: 108, width: 14, height: 2 },
+        { left: 12, top: 108, width: 14, height: 2 },
+        { left: 24, top: 108, width: 14, height: 2 },
+        { left: 36, top: 108, width: 14, height: 2 },
+        { left: 48, top: 108, width: 14, height: 2 },
+        { left: 60, top: 108, width: 14, height: 2 },
+        { left: 72, top: 108, width: 14, height: 2 },
+        { left: 84, top: 108, width: 14, height: 2 },
+        { left: 96, top: 108, width: 14, height: 2 },
+      ]);
     });
   });
 });

@@ -19,7 +19,16 @@ import { useEffect, useMemo, useRef } from "react";
 import { Cell } from "./Components";
 import { generateFromSchema } from "./puzzle-utils.ts";
 
-export function Field({ cellSize }: { cellSize: number }) {
+let viewPortSize = Math.min(visualViewport?.width || 400, 400);
+
+let borderSize = 2;
+let fieldPadding = 12;
+
+let cellSize = Math.floor(
+  (viewPortSize - fieldPadding * 2 - 10 * borderSize) / 9,
+);
+
+export function Field() {
   const [puzzle, field, candidates, current, highLightCells, inputMode] =
     useUnit([
       $puzzle,
@@ -89,8 +98,8 @@ export function Field({ cellSize }: { cellSize: number }) {
 777888999
 777888999
 `;
-    return generateFromSchema(schema).getBorders(borderSize, +cellSize);
-  }, [borderSize, +cellSize]);
+    return generateFromSchema(schema).getBorders(borderSize, cellSize);
+  }, [borderSize, cellSize]);
 
   if (!candidates || !field) return <p>no field</p>;
 
@@ -98,9 +107,13 @@ export function Field({ cellSize }: { cellSize: number }) {
     <div
       className={css.field}
       style={{
-        gap: `${borderSize}px`,
         "--cell-size": `${cellSize}px`,
         "--border-size": `${borderSize}px`,
+
+        gap: `${borderSize}px`,
+        padding: `${borderSize}px`,
+        gridTemplateColumns: `repeat(9, ${cellSize}px)`,
+        width: `calc(9 * ${cellSize}px + 10 * ${borderSize}px)`,
       }}
       ref={fieldRef}
       onKeyDown={(ev) => {
@@ -142,45 +155,38 @@ export function Field({ cellSize }: { cellSize: number }) {
         return (
           <div
             key={i}
+            className={css.darkBorder}
             style={{
-              backgroundColor: "#555",
-              position: "absolute",
               left: `${b.left}px`,
               top: `${b.top}px`,
               width: `${b.width}px`,
               height: `${b.height}px`,
-              zIndex: 10,
             }}
           />
         );
       })}
       {field.map((value, index) => {
         return (
-          <>
-            <Cell
-              style={{
-                width: "var(--cell-size)",
-                height: "var(--cell-size)",
-              }}
-              candidates={candidates[index]}
-              key={index}
-              index={index}
-              isPuzzle={puzzle[index] !== "0"}
-              isCurrent={current === index}
-              isSame={
-                (value &&
-                  current !== null &&
-                  current !== index &&
-                  field[current] === value) ||
-                false
-              }
-              isHighLight={highLightCells.includes(index)}
-              value={value}
-              onClick={() => {
-                cellClicked(index);
-              }}
-            />
-          </>
+          <Cell
+            style={{ width: "var(--cell-size)", height: "var(--cell-size)" }}
+            candidates={candidates[index]}
+            key={index}
+            index={index}
+            isPuzzle={puzzle[index] !== "0"}
+            isCurrent={current === index}
+            isSame={
+              (value &&
+                current !== null &&
+                current !== index &&
+                field[current] === value) ||
+              false
+            }
+            isHighLight={highLightCells.includes(index)}
+            value={value}
+            onClick={() => {
+              cellClicked(index);
+            }}
+          />
         );
       })}
     </div>

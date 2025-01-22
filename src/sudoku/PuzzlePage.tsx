@@ -67,20 +67,7 @@ export function PuzzlePage() {
     };
   }, []);
 
-  const fieldPadding = 5;
-
-  // useEffect(() => {
-  //   if (pageRef.current) {
-  //     const fieldWrapper =
-  //       pageRef.current.getBoundingClientRect().width - fieldPadding;
-  //
-  //     let cellSize = Math.floor(
-  //       (fieldWrapper - fieldPadding * 2 - 10 * borderSize) / 9,
-  //     );
-  //
-  //     setCellSize(cellSize.toString());
-  //   }
-  // }, []);
+  const fieldPadding = 12;
 
   if (!candidates || !field) return <p>no field</p>;
 
@@ -132,7 +119,7 @@ export function PuzzlePage() {
       </div>
       <br />
       <div ref={pageRef} style={{ padding: `0 ${fieldPadding}px` }}>
-        <Field cellSize={40} />
+        <Field />
         <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
           <div className={css.numsActions}>
             <button onClick={() => numberPressed(0)}>{locale.clearCell}</button>
