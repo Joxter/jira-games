@@ -14,6 +14,7 @@ import {
   getHighlightCells,
   saveHistoryToLS,
   saveWinToLS,
+  fastSolve,
 } from "./utils";
 import { getPuzzles } from "./puzzles/puzzles.ts";
 
@@ -53,6 +54,10 @@ export const userAction = createEvent<Action>();
 export const showCellError = createEvent<number[]>();
 
 $inputMode.on(inputModeChanged, (_, s) => s);
+
+export const $solved = $puzzle.map((p) => {
+  return p ? fastSolve(p.split("").map((a) => +a)) : null;
+});
 
 sample({
   source: $currentCell,

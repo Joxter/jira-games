@@ -316,6 +316,7 @@ export function fastSolve(
   _board: Field,
   params: Params = classic9Params,
 ): Field | null {
+  let start = Date.now();
   let board = [..._board];
   let win = [..._board];
 
@@ -324,9 +325,9 @@ export function fastSolve(
       return null;
     }
   }
-  console.log("GO");
 
   let solutionCount = solveSudoku();
+  console.log("fastSolve time (ms)", Date.now() - start);
 
   return solutionCount === 1 ? win : null;
 

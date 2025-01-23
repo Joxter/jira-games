@@ -42,20 +42,6 @@ export function Field() {
   const fieldRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    function handler(ev: any) {
-      if (
-        ev.target.nodeName !== "BUTTON" &&
-        !fieldRef.current!.contains(ev.target)
-      ) {
-        cellClicked(null);
-      }
-    }
-    document.addEventListener("click", handler);
-
-    return () => document.removeEventListener("click", handler);
-  }, []);
-
-  useEffect(() => {
     let id = setInterval(() => {
       if (document.visibilityState === "visible") {
         addSecToTime();
@@ -181,7 +167,7 @@ export function Field() {
                 field[current] === value) ||
               false
             }
-            isHighLight={highLightCells.includes(index)}
+            isHighLight={false && highLightCells.includes(index)}
             value={value}
             onClick={() => {
               cellClicked(index);

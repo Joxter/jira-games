@@ -1,41 +1,26 @@
-import css from "./PuzzlePage.module.css";
 import {
   $candidates,
-  $currentCell,
-  numberPressed,
-  cellClicked,
-  undo,
-  redo,
   $field,
   addSecToTime,
-  seveToPuzzleToLS,
-  inputModeChanged,
-  $inputMode,
+  cellClicked,
   revealNumber,
-  $puzzle,
+  seveToPuzzleToLS,
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "react";
-import { fastSolve, getRelated } from "./utils";
-import { NumRow, WinModal } from "./Components";
-import { cn } from "../unit";
+import { fastSolve } from "./utils";
+import { WinModal } from "./Components";
 import { useLocale } from "./locale/locale.model";
 import { Field, revealAnimation } from "./Field.tsx";
 import { Link } from "wouter";
 import { Layout } from "./components/Layout.tsx";
+import { FooterControls } from "./FooterControls.tsx";
 
 export function PuzzlePage() {
-  const [puzzle, field, candidates, current, inputMode] = useUnit([
-    $puzzle,
-    $field,
-    $candidates,
-    $currentCell,
-    $inputMode,
-  ]);
+  const [field, candidates] = useUnit([$field, $candidates]);
 
   let locale = useLocale();
 
-  // const fieldRef = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,55 +105,7 @@ export function PuzzlePage() {
       <br />
       <div ref={pageRef} style={{ padding: `0 ${fieldPadding}px` }}>
         <Field />
-        <div className={css.nums} style={{ padding: `0 ${fieldPadding}px` }}>
-          <div className={css.numsActions}>
-            <button onClick={() => numberPressed(0)}>{locale.clearCell}</button>
-            <button
-              onClick={() => {
-                if (!field || !current) return;
-
-                let answer = fastSolve(puzzle.split("").map((a) => +a));
-                if (!answer) return;
-
-                revealNumber({
-                  number: answer[current],
-                  pos: current,
-                });
-              }}
-            >
-              open
-            </button>
-            <button onClick={() => undo()}>{locale.undo}</button>
-            <button onClick={() => redo()}>{locale.redo}</button>
-          </div>
-          <NumRow
-            onClick={(n) => numberPressed(n)}
-            invalidNums={
-              current !== null
-                ? getRelated(current).map((id) => {
-                    return field[id];
-                  })
-                : null
-            }
-            doneNums={[1, 2, 3, 4, 5, 6, 7, 8, 9].filter((n) => {
-              return field.filter((a) => a === n).length === 9;
-            })}
-          />
-          <div className={css.numsActions}>
-            <button
-              className={cn(inputMode === "normal" && css.current)}
-              onClick={() => inputModeChanged("normal")}
-            >
-              {locale.mode.normal}
-            </button>
-            <button
-              className={cn(inputMode === "candidate" && css.current)}
-              onClick={() => inputModeChanged("candidate")}
-            >
-              {locale.mode.candidate}
-            </button>
-          </div>
-        </div>
+        <FooterControls />
       </div>
     </Layout>
   );

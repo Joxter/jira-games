@@ -73,13 +73,15 @@ export function NumRow({
 }: {
   onClick: (value: number) => void;
   candidate?: boolean;
-  invalidNums?: number[] | null;
+  invalidNums: number[];
   doneNums?: number[] | null;
 }) {
+  invalidNums = [...new Set(invalidNums || [])]!;
   return (
     <div className={css.numRow}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
-        let isInvalid = invalidNums && invalidNums.includes(n);
+        // if only 1 valid
+        let isInvalid = invalidNums!.length === 9 && invalidNums.includes(n);
         let isDone = doneNums && doneNums.includes(n);
 
         let borderRadius: Record<string, string> = {

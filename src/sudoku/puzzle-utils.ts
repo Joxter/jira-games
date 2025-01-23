@@ -46,7 +46,6 @@ export function generateFromSchema(schema: string): MyPuzzle {
       originalCoordinates.push([rowI, colI]);
     });
   });
-  console.log(originalCoordinates);
 
   let boxes = Object.fromEntries(chars.map((ch) => [ch, [] as number[]]));
   let rows = chars.map(() => [] as number[]);
@@ -87,8 +86,6 @@ export function generateFromSchema(schema: string): MyPuzzle {
 
     return borders;
   }
-
-  console.log(boxes);
 
   return {
     getBorders,
