@@ -6,9 +6,11 @@ import { en } from "./en";
 type LocalDict = typeof ru;
 en satisfies LocalDict;
 
+type Languages = "EN" | "RU";
+
 const LS_KEY = "sudoku-locale-key";
 
-export const localeChanged = createEvent<"EN" | "RU">();
+export const localeChanged = createEvent<Languages>();
 export const $locale = restore(localeChanged, getFromLS());
 
 $locale.updates.watch((locale) => {
@@ -18,14 +20,14 @@ $locale.updates.watch((locale) => {
 export function useLocale() {
   const locale = useUnit($locale);
 
-  if (locale === "ru") return ru;
+  if (locale === "RU") return ru;
   return en;
 }
 
-export function narrowLocale(it: any) {
-  if (it === "ru") return "ru";
+export function narrowLocale(it: any): Languages {
+  if (it === "RU") return "RU";
 
-  return "en";
+  return "EN";
 }
 
 function getFromLS() {

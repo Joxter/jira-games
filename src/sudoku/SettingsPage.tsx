@@ -9,6 +9,7 @@ import { useUnit } from "effector-react";
 import css from "./SettingsPage.module.css";
 import { useState } from "react";
 import { Switch } from "../ui/Switch/Switch.tsx";
+import { RadioGroup } from "../ui/RadioGroup/RadioGroup.tsx";
 
 export function SettingPage() {
   const [currentLocale] = useUnit([$locale]);
@@ -35,20 +36,14 @@ export function SettingPage() {
 
         <div className={css.section}>
           <h3>{t.language}</h3>
-          <div className={css.languageGroup}>
-            {(["RU", "EN"] as const).map((lang) => (
-              <label key={lang} className={css.radioLabel}>
-                <input
-                  type="radio"
-                  name="language"
-                  value={lang}
-                  checked={currentLocale === lang}
-                  onChange={() => localeChanged(lang)}
-                />
-                {lang}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            value={currentLocale}
+            options={[
+              { label: "RU", value: "RU" },
+              { label: "EN", value: "EN" },
+            ]}
+            onChange={(val) => localeChanged(val)}
+          />
         </div>
 
         <div className={css.section}>

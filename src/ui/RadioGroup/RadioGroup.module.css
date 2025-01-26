@@ -1,0 +1,75 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.label {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.optionsContainer {
+  display: grid;
+  gap: 1em;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.radioSwitch {
+  position: relative;
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+}
+
+.radioSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 2px solid var(--switch-passive-color, #ccc);
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.radioSwitch input:checked + .slider {
+  background-color: var(--switch-active-color, #2196f3);
+  border-color: var(--switch-active-color, #2196f3);
+}
+
+.radioSwitch input:checked + .slider:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.4em;
+  height: 0.4em;
+  background-color: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s;
+}
+
+.radioSwitch input:checked + .slider:before {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.text {
+  font-size: 1em;
+  line-height: 1;
+  margin-left: 0.5em;
+}
