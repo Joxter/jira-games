@@ -6,35 +6,81 @@ import {
   useLocale,
 } from "./locale/locale.model.ts";
 import { useUnit } from "effector-react";
+import css from "./SettingsPage.module.css";
+import { useState } from "react";
+import { Switch } from "../ui/Switch/Switch.tsx";
 
 export function SettingPage() {
   const [currentLocale] = useUnit([$locale]);
   let t = useLocale();
 
+  const [highlights, setHighlights] = useState({
+    rowsCols: false,
+    currentNumber: false,
+    lastSelected: false,
+  });
+
+  const handleHighlightToggle = (key) => {
+    setHighlights((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+  const [showTime, setShowTime] = useState(false);
+
   return (
     <Layout>
-      <h2>{t.setting}</h2>
+      <div className={css.root}>
+        <h2 className={css.title}>{t.setting}</h2>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          width: "100%",
-        }}
-      >
-        <p>{t.language}</p>
-        <select
-          value={currentLocale}
-          onChange={(ev) => {
-            // @ts-ignore
-            const l = ev.target?.value;
+        <div className={css.section}>
+          <h3>{t.language}</h3>
+          <div className={css.languageGroup}>
+            {(["RU", "EN"] as const).map((lang) => (
+              <label key={lang} className={css.radioLabel}>
+                <input
+                  type="radio"
+                  name="language"
+                  value={lang}
+                  checked={currentLocale === lang}
+                  onChange={() => localeChanged(lang)}
+                />
+                {lang}
+              </label>
+            ))}
+          </div>
+        </div>
 
-            localeChanged(narrowLocale(l));
-          }}
-        >
-          <option value={"ru"}>Русский</option>
-          <option value={"en"}>English</option>
-        </select>
+        <div className={css.section}>
+          <h3>Highlights</h3>
+          <div className={css.checkboxGroup}>
+            <Switch
+              value={highlights.rowsCols}
+              onChange={() => handleHighlightToggle("rowsCols")}
+            >
+              Rows + Columns + Box
+            </Switch>
+            <Switch
+              value={highlights.currentNumber}
+              onChange={() => handleHighlightToggle("currentNumber")}
+            >
+              Current Selected Number
+            </Switch>
+            <Switch
+              value={highlights.lastSelected}
+              onChange={() => handleHighlightToggle("lastSelected")}
+            >
+              Last Selected Number
+            </Switch>
+          </div>
+        </div>
+
+        <div className={css.section}>
+          <h3>Display</h3>
+          <Switch value={showTime} onChange={() => setShowTime(!showTime)}>
+            Show Time
+          </Switch>
+        </div>
       </div>
     </Layout>
   );

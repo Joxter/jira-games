@@ -8,7 +8,7 @@ en satisfies LocalDict;
 
 const LS_KEY = "sudoku-locale-key";
 
-export const localeChanged = createEvent<"en" | "ru">();
+export const localeChanged = createEvent<"EN" | "RU">();
 export const $locale = restore(localeChanged, getFromLS());
 
 $locale.updates.watch((locale) => {
