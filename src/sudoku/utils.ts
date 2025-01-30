@@ -5,6 +5,8 @@ import {
   ChangeCellProps,
   Field,
   History,
+  Layout,
+  LS_HISTORY_KEY,
   WinsPersistent,
 } from "./types";
 import { Difficulty } from "./lib";
@@ -157,6 +159,9 @@ export const difToLocale = {
 } as const;
 
 export function saveWinToLS(puzzle: string) {
+  console.warn("not implemented");
+  return;
+
   try {
     let wins = getWinsFromLS();
 
@@ -180,7 +185,7 @@ export function saveHistoryToLS(history: History) {
       saved.push(history);
     }
 
-    localStorage.setItem(`sudoku-history`, JSON.stringify(saved));
+    localStorage.setItem(LS_HISTORY_KEY, JSON.stringify(saved));
     return true;
   } catch (err) {
     console.error(err);
@@ -189,7 +194,7 @@ export function saveHistoryToLS(history: History) {
 }
 
 export function resetLS() {
-  localStorage.removeItem("sudoku-history");
+  localStorage.removeItem(LS_HISTORY_KEY);
   // localStorage.removeItem("sudoku-wins");
 }
 
@@ -198,7 +203,7 @@ export function removeFromHistoryLS(puzzle: string) {
     let saved = getSavedFromLS();
 
     localStorage.setItem(
-      `sudoku-history`,
+      LS_HISTORY_KEY,
       JSON.stringify(saved.filter((it) => it.puzzle !== puzzle)),
     );
   } catch (err) {
@@ -209,7 +214,7 @@ export function removeFromHistoryLS(puzzle: string) {
 
 export function getSavedFromLS(): History[] {
   try {
-    let historyRaw = JSON.parse(localStorage.getItem("sudoku-history") || "[]");
+    let historyRaw = JSON.parse(localStorage.getItem(LS_HISTORY_KEY) || "[]");
     if (Array.isArray(historyRaw)) {
       return historyRaw;
     } else if (historyRaw.puzzle && historyRaw.history) {
@@ -268,11 +273,9 @@ export function getHighlightCells(current: number | null) {
 }
 
 export function isValidPuzzle(puzzle: number[]): boolean {
-  return (
-    puzzle.every((it) => {
-      return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(it);
-    }) && puzzle.length === 81
-  );
+  return puzzle.every((it) => {
+    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].includes(it);
+  });
 }
 
 export function fieldToLayout(field: number[]): [number, number][][] {
@@ -434,7 +437,7 @@ function parseToField(str: string) {
   return str.split("").map((it) => +it);
 }
 
-export function getPuzzleFromUrl(): Field | null {
+export function getPuzzleFromUrl(): { field: Field; layout: Layout } | null {
   let url = new URL(window.location.href);
   let puzzle = url.searchParams.get("puzzle");
 
@@ -442,7 +445,14 @@ export function getPuzzleFromUrl(): Field | null {
     let puzzleRaw = puzzle.split("").map((it) => +it);
 
     if (isValidPuzzle(puzzleRaw)) {
-      return puzzleRaw;
+      if (puzzleRaw.length === 81)
+        return { field: puzzleRaw, layout: "classic9" };
+
+      if (puzzleRaw.length === 36)
+        return { field: puzzleRaw, layout: "simple6" };
+
+      if (puzzleRaw.length === 16)
+        return { field: puzzleRaw, layout: "simple4" };
     }
   }
 

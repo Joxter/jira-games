@@ -1,5 +1,6 @@
 export const en = {
   new_puzzle: "New puzzle",
+  select_difficulty: "Difficulty",
   difficulty: {
     "1": "easy",
     "2": "medium",

@@ -12,6 +12,8 @@
   --gray-bg: #f2f3f6;
   --switch-passive-color: #e9eaec;
   --switch-active-color: #8c0046;
+
+  --primary-color: #8c0046;
 }
 
 * {

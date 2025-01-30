@@ -10,15 +10,15 @@ const initP = getPuzzleFromUrl();
 const allHistory = getSavedFromLS();
 
 if (initP) {
-  let savedLogs = allHistory.find((it) => initP.join("") === it.puzzle);
+  let savedLogs = allHistory.find((it) => initP.field.join("") === it.puzzle);
 
   if (savedLogs) {
-    initSudoku([initP.join(""), allHistory]);
+    initSudoku([savedLogs.puzzle, allHistory, savedLogs.layout]);
   } else {
-    initSudoku([null, allHistory]);
+    initSudoku([null, allHistory, null]);
   }
 } else {
-  initSudoku([null, allHistory]);
+  initSudoku([null, allHistory, null]);
 }
 
 export function SudokuRouter() {

@@ -17,7 +17,7 @@ import {
 import { useUnit } from "effector-react";
 import { useEffect, useMemo, useRef } from "react";
 import { Cell } from "./Components";
-import { generateFromSchema } from "./puzzle-utils.ts";
+import { Layouts } from "./types.ts";
 
 let viewPortSize = Math.min(visualViewport?.width || 400, 400);
 
@@ -72,21 +72,6 @@ export function Field() {
     };
   }, []);
 
-  const borders = useMemo(() => {
-    let schema = `
-111222333
-111222333
-111222333
-444555666
-444555666
-444555666
-777888999
-777888999
-777888999
-`;
-    return generateFromSchema(schema).getBorders(borderSize, cellSize);
-  }, [borderSize, cellSize]);
-
   if (!candidates || !field) return <p>no field</p>;
 
   return (
@@ -98,8 +83,16 @@ export function Field() {
 
         gap: `${borderSize}px`,
         padding: `${borderSize}px`,
-        gridTemplateColumns: `repeat(9, ${cellSize}px)`,
-        width: `calc(9 * ${cellSize}px + 10 * ${borderSize}px)`,
+        gridTemplateColumns: {
+          classic9: `repeat(9, ${cellSize}px)`,
+          simple6: `repeat(6, ${cellSize}px)`,
+          simple4: `repeat(4, ${cellSize}px)`,
+        }[puzzle.layout],
+        width: {
+          classic9: `${cellSize * 9 + borderSize * 10}px`,
+          simple6: `${cellSize * 6 + borderSize * 7}px`,
+          simple4: `${cellSize * 4 + borderSize * 5}px`,
+        }[puzzle.layout],
       }}
       ref={fieldRef}
       onKeyDown={(ev) => {
@@ -137,20 +130,22 @@ export function Field() {
         }
       }}
     >
-      {borders.map((b, i) => {
-        return (
-          <div
-            key={i}
-            className={css.darkBorder}
-            style={{
-              left: `${b.left}px`,
-              top: `${b.top}px`,
-              width: `${b.width}px`,
-              height: `${b.height}px`,
-            }}
-          />
-        );
-      })}
+      {Layouts[puzzle.layout].schema
+        .getBorders(borderSize, cellSize)
+        .map((b, i) => {
+          return (
+            <div
+              key={i}
+              className={css.darkBorder}
+              style={{
+                left: `${b.left}px`,
+                top: `${b.top}px`,
+                width: `${b.width}px`,
+                height: `${b.height}px`,
+              }}
+            />
+          );
+        })}
       {field.map((value, index) => {
         return (
           <Cell
@@ -158,7 +153,7 @@ export function Field() {
             candidates={candidates[index]}
             key={index}
             index={index}
-            isPuzzle={puzzle[index] !== "0"}
+            isPuzzle={puzzle.puzzle[index] !== "0"}
             isCurrent={current === index}
             isSame={
               (value &&

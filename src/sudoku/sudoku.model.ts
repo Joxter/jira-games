@@ -5,7 +5,7 @@ import {
   createStore,
   sample,
 } from "effector";
-import { Action, ChangeCellProps, History } from "./types";
+import { Action, ChangeCellProps, Field, History, Layout } from "./types";
 import {
   applyStepsForNumbers,
   applyStepsForCandidates,
@@ -17,9 +17,38 @@ import {
   fastSolve,
 } from "./utils";
 import { getPuzzles } from "./puzzles/puzzles.ts";
+import { Difficulty } from "./lib";
 
-export const $puzzleList = createStore(getPuzzles());
-export const $puzzle = createStore<string>("");
+const simple6sudoku = "030400005603000100010305064031001046"
+  .split("")
+  .map((it) => +it);
+const simple4sudoku = "0100300140020040".split("").map((it) => +it);
+
+export const $puzzleList = createStore<
+  Record<Layout, Record<Difficulty, Field[]>>
+>({
+  classic9: getPuzzles(),
+  simple6: {
+    easy: [simple6sudoku],
+    medium: [simple6sudoku],
+    hard: [simple6sudoku],
+    expert: [simple6sudoku],
+    master: [simple6sudoku],
+  },
+  simple4: {
+    easy: [simple4sudoku],
+    medium: [simple4sudoku],
+    hard: [simple4sudoku],
+    expert: [simple4sudoku],
+    master: [simple4sudoku],
+  },
+} as const);
+export const $currentLayout = createStore<Layout>("classic9");
+export const $puzzle = createStore<{ puzzle: string; layout: Layout }>({
+  layout: "classic9",
+  puzzle: "",
+});
+
 export const $currentLogs = createStore<History | null>(null);
 export const $allHistory = createStore<History[]>([]);
 
@@ -39,10 +68,12 @@ export const winClicked = createEvent();
 export const winCloseClicked = createEvent();
 export const seveToPuzzleToLS = createEvent<any>();
 
-export const puzzleSelected = createEvent<string>();
+export const puzzleSelected = createEvent<{ puzzle: string; layout: Layout }>();
+export const layoutSelected = createEvent<Layout>();
 export const addSecToTime = createEvent();
 export const openWinModal = createEvent();
-export const initSudoku = createEvent<[string | null, History[]]>();
+export const initSudoku =
+  createEvent<[string | null, History[], Layout | null]>();
 
 // gameplay
 export const arrowClicked = createEvent<string>();
@@ -55,8 +86,9 @@ export const showCellError = createEvent<number[]>();
 
 $inputMode.on(inputModeChanged, (_, s) => s);
 
-export const $solved = $puzzle.map((p) => {
-  return p ? fastSolve(p.split("").map((a) => +a)) : null;
+export const $solved = $puzzle.map(({ puzzle }) => {
+  // todo fix fastSolve
+  return puzzle ? fastSolve(puzzle.split("").map((a) => +a)) : null;
 });
 
 sample({
@@ -138,7 +170,7 @@ $currentLogs
     let current = allHistory.find((it) => it.puzzle === initPuzzle);
     return current || state;
   })
-  .on(puzzleSelected, (_, puzzle): History => {
+  .on(puzzleSelected, (_, { puzzle, layout }): History => {
     let savedHistory = getSavedFromLS();
 
     let currentLogs = savedHistory.find((it) => it.puzzle === puzzle);
@@ -147,6 +179,7 @@ $currentLogs
       return currentLogs;
     } else {
       return {
+        layout,
         puzzle,
         current: -1,
         steps: [],
@@ -162,12 +195,14 @@ $allHistory.on(initSudoku, (state, [, allHistory]) => {
   return allHistory;
 });
 
+$currentLayout.on(layoutSelected, (_, l) => l);
+
 $puzzle
-  .on(puzzleSelected, (state, puzzleStr) => {
-    return puzzleStr;
+  .on(puzzleSelected, (state, { puzzle, layout }) => {
+    return { puzzle, layout };
   })
-  .on(initSudoku, (state, [puzzle]) => {
-    return puzzle || state;
+  .on(initSudoku, (state, [puzzle, _, layout]) => {
+    return puzzle && layout ? { puzzle, layout } : state;
   });
 
 $currentCell
@@ -208,6 +243,7 @@ sample({
 export const $field = $currentLogs.map((history) => {
   return history ? applyStepsForNumbers(history) : null;
 });
+
 export const $candidates = $currentLogs.map((history) => {
   return history ? applyStepsForCandidates(history) : null;
 });
@@ -221,7 +257,7 @@ export const payerWins = $isWin.updates.filter({
 
 sample({ clock: payerWins, target: openWinModal });
 
-sample({ source: $puzzle, clock: payerWins }).watch((puzzle) => {
+sample({ source: $puzzle, clock: payerWins }).watch(({ puzzle }) => {
   saveWinToLS(puzzle);
 });
 

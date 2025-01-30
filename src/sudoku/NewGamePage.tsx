@@ -1,5 +1,10 @@
 import { useUnit } from "effector-react";
-import { $puzzleList, puzzleSelected } from "./sudoku.model";
+import {
+  $puzzleList,
+  $currentLayout,
+  puzzleSelected,
+  layoutSelected,
+} from "./sudoku.model";
 import css from "./PuzzlePage.module.css";
 import { all_difficulties } from "./lib/constants";
 import {
@@ -11,14 +16,15 @@ import {
   removeFromHistoryLS,
 } from "./utils";
 import { Difficulty } from "./lib";
-import { Field } from "./types";
+import { Field, Layouts } from "./types";
 import { Time } from "./Components";
 import { useLocale } from "./locale/locale.model";
 import { Link } from "wouter";
 import { Layout } from "./components/Layout.tsx";
+import { Button } from "../ui/Button.tsx";
 
 export function NewGamePage() {
-  const [puzzleList] = useUnit([$puzzleList]);
+  const [puzzleList, currentLayout] = useUnit([$puzzleList, $currentLayout]);
 
   let wins = getWinsFromLS();
   let allHistory = getSavedFromLS().filter((it) => {
@@ -26,16 +32,39 @@ export function NewGamePage() {
   });
   let locale = useLocale();
 
-  const newPuzzles = getUnsolvedPuzzles(puzzleList);
-
   return (
     <Layout>
       <div className={css.homePage}>
+        <div>
+          <h2>Layout</h2>
+          <div
+            style={{
+              display: "flex",
+              gap: "4px",
+              marginTop: "8px",
+            }}
+          >
+            {Object.values(Layouts).map(({ schema, name }) => {
+              return (
+                <Button
+                  selected={currentLayout === name}
+                  onClick={() => {
+                    layoutSelected(name);
+                  }}
+                >
+                  {name}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
         <div className={css.newGames}>
-          <h2>{locale.new_puzzle}</h2>
+          <h2>{locale.select_difficulty}</h2>
 
           {all_difficulties.map((difficulty) => {
-            let puzzleStr = newPuzzles[difficulty].join("");
+            let puzzleStr = randomFrom(
+              puzzleList[currentLayout][difficulty],
+            ).join("");
             let localeKey = difToLocale[difficulty];
 
             return (
@@ -44,7 +73,7 @@ export function NewGamePage() {
                 className={css.startNew}
                 key={difficulty}
                 onClick={() => {
-                  puzzleSelected(puzzleStr);
+                  puzzleSelected({ puzzle: puzzleStr, layout: currentLayout });
                 }}
               >
                 {locale.difficulty[localeKey]}
@@ -54,14 +83,17 @@ export function NewGamePage() {
           {allHistory.length > 0 && (
             <>
               <h2>{locale.unfinished}</h2>
-              {allHistory.map(({ puzzle, time }, i) => {
-                let localeKey = difToLocale[getDifficulty(puzzleList, puzzle)];
-                puzzleSelected(puzzle);
+              {allHistory.map(({ puzzle, time, layout }, i) => {
+                let localeKey =
+                  difToLocale[getDifficulty(puzzleList[currentLayout], puzzle)];
+                puzzleSelected({ puzzle, layout: "classic9" });
 
                 return (
                   <p className={css.continue} key={i + puzzle}>
                     <Link href={"/current-game?puzzle=" + puzzle}>
-                      {locale.difficulty[localeKey] || "unknown difficulty"} (
+                      {layout}{" "}
+                      {locale.difficulty[localeKey] || "unknown difficulty"}
+                      (
                       <Time time={time} />)
                     </Link>
                     <button

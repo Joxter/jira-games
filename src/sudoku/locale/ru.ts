@@ -1,5 +1,6 @@
 export const ru = {
   new_puzzle: "Новая игра",
+  select_difficulty: "Сложность",
   difficulty: {
     "1": "легко",
     "2": "средне",

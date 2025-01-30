@@ -5,7 +5,7 @@ type Index = number;
 // init: string[];
 // answer: string[];
 
-type MyPuzzle = {
+export type MyPuzzle = {
   power: number;
   //
   rows: Array<Index[]>;
