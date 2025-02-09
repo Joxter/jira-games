@@ -28,13 +28,13 @@ export function SudokuRouter() {
   return (
     <>
       {false && <DebugLS />}
-      <Router base={prefix}>
+      <Router>
         <Switch>
-          <Route path="/" component={NewGamePage} />
-          <Route path="/new-game" component={NewGamePage} />
-          <Route path="/current-game" component={PuzzlePage} />
-          <Route path="/settings" component={SettingPage} />
-          <Route path="/debug" component={DebugLS} />
+          <Route path={prefix + ""} component={NewGamePage} />
+          <Route path={prefix + "/new-game"} component={NewGamePage} />
+          <Route path={prefix + "/current-game"} component={PuzzlePage} />
+          <Route path={prefix + "/settings"} component={SettingPage} />
+          <Route path={prefix + "/debug"} component={DebugLS} />
           <Route path="*" component={NotFound} />
         </Switch>
       </Router>
