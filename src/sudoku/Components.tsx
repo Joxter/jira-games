@@ -1,6 +1,6 @@
 import { cn } from "../unit";
 import css from "./PuzzlePage.module.css";
-import { formatTime, viewCandidates } from "./utils";
+import { formatTime, prefix, viewCandidates } from "./utils";
 import { useEffect, useRef } from "react";
 import { $currentLogs, openWinModal, winCloseClicked } from "./sudoku.model";
 import { useUnit } from "effector-react/effector-react.umd";
@@ -145,7 +145,7 @@ export function WinModal() {
         Your time: <Time />
       </p>
       <Link
-        href="/"
+        href={prefix + "/"}
         onClick={() => {
           winCloseClicked();
         }}

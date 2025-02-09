@@ -32,6 +32,9 @@ export const CANDIDATES = [
   1 << 9,
 ];
 
+export const prefix =
+  location.origin === "https://joxter.github.io" ? "/jira-games" : "";
+
 export function applyStepsForNumbers(history: History): Field {
   const res = parseToField(history.puzzle);
   let { current, steps } = history;

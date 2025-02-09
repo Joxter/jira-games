@@ -12,6 +12,7 @@ import {
   getDifficulty,
   getSavedFromLS,
   getWinsFromLS,
+  prefix,
   randomFrom,
   removeFromHistoryLS,
 } from "./utils";
@@ -69,7 +70,7 @@ export function NewGamePage() {
 
             return (
               <Link
-                href={"/current-game?puzzle=" + puzzleStr}
+                href={prefix + "/current-game?puzzle=" + puzzleStr}
                 className={css.startNew}
                 key={difficulty}
                 onClick={() => {
@@ -90,7 +91,7 @@ export function NewGamePage() {
 
                 return (
                   <p className={css.continue} key={i + puzzle}>
-                    <Link href={"/current-game?puzzle=" + puzzle}>
+                    <Link href={prefix + "/current-game?puzzle=" + puzzle}>
                       {layout}{" "}
                       {locale.difficulty[localeKey] || "unknown difficulty"}
                       (

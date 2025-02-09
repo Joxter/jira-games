@@ -8,7 +8,7 @@ import {
 } from "./sudoku.model";
 import { useUnit } from "effector-react";
 import { useEffect, useRef } from "react";
-import { fastSolve } from "./utils";
+import { fastSolve, prefix } from "./utils";
 import { WinModal } from "./Components";
 import { useLocale } from "./locale/locale.model";
 import { Field, revealAnimation } from "./Field.tsx";
@@ -59,7 +59,7 @@ export function PuzzlePage() {
   return (
     <Layout>
       <div>
-        <Link href="/new-game">{locale.close}</Link>
+        <Link href={prefix + "/new-game"}>{locale.close}</Link>
       </div>
       <br />
 

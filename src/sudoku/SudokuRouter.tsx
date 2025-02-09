@@ -2,7 +2,7 @@ import { initSudoku } from "./sudoku.model";
 import { useEffect, useState } from "react";
 import { PuzzlePage } from "./PuzzlePage";
 import { NewGamePage } from "./NewGamePage.tsx";
-import { getPuzzleFromUrl, getSavedFromLS, resetLS } from "./utils";
+import { getPuzzleFromUrl, getSavedFromLS, prefix, resetLS } from "./utils";
 import { Route, Router, Switch } from "wouter";
 import { SettingPage } from "./SettingsPage.tsx";
 
@@ -20,9 +20,6 @@ if (initP) {
 } else {
   initSudoku([null, allHistory, null]);
 }
-
-const prefix =
-  location.origin === "https://joxter.github.io" ? "/jira-games" : "";
 
 export function SudokuRouter() {
   return (
