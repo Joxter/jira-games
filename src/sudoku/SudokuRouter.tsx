@@ -69,3 +69,9 @@ function DebugLS() {
     </div>
   );
 }
+
+if (window.location.href.includes("/jira-games/?/")) {
+  window.location.replace(
+    location.href.replace("/jira-games/?/", "").replace("&", "?"),
+  );
+}
