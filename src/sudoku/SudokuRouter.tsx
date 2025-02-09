@@ -21,13 +21,14 @@ if (initP) {
   initSudoku([null, allHistory, null]);
 }
 
+const prefix =
+  location.origin === "https://joxter.github.io" ? "/jira-games" : "";
+
 export function SudokuRouter() {
   return (
     <>
       {false && <DebugLS />}
-      <Router
-        base={window.location.hostname === "localhost" ? "" : "/jira-games"}
-      >
+      <Router base={prefix}>
         <Switch>
           <Route path="/" component={NewGamePage} />
           <Route path="/new-game" component={NewGamePage} />
